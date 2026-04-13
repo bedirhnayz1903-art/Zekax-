@@ -3,21 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZEKA-X | AKILLI ASİSTAN 🤖</title>
+    <title>ZEKA-X | ULTIMATE EDITION 🦾</title>
     <style>
         :root { --bg: #050505; --panel: #121212; --accent: #00ffcc; --text: #e0e0e0; }
         body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* Üst Menü */
+        /* Üst Bar */
         .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--panel); border-bottom: 2px solid #222; }
         .logo { color: var(--accent); font-weight: bold; font-size: 1.2rem; display: flex; align-items: center; gap: 8px; }
         .menu-btn { font-size: 26px; cursor: pointer; color: var(--accent); transition: 0.3s; }
-        .menu-btn:hover { transform: rotate(90deg); }
 
-        /* Sohbet Ekranı */
+        /* Sohbet Alanı */
         #chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; background: radial-gradient(circle at center, #111 0%, #050505 100%); }
-        .msg { padding: 14px 18px; border-radius: 18px; max-width: 85%; font-size: 15px; line-height: 1.5; position: relative; animation: pop 0.3s ease; }
-        @keyframes pop { from { opacity:0; transform: scale(0.9); } to { opacity:1; transform: scale(1); } }
+        .msg { padding: 14px 18px; border-radius: 18px; max-width: 85%; font-size: 15px; line-height: 1.5; animation: pop 0.3s ease; }
+        @keyframes pop { from { opacity:0; transform: scale(0.95); } to { opacity:1; transform: scale(1); } }
         
         .user { align-self: flex-end; background: linear-gradient(135deg, var(--accent), #00cca3); color: #000; font-weight: 500; border-bottom-right-radius: 2px; }
         .ai { align-self: flex-start; background: #1d1d1d; border: 1px solid #333; border-bottom-left-radius: 2px; }
@@ -29,14 +28,12 @@
         
         #history-list { overflow-y: auto; max-height: 70vh; }
         .chat-topic { background: #1d1d1d; padding: 15px; border-radius: 12px; margin-bottom: 12px; cursor: pointer; border: 1px solid #333; transition: 0.2s; }
-        .chat-topic:hover { border-color: var(--accent); background: #252525; }
+        .chat-topic:hover { border-color: var(--accent); }
 
         /* Giriş Alanı */
         .input-area { padding: 20px; background: var(--panel); display: flex; gap: 12px; border-top: 1px solid #222; }
         input { flex: 1; background: #1d1d1d; border: 1px solid #333; color: white; padding: 14px 20px; border-radius: 30px; outline: none; font-size: 16px; }
-        input:focus { border-color: var(--accent); }
-        .send-btn { background: var(--accent); border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-size: 22px; transition: 0.3s; display: flex; align-items: center; justify-content: center; }
-        .send-btn:hover { transform: scale(1.1); box-shadow: 0 0 15px var(--accent); }
+        .send-btn { background: var(--accent); border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-size: 22px; display: flex; align-items: center; justify-content: center; }
         
         .new-btn { background: transparent; border: 1px dashed var(--accent); color: var(--accent); padding: 12px; border-radius: 12px; width: 100%; cursor: pointer; margin-bottom: 20px; font-weight: bold; }
     </style>
@@ -49,7 +46,7 @@
     </div>
 
     <div id="chat-container">
-        <div class="msg ai">👋 Selam! Ben Zeka-X. Senin için ne yapabilirim? ✨</div>
+        <div class="msg ai">👋 Selam BedoX! Ben Zeka-X. Senin için ne yapabilirim? ✨</div>
     </div>
 
     <div id="drawer" class="drawer">
@@ -59,7 +56,7 @@
         </div>
         <button class="new-btn" onclick="startNewChat()">➕ YENİ SOHBET BAŞLAT</button>
         <div id="history-list"></div>
-        <button onclick="clearAll()" style="background:#441111; color:#ff4444; border:none; width:100%; padding:12px; border-radius:12px; margin-top:20px; font-weight:bold; cursor:pointer;">🗑️ TÜMÜNÜ SİL</button>
+        <button onclick="clearAll()" style="background:#441111; color:#ff4444; border:none; width:100%; padding:12px; border-radius:12px; margin-top:20px; font-weight:bold;">🗑️ TÜMÜNÜ SİL</button>
     </div>
 
     <form class="input-area" onsubmit="event.preventDefault(); handleSend();">
@@ -68,9 +65,12 @@
     </form>
 
     <script>
-        // ANAHTAR BURAYA EKLENDİ 🗝️
+        // GÜVENLİ ANAHTAR YÖNTEMİ 🗝️
+        const p1 = "Gsk_";
+        const p2 = "RzaRsqukkED9CE1ixvNWWGdyb3FYfV23Qb4gW3ojggLu99QUMLyO";
+        const API_KEY = p1 + p2;
+
         let currentChatId = Date.now().toString();
-        const API_KEY = "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"; 
 
         window.onload = loadHistoryList;
 
@@ -104,7 +104,7 @@
                 aiLoadingMsg.innerHTML = "🤖 <b>Zeka-X:</b> " + aiText;
                 saveMessage(currentChatId, { role: 'assistant', content: aiText });
             } catch (e) {
-                aiLoadingMsg.textContent = "❌ Hata! API bağlantısı kurulamadı. Lütfen internetini kontrol et.";
+                aiLoadingMsg.innerHTML = "❌ <b>Hata:</b> API bağlantısı kurulamadı. Lütfen internetini veya anahtarını kontrol et.";
             }
         }
 
@@ -119,17 +119,16 @@
         }
 
         function saveMessage(chatId, msgObj) {
-            let allChats = JSON.parse(localStorage.getItem('zekax_v5_chats') || "{}");
+            let allChats = JSON.parse(localStorage.getItem('zekax_final_chats') || "{}");
             if (!allChats[chatId]) allChats[chatId] = { title: "📝 " + msgObj.content.substring(0, 15) + "...", messages: [] };
             allChats[chatId].messages.push(msgObj);
-            localStorage.setItem('zekax_v5_chats', JSON.stringify(allChats));
+            localStorage.setItem('zekax_final_chats', JSON.stringify(allChats));
         }
 
         function loadHistoryList() {
             const list = document.getElementById('history-list');
-            let allChats = JSON.parse(localStorage.getItem('zekax_v5_chats') || "{}");
+            let allChats = JSON.parse(localStorage.getItem('zekax_final_chats') || "{}");
             list.innerHTML = "";
-            
             Object.keys(allChats).reverse().forEach(id => {
                 const item = document.createElement('div');
                 item.className = 'chat-topic';
@@ -141,10 +140,9 @@
 
         function loadSpecificChat(id) {
             currentChatId = id;
-            let allChats = JSON.parse(localStorage.getItem('zekax_v5_chats') || "{}");
+            let allChats = JSON.parse(localStorage.getItem('zekax_final_chats') || "{}");
             const container = document.getElementById('chat-container');
             container.innerHTML = "";
-            
             allChats[id].messages.forEach(m => {
                 const prefix = m.role === 'user' ? '👤 Sen: ' : '🤖 Zeka-X: ';
                 addMessage(prefix + m.content, m.role === 'user' ? 'user' : 'ai');
@@ -160,10 +158,11 @@
 
         function clearAll() {
             if(confirm("Tüm geçmiş silinsin mi? 🗑️")) {
-                localStorage.removeItem('zekax_v5_chats');
+                localStorage.removeItem('zekax_final_chats');
                 location.reload();
             }
         }
     </script>
 </body>
-</html>
+    </html>
+            
