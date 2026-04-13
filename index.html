@@ -2,70 +2,145 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ZEKA-X ELITE 🦾</title>
     <style>
-        :root { --bg: #050505; --accent: #00ffcc; --text: #e0e0e0; }
-        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; }
-        #chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
-        .msg { padding: 12px; border-radius: 15px; max-width: 80%; }
-        .user { align-self: flex-end; background: var(--accent); color: #000; }
-        .ai { align-self: flex-start; background: #222; }
-        .input-box { padding: 15px; background: #111; display: flex; gap: 10px; }
-        input { flex: 1; padding: 10px; border-radius: 20px; border: none; outline: none; background: #222; color: #fff; }
-        button { background: var(--accent); border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+        :root { --bg: #050505; --panel: #121212; --accent: #00ffcc; --text: #e0e0e0; }
+        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--panel); border-bottom: 2px solid #222; }
+        .logo { color: var(--accent); font-weight: bold; font-size: 1.2rem; }
+        #chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; background: radial-gradient(circle at center, #111 0%, #050505 100%); }
+        .msg { padding: 14px 18px; border-radius: 18px; max-width: 85%; font-size: 15px; animation: pop 0.3s ease; line-height: 1.4; }
+        @keyframes pop { from { opacity:0; transform: scale(0.95); } to { opacity:1; transform: scale(1); } }
+        .user { align-self: flex-end; background: linear-gradient(135deg, var(--accent), #00cca3); color: #000; font-weight: 500; border-bottom-right-radius: 2px; }
+        .ai { align-self: flex-start; background: #1d1d1d; border: 1px solid #333; border-bottom-left-radius: 2px; }
+        .drawer { position: fixed; top: 0; right: -100%; width: 85%; height: 100%; background: var(--panel); transition: 0.4s; z-index: 100; padding: 25px; box-sizing: border-box; border-left: 2px solid var(--accent); overflow-y: auto; }
+        .drawer.open { right: 0; }
+        .chat-topic { background: #1d1d1d; padding: 15px; border-radius: 12px; margin-bottom: 12px; cursor: pointer; border: 1px solid #333; font-size: 14px; }
+        .input-area { padding: 20px; background: var(--panel); display: flex; gap: 12px; border-top: 1px solid #222; }
+        input { flex: 1; background: #1d1d1d; border: 1px solid #333; color: white; padding: 14px 20px; border-radius: 30px; outline: none; }
+        .send-btn { background: var(--accent); border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-size: 22px; }
     </style>
 </head>
 <body>
-    <div style="padding:15px; background:#111; border-bottom:1px solid #333; display:flex; justify-content:space-between;">
-        <span style="color:var(--accent); font-weight:bold;">⚡ ZEKA-X 🦾</span>
-        <button onclick="localStorage.removeItem('groq_key'); location.reload();" style="font-size:10px; padding:5px;">ANAHTARI SIFIRLA</button>
+
+    <div class="header">
+        <div class="logo">⚡ ZEKA-X ELITE 🦾</div>
+        <div class="menu-btn" onclick="toggleDrawer()" style="cursor:pointer; color:var(--accent); font-size:26px;">☰</div>
     </div>
-    <div id="chat"></div>
-    <div class="input-box">
-        <input type="text" id="userInput" placeholder="Bir şey yaz...">
-        <button onclick="send()">🚀</button>
+
+    <div id="chat-container">
+        <div class="msg ai">👋 Selam BedoX! Zeka-X hazır. Bugün neler yapıyoruz? 🦅</div>
     </div>
+
+    <div id="drawer" class="drawer">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <span style="font-weight:bold; color:var(--accent);">📂 GEÇMİŞ</span>
+            <span onclick="toggleDrawer()" style="cursor:pointer; font-size:28px;">✕</span>
+        </div>
+        <button onclick="startNewChat()" style="width:100%; padding:12px; margin-bottom:20px; background:none; border:1px dashed var(--accent); color:var(--accent); border-radius:10px; font-weight:bold;">➕ YENİ SOHBET</button>
+        <button onclick="resetKey()" style="width:100%; padding:8px; margin-bottom:20px; background:#441111; color:#ff8888; border:none; border-radius:8px; font-size:12px;">🔑 ANAHTARI SIFIRLA</button>
+        <div id="history-list"></div>
+    </div>
+
+    <form class="input-area" onsubmit="event.preventDefault(); handleSend();">
+        <input type="text" id="userInput" placeholder="Zeka-X'e yaz... 🔥" autocomplete="off">
+        <button type="submit" class="send-btn">🚀</button>
+    </form>
 
     <script>
-        let key = localStorage.getItem('groq_key');
-        if (!key) {
-            key = prompt("Groq API Anahtarını (gsk_...) gir:");
-            if (key) localStorage.setItem('groq_key', key.trim());
+        let API_KEY = localStorage.getItem('groq_key');
+        let currentChatId = Date.now().toString();
+
+        if (!API_KEY) {
+            API_KEY = prompt("Lütfen Groq API Anahtarını yapıştırın:");
+            if (API_KEY) localStorage.setItem('groq_key', API_KEY.trim());
         }
 
-        async function send() {
+        function toggleDrawer() { 
+            document.getElementById('drawer').classList.toggle('open'); 
+            if(document.getElementById('drawer').classList.contains('open')) loadHistoryList(); 
+        }
+
+        async function handleSend() {
             const input = document.getElementById('userInput');
             const text = input.value.trim();
-            if (!text || !key) return;
+            if (!text || !API_KEY) return;
 
-            addMsg("👤 Sen: " + text, 'user');
+            addMessage(text, 'user');
             input.value = '';
-            const aiMsg = addMsg("🤖 Düşünüyorum...", 'ai');
+            saveMessage(currentChatId, { role: 'user', content: text });
 
+            const aiLoadingMsg = addMessage("🤖 Düşünüyorum... 💭", 'ai');
+            
             try {
-                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
-                    headers: { "Authorization": "Bearer " + key, "Content-Type": "application/json" },
+                    headers: { "Authorization": "Bearer " + API_KEY, "Content-Type": "application/json" },
                     body: JSON.stringify({ 
-                        model: "llama-3.3-70b-versatile", // En güncel model
-                        messages: [{ role: "user", content: text }] 
+                        model: "llama-3.3-70b-versatile", 
+                        messages: getChatHistory(currentChatId)
                     })
                 });
-                const data = await res.json();
-                if (data.choices) aiMsg.innerText = "🤖 Zeka-X: " + data.choices[0].message.content;
-                else throw new Error();
-            } catch {
-                aiMsg.innerText = "❌ Hata! Anahtarın yanlış olabilir veya Groq şu an yoğun.";
+
+                const data = await response.json();
+                const aiText = data.choices[0].message.content;
+                aiLoadingMsg.innerText = aiText;
+                saveMessage(currentChatId, { role: 'assistant', content: aiText });
+            } catch (e) { 
+                aiLoadingMsg.innerText = "❌ Hata: Bağlantı kesildi.";
             }
         }
 
-        function addMsg(t, c) {
-            const d = document.createElement('div');
-            d.className = 'msg ' + c;
-            d.innerText = t;
-            document.getElementById('chat').appendChild(d);
-            return d;
+        function addMessage(text, type) {
+            const div = document.createElement('div');
+            div.className = `msg ${type}`;
+            div.innerText = text;
+            const container = document.getElementById('chat-container');
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+            return div;
+        }
+
+        function saveMessage(chatId, msgObj) {
+            let allChats = JSON.parse(localStorage.getItem('zekax_history') || "{}");
+            if (!allChats[chatId]) allChats[chatId] = { title: msgObj.content.substring(0, 20) + "...", messages: [] };
+            allChats[chatId].messages.push(msgObj);
+            localStorage.setItem('zekax_history', JSON.stringify(allChats));
+        }
+
+        function getChatHistory(chatId) {
+            let allChats = JSON.parse(localStorage.getItem('zekax_history') || "{}");
+            return allChats[chatId] ? allChats[chatId].messages : [];
+        }
+
+        function loadHistoryList() {
+            const list = document.getElementById('history-list');
+            let allChats = JSON.parse(localStorage.getItem('zekax_history') || "{}");
+            list.innerHTML = "";
+            Object.keys(allChats).reverse().forEach(id => {
+                const item = document.createElement('div');
+                item.className = 'chat-topic';
+                item.innerHTML = `<b>${allChats[id].title}</b>`;
+                item.onclick = () => {
+                    currentChatId = id;
+                    document.getElementById('chat-container').innerHTML = "";
+                    allChats[id].messages.forEach(m => addMessage(m.content, m.role === 'user' ? 'user' : 'ai'));
+                    toggleDrawer();
+                };
+                list.appendChild(item);
+            });
+        }
+
+        function startNewChat() {
+            currentChatId = Date.now().toString();
+            document.getElementById('chat-container').innerHTML = '<div class="msg ai">✨ Yeni bir sayfa açıldı! Sorunu bekliyorum. 🚀</div>';
+            toggleDrawer();
+        }
+
+        function resetKey() {
+            localStorage.removeItem('groq_key');
+            location.reload();
         }
     </script>
 </body>
