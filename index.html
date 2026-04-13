@@ -34,19 +34,14 @@
         .input-row { display: flex; gap: 10px; align-items: center; }
         input { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 16px 20px; border-radius: 35px; outline: none; }
         
-        /* 🎤 Ses Butonu ve Efekti */
-        .voice-btn-container { position: relative; display: flex; align-items: center; gap: 10px; }
-        .action-btn { background: #222; color: var(--accent); border: 1px solid #444; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; transition: 0.3s; z-index: 10; }
-        .action-btn.active { background: #ff0000; color: white; border-color: #ff0000; box-shadow: 0 0 20px rgba(255,0,0,0.5); }
-        .voice-status { font-size: 12px; color: #ff0000; font-weight: bold; opacity: 0; transition: 0.3s; }
-        .action-btn.active + .voice-status { opacity: 1; }
+        .action-btn { background: #222; color: var(--accent); border: 1px solid #444; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; transition: 0.3s; }
+        .action-btn.active { background: #ff0000; color: white; border-color: #ff0000; box-shadow: 0 0 15px rgba(255,0,0,0.5); }
 
         .send-btn { background: var(--accent); width: 50px; height: 50px; border: none; border-radius: 50%; cursor: pointer; color: #000; font-size: 24px; box-shadow: 0 0 10px var(--accent); }
-
+        
         .drawer { position: fixed; top: 0; right: -100%; width: 85%; height: 100%; background: var(--panel); transition: 0.5s ease; z-index: 500; padding: 25px; box-sizing: border-box; border-left: 4px solid var(--accent); }
         .drawer.open { right: 0; }
-        .hidden { display: none !important; }
-        .ai-img { width: 100%; border-radius: 18px; margin-top: 10px; }
+        .ai-img { width: 100%; border-radius: 18px; margin-top: 10px; border: 2px solid var(--accent); cursor: zoom-in; }
     </style>
 </head>
 <body class="tema-besiktas">
@@ -75,64 +70,52 @@
 
     <div class="input-area">
         <div style="display:flex; gap:10px; margin-bottom:12px; align-items:center;">
-            <div class="voice-btn-container">
-                <button type="button" id="voiceBtn" onclick="toggleVoice()" class="action-btn">🎤</button>
-                <span class="voice-status">Dinliyorum Kral...</span>
-            </div>
-            <button type="button" onclick="handleAction('image')" class="action-btn">🖼️</button>
-            <button type="button" onclick="toggleDrawer()" class="action-btn">📂</button>
+            <button type="button" id="voiceBtn" onclick="toggleVoice()" class="action-btn" title="Sesli Komut">🎤</button>
+            <button type="button" id="drawBtn" onclick="handleAction('image')" class="action-btn" title="Görsel Oluştur">🖼️</button>
+            <button type="button" onclick="stopSpeech()" class="action-btn" title="Sesi Durdur">🔇</button>
+            <span id="statusLabel" style="font-size: 11px; color: var(--accent); opacity: 0.7;"></span>
         </div>
         <form class="input-row" onsubmit="event.preventDefault(); handleAction('chat');">
-            <input type="text" id="userInput" placeholder="Mesajını buraya bırak..." autocomplete="off">
+            <input type="text" id="userInput" placeholder="Görsel oluşturmak için hayalini yaz..." autocomplete="off">
             <button type="submit" class="send-btn">🚀</button>
         </form>
     </div>
 
     <script>
-        let API_KEY = localStorage.getItem('groq_key_v16');
+        let API_KEY = localStorage.getItem('groq_key_v18');
         let currentChatId = Date.now().toString();
 
         if (!API_KEY) {
             API_KEY = prompt("Lütfen Groq API Key gir:");
-            if (API_KEY) localStorage.setItem('groq_key_v16', API_KEY.trim());
+            if (API_KEY) localStorage.setItem('groq_key_v18', API_KEY.trim());
         }
 
-        // --- SESLİ KOMUT SİSTEMİ ---
+        const synth = window.speechSynthesis;
+        function speakText(text) {
+            const cleanText = text.replace(/[^\w\sğüşıöçĞÜŞİÖÇ.?!]/gi, '');
+            const utter = new SpeechSynthesisUtterance(cleanText);
+            utter.lang = 'tr-TR'; synth.cancel(); synth.speak(utter);
+        }
+        function stopSpeech() { synth.cancel(); }
+
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         const recognition = SpeechRecognition ? new SpeechRecognition() : null;
-
         if (recognition) {
             recognition.lang = 'tr-TR';
-            recognition.continuous = false;
-
             recognition.onresult = (e) => {
-                const transcript = e.results[0][0].transcript;
-                document.getElementById('userInput').value = transcript;
-                stopVoiceUI();
+                document.getElementById('userInput').value = e.results[0][0].transcript;
+                document.getElementById('voiceBtn').classList.remove('active');
                 handleAction('chat');
             };
-
-            recognition.onerror = () => stopVoiceUI();
-            recognition.onend = () => stopVoiceUI();
+            recognition.onend = () => document.getElementById('voiceBtn').classList.remove('active');
         }
 
         function toggleVoice() {
-            if (!recognition) return alert("Tarayıcın sesi desteklemiyor kaptan!");
             const btn = document.getElementById('voiceBtn');
-            if (btn.classList.contains('active')) {
-                recognition.stop();
-                stopVoiceUI();
-            } else {
-                btn.classList.add('active');
-                recognition.start();
-            }
+            if (btn.classList.contains('active')) { recognition.stop(); }
+            else { btn.classList.add('active'); recognition.start(); }
         }
 
-        function stopVoiceUI() {
-            document.getElementById('voiceBtn').classList.remove('active');
-        }
-
-        // --- TEMEL FONKSİYONLAR ---
         function setTheme(team) {
             document.body.className = 'tema-' + team;
             localStorage.setItem('user_theme', team);
@@ -144,17 +127,53 @@
         function openThemePicker() { document.getElementById('theme-overlay').classList.remove('hidden'); toggleDrawer(); }
         function toggleDrawer() { document.getElementById('drawer').classList.toggle('open'); if(document.getElementById('drawer').classList.contains('open')) updateHistoryUI(); }
 
+        // --- GÖRSEL OLUŞTURMA SİSTEMİ (REVIZED) ---
+        async function generateImage(promptText, msgElement) {
+            const time = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+            const seed = Math.floor(Math.random() * 999999);
+            // Pollinations AI parametrelerini güçlendirdik
+            const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptText)}?width=1024&height=1024&nologo=true&seed=${seed}&enhance=true`;
+            
+            msgElement.innerHTML = "🎨 <i>Tablo çiziliyor, lütfen bekle kral...</i>";
+            
+            const img = new Image();
+            img.src = imgUrl;
+            img.className = "ai-img";
+            img.onload = () => {
+                msgElement.innerHTML = `<img src="${imgUrl}" class="ai-img" onclick="window.open('${imgUrl}')"><br><b>İşte hayalin kral:</b> "${promptText}"<span style="font-size:10px; display:block; opacity:0.3; text-align:right;">${time}</span>`;
+                saveLocal(currentChatId, { role: 'assistant', content: `[Görsel]: ${promptText}`, img: imgUrl, time });
+                speakText("Görselin hazır kaptan, beğendin mi?");
+            };
+            img.onerror = () => {
+                msgElement.innerText = "❌ Görsel motoru şu an meşgul, birazdan tekrar dene!";
+            };
+        }
+
         async function handleAction(type) {
             const input = document.getElementById('userInput');
             const text = input.value.trim();
             if (!text) return;
             const time = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
 
+            // Otomatik Görsel Algılama (Kelimeler: çiz, oluştur, görsel, resim)
+            const isImageRequest = text.toLowerCase().includes("çiz") || 
+                                  text.toLowerCase().includes("oluştur") || 
+                                  text.toLowerCase().includes("resim") || 
+                                  text.toLowerCase().includes("görsel");
+
+            if (type === 'image' || (type === 'chat' && isImageRequest)) {
+                addMsg(text, 'user');
+                input.value = '';
+                const aiMsg = addMsg("🎨 Görsel motoru hazırlanıyor...", 'ai');
+                generateImage(text, aiMsg);
+                return;
+            }
+
             if (type === 'chat') {
                 addMsg(text, 'user');
                 input.value = '';
                 saveLocal(currentChatId, { role: 'user', content: text, time });
-                const aiMsg = addMsg("⚡ Analiz ediliyor...", 'ai');
+                const aiMsg = addMsg("⚡ Zeka-X düşünüyor...", 'ai');
                 
                 try {
                     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -163,7 +182,7 @@
                         body: JSON.stringify({ 
                             model: "llama-3.3-70b-versatile", 
                             messages: [
-                                {role: "system", content: "Sen Zeka-X'sin. Bedirhan Ayaz geliştirdi. 2026 yılındasın. Samimi ol."},
+                                {role: "system", content: "Sen Zeka-X Elite'sin. Bedirhan Ayaz geliştirdi. Samimi, zeki ve kısa cevaplar ver. Görsel istenirken sadece kullanıcıya yardımcı ol."},
                                 ...getHist(currentChatId).map(m => ({ role: m.role, content: m.content }))
                             ]
                         })
@@ -172,14 +191,8 @@
                     const reply = data.choices[0].message.content;
                     aiMsg.innerHTML = reply + `<span style="font-size:10px; display:block; opacity:0.3; text-align:right;">${time}</span>`;
                     saveLocal(currentChatId, { role: 'assistant', content: reply, time });
-                } catch { aiMsg.innerText = "Hata oluştu kral!"; }
-            } else {
-                addMsg(`🖼️ İstek: ${text}`, 'user');
-                input.value = '';
-                const aiMsg = addMsg("🎨 Çiziyorum...", 'ai');
-                const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(text)}?width=1024&height=1024&nologo=true`;
-                aiMsg.innerHTML = `<img src="${imgUrl}" class="ai-img">`;
-                saveLocal(currentChatId, { role: 'assistant', content: `[Görsel]: ${text}`, img: imgUrl, time });
+                    speakText(reply);
+                } catch { aiMsg.innerText = "Bağlantı hatası!"; }
             }
         }
 
@@ -194,17 +207,17 @@
         }
 
         function saveLocal(id, obj) {
-            let db = JSON.parse(localStorage.getItem('zekax_db_v16') || "{}");
+            let db = JSON.parse(localStorage.getItem('zekax_db_v18') || "{}");
             if (!db[id]) db[id] = { title: obj.content.substring(0, 30), messages: [] };
             db[id].messages.push(obj);
-            localStorage.setItem('zekax_db_v16', JSON.stringify(db));
+            localStorage.setItem('zekax_db_v18', JSON.stringify(db));
         }
 
-        function getHist(id) { return JSON.parse(localStorage.getItem('zekax_db_v16') || "{}")[id]?.messages || []; }
+        function getHist(id) { return JSON.parse(localStorage.getItem('zekax_db_v18') || "{}")[id]?.messages || []; }
 
         function updateHistoryUI() {
             const list = document.getElementById('history-list');
-            let db = JSON.parse(localStorage.getItem('zekax_db_v16') || "{}");
+            let db = JSON.parse(localStorage.getItem('zekax_db_v18') || "{}");
             list.innerHTML = "";
             Object.keys(db).reverse().forEach(id => {
                 const card = document.createElement('div');
@@ -213,7 +226,7 @@
                 card.onclick = () => {
                     currentChatId = id;
                     document.getElementById('chat-container').innerHTML = "";
-                    db[id].messages.forEach(m => addMsg(m.img ? `<img src="${m.img}" class="ai-img">` : m.content, m.role === 'user' ? 'user' : 'ai'));
+                    db[id].messages.forEach(m => addMsg(m.img ? `<img src="${m.img}" class="ai-img" onclick="window.open('${m.img}')">` : m.content, m.role === 'user' ? 'user' : 'ai'));
                     toggleDrawer();
                 };
                 list.appendChild(card);
@@ -222,5 +235,5 @@
         function startNewChat() { currentChatId = Date.now().toString(); document.getElementById('chat-container').innerHTML = ''; toggleDrawer(); }
     </script>
 </body>
-    </html>
+                </html>
     
