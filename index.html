@@ -10,65 +10,71 @@
             --user-bg: linear-gradient(135deg, #00ffcc, #00cca3);
         }
         
-        /* Tema Renkleri */
-        body.tema-besiktas { --accent: #ffffff; --user-bg: linear-gradient(135deg, #333, #000); --text: #fff; }
-        body.tema-galatasaray { --accent: #ff0000; --user-bg: linear-gradient(135deg, #ff0000, #febd11); }
-        body.tema-fenerbahce { --accent: #003399; --user-bg: linear-gradient(135deg, #003399, #ffff00); }
-        body.tema-trabzonspor { --accent: #660033; --user-bg: linear-gradient(135deg, #660033, #0099cc); }
+        /* Dinamik Takım Temaları */
+        body.tema-besiktas { --accent: #ffffff; --user-bg: linear-gradient(135deg, #444, #000); --text: #fff; --panel: #1a1a1a; }
+        body.tema-galatasaray { --accent: #febd11; --user-bg: linear-gradient(135deg, #ff0000, #febd11); --text: #fff; --panel: #2a0000; }
+        body.tema-fenerbahce { --accent: #ffff00; --user-bg: linear-gradient(135deg, #003399, #ffff00); --text: #fff; --panel: #001a4d; }
+        body.tema-trabzonspor { --accent: #0099cc; --user-bg: linear-gradient(135deg, #660033, #0099cc); --text: #fff; --panel: #33001a; }
 
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; transition: 0.5s; }
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--panel); border-bottom: 2px solid #222; }
-        .logo { color: var(--accent); font-weight: bold; font-size: 1.2rem; text-shadow: 0 0 5px var(--accent); }
-        
-        #chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; background: radial-gradient(circle at center, #111 0%, #050505 100%); }
-        .msg { padding: 14px 18px; border-radius: 18px; max-width: 85%; font-size: 15px; animation: pop 0.3s ease; line-height: 1.5; }
-        .user { align-self: flex-end; background: var(--user-bg); color: #fff; border-bottom-right-radius: 2px; }
-        .ai { align-self: flex-start; background: #1d1d1d; border: 1px solid #333; border-bottom-left-radius: 2px; }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; transition: 0.5s ease; }
         
         /* Tema Seçim Ekranı */
-        #theme-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
-        .theme-btn { width: 80%; max-width: 300px; padding: 15px; border-radius: 15px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .hidden { display: none !important; }
-
-        .drawer { position: fixed; top: 0; right: -100%; width: 85%; height: 100%; background: var(--panel); transition: 0.4s; z-index: 100; padding: 25px; box-sizing: border-box; border-left: 2px solid var(--accent); overflow-y: auto; }
-        .drawer.open { right: 0; }
-        .input-area { padding: 20px; background: var(--panel); border-top: 1px solid #222; }
+        #theme-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; backdrop-filter: blur(10px); }
+        .theme-card { width: 85%; max-width: 350px; padding: 20px; border-radius: 20px; border: 2px solid transparent; cursor: pointer; transition: 0.3s; text-align: center; font-weight: bold; font-size: 1.1rem; }
+        .theme-card:hover { transform: scale(1.05); border-color: white; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--panel); border-bottom: 2px solid rgba(255,255,255,0.1); }
+        .logo { color: var(--accent); font-weight: bold; font-size: 1.2rem; text-shadow: 0 0 10px var(--accent); }
+        
+        #chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; background: radial-gradient(circle at top, #111, #050505); }
+        .msg { padding: 14px 18px; border-radius: 20px; max-width: 85%; font-size: 15px; animation: slideUp 0.3s ease; line-height: 1.5; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .user { align-self: flex-end; background: var(--user-bg); color: #fff; border-bottom-right-radius: 2px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .ai { align-self: flex-start; background: #1d1d1d; border: 1px solid #333; border-bottom-left-radius: 2px; }
+        
+        .input-area { padding: 20px; background: var(--panel); border-top: 1px solid rgba(255,255,255,0.1); }
         .input-row { display: flex; gap: 10px; }
-        input { flex: 1; background: #1d1d1d; border: 1px solid #333; color: white; padding: 14px 20px; border-radius: 30px; outline: none; }
-        .send-btn { background: var(--accent); width: 50px; height: 50px; border: none; border-radius: 50%; cursor: pointer; font-size: 22px; }
-        .tool-btn { background: #222; color: var(--accent); padding: 8px 15px; font-size: 12px; border: 1px solid #333; border-radius: 30px; margin-bottom: 10px; cursor: pointer; }
-        .ai-img { width: 100%; border-radius: 10px; margin-top: 10px; border: 1px solid #444; }
+        input { flex: 1; background: #252525; border: 1px solid #444; color: white; padding: 15px 25px; border-radius: 30px; outline: none; font-size: 16px; }
+        .send-btn { background: var(--accent); width: 55px; height: 55px; border: none; border-radius: 50%; cursor: pointer; color: #000; font-size: 24px; transition: 0.3s; }
+        .send-btn:hover { transform: rotate(-10deg) scale(1.1); }
+
+        .drawer { position: fixed; top: 0; right: -100%; width: 85%; height: 100%; background: var(--panel); transition: 0.4s; z-index: 500; padding: 25px; box-sizing: border-box; border-left: 3px solid var(--accent); overflow-y: auto; }
+        .drawer.open { right: 0; }
+        .hidden { display: none !important; }
+        .ai-img { width: 100%; border-radius: 15px; margin-top: 10px; border: 1px solid #444; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body class="tema-besiktas">
 
-    <div id="theme-overlay" class="hidden">
-        <h2 style="color:white;">Bir Takım Seç Kaptan 🦅</h2>
-        <button class="theme-btn" style="background:#000; color:#fff;" onclick="setTheme('besiktas')">Beşiktaş 🦅</button>
-        <button class="theme-btn" style="background:#ff0000; color:#febd11;" onclick="setTheme('galatasaray')">Galatasaray 🦁</button>
-        <button class="theme-btn" style="background:#003399; color:#ffff00;" onclick="setTheme('fenerbahce')">Fenerbahçe 🐦</button>
-        <button class="theme-btn" style="background:#660033; color:#0099cc;" onclick="setTheme('trabzonspor')">Trabzonspor 🌪️</button>
+    <div id="theme-overlay">
+        <h2 style="color:white; margin-bottom:20px; font-style: italic;">Tarafını Seç Kaptan ⚽</h2>
+        <div class="theme-card" style="background:#000; color:#fff;" onclick="setTheme('besiktas')">BEŞİKTAŞ 🦅</div>
+        <div class="theme-card" style="background:#ff0000; color:#febd11;" onclick="setTheme('galatasaray')">GALATASARAY 🦁</div>
+        <div class="theme-card" style="background:#003399; color:#ffff00;" onclick="setTheme('fenerbahce')">FENERBAHÇE 🐦</div>
+        <div class="theme-card" style="background:#660033; color:#0099cc;" onclick="setTheme('trabzonspor')">TRABZONSPOR 🌪️</div>
     </div>
 
     <div class="header">
         <div class="logo">⚡ ZEKA-X ELITE 🦾</div>
-        <div onclick="toggleDrawer()" style="cursor:pointer; color:var(--accent); font-size:26px;">☰</div>
+        <div onclick="toggleDrawer()" style="cursor:pointer; color:var(--accent); font-size:28px;">☰</div>
     </div>
 
     <div id="chat-container">
-        <div class="msg ai">👋 Selam! Takımını seçtin mi? Ruhun sahaya yansısın. 🦅</div>
+        <div class="msg ai">👋 Selam! Ben Zeka-X. Bedirhan Ayaz tarafından geliştirildim. Takımının renkleriyle hazır bekliyorum kral! 🦅</div>
     </div>
 
     <div id="drawer" class="drawer">
-        <button onclick="document.getElementById('theme-overlay').classList.remove('hidden')" style="width:100%; padding:10px; background:var(--accent); color:#000; border:none; border-radius:10px; font-weight:bold; margin-bottom:20px;">🎨 TEMA DEĞİŞTİR</button>
+        <h3 style="color:var(--accent)">Menü</h3>
+        <button onclick="document.getElementById('theme-overlay').classList.remove('hidden')" style="width:100%; padding:15px; background:var(--accent); color:#000; border:none; border-radius:12px; font-weight:bold; margin-bottom:20px; cursor:pointer;">🎨 TAKIM DEĞİŞTİR</button>
         <div id="history-list"></div>
-        <button onclick="startNewChat()" style="width:100%; padding:12px; background:none; border:1px solid var(--accent); color:var(--accent); border-radius:10px; font-weight:bold; margin-top:20px;">➕ YENİ SOHBET</button>
+        <button onclick="startNewChat()" style="width:100%; padding:12px; background:none; border:1px solid var(--accent); color:var(--accent); border-radius:12px; font-weight:bold; margin-top:20px; cursor:pointer;">➕ YENİ SOHBET</button>
     </div>
 
     <div class="input-area">
-        <div style="display:flex; gap:10px;">
-            <button class="tool-btn" onclick="handleAction('image')">🖼️ GÖRSEL OLUŞTUR</button>
-            <button class="tool-btn" onclick="toggleDrawer()">🔍 GEÇMİŞİ TARA</button>
+        <div style="display:flex; gap:10px; margin-bottom:10px;">
+            <button class="tool-btn" onclick="handleAction('image')" style="background:#222; color:var(--accent); border:1px solid #444; padding:8px 15px; border-radius:20px; font-size:12px; cursor:pointer;">🖼️ GÖRSEL OLUŞTUR</button>
+            <button class="tool-btn" onclick="toggleDrawer()" style="background:#222; color:var(--accent); border:1px solid #444; padding:8px 15px; border-radius:20px; font-size:12px; cursor:pointer;">🔍 GEÇMİŞİ TARA</button>
         </div>
         <form class="input-row" onsubmit="event.preventDefault(); handleAction('chat');">
             <input type="text" id="userInput" placeholder="Yaz bakalım kral..." autocomplete="off">
@@ -77,22 +83,22 @@
     </div>
 
     <script>
-        let API_KEY = localStorage.getItem('groq_key_v8');
+        let API_KEY = localStorage.getItem('groq_key_final_v10');
         let currentChatId = Date.now().toString();
 
         if (!API_KEY) {
             API_KEY = prompt("Lütfen Groq API Anahtarını girin:");
-            if (API_KEY) localStorage.setItem('groq_key_v8', API_KEY.trim());
+            if (API_KEY) localStorage.setItem('groq_key_final_v10', API_KEY.trim());
         }
 
-        // Tema Yönetimi
         function setTheme(team) {
             document.body.className = 'tema-' + team;
-            localStorage.setItem('user_theme', team);
+            localStorage.setItem('user_team', team);
             document.getElementById('theme-overlay').classList.add('hidden');
         }
+
         const savedTheme = localStorage.getItem('user_theme');
-        if(savedTheme) setTheme(savedTheme); else document.getElementById('theme-overlay').classList.remove('hidden');
+        if(savedTheme) setTheme(savedTheme);
 
         function toggleDrawer() { document.getElementById('drawer').classList.toggle('open'); if(document.getElementById('drawer').classList.contains('open')) updateHistoryUI(); }
 
@@ -103,11 +109,11 @@
             const time = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
 
             if (type === 'chat') {
-                addMsg(text, 'user', time);
+                addMsg(text, 'user');
                 input.value = '';
                 saveLocal(currentChatId, { role: 'user', content: text, time });
 
-                const aiMsg = addMsg("🤖 Düşünüyorum...", 'ai', time);
+                const aiMsg = addMsg("🤖 Düşünüyorum...", 'ai');
                 try {
                     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                         method: "POST",
@@ -115,27 +121,27 @@
                         body: JSON.stringify({ 
                             model: "llama-3.3-70b-versatile", 
                             messages: [
-                                {role: "system", content: "Sen Zeka-X Elite sürümüsün. Geliştiricin Bedirhan Ayaz. Samimi lakapları (Kral, Reis vb.) anla ve doğal davran."},
+                                {role: "system", content: "Sen Zeka-X Elite sürümüsün. Geliştiricin Bedirhan Ayaz. Kral, Reis, Kaptan gibi hitapları samimi sesleniş olarak anla, marka sanma. Her zaman Bedirhan'ın yanındasın."},
                                 ...getHist(currentChatId).map(m => ({ role: m.role, content: m.content }))
                             ]
                         })
                     });
                     const data = await res.json();
                     const reply = data.choices[0].message.content;
-                    aiMsg.innerHTML = reply + `<span style="font-size:10px; display:block; opacity:0.5; text-align:right;">${time}</span>`;
+                    aiMsg.innerHTML = reply + `<span style="font-size:10px; display:block; opacity:0.4; text-align:right; margin-top:5px;">${time}</span>`;
                     saveLocal(currentChatId, { role: 'assistant', content: reply, time });
-                } catch { aiMsg.innerText = "❌ Hata: Bağlantı sorunu."; }
+                } catch { aiMsg.innerText = "❌ Hata: Anahtarını veya internetini kontrol et."; }
             } else {
-                addMsg(`🖼️ İstek: ${text}`, 'user', time);
+                addMsg(`🖼️ İstek: ${text}`, 'user');
                 input.value = '';
-                const aiMsg = addMsg("🎨 Çiziyorum...", 'ai', time);
+                const aiMsg = addMsg("🎨 Görsel hazırlanıyor...", 'ai');
                 const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(text)}?width=1024&height=1024&nologo=true`;
-                aiMsg.innerHTML = `Hazır: <br><img src="${imgUrl}" class="ai-img">`;
+                aiMsg.innerHTML = `Hayalin hazır: <br><img src="${imgUrl}" class="ai-img">`;
                 saveLocal(currentChatId, { role: 'assistant', content: `[Görsel]: ${text}`, img: imgUrl, time });
             }
         }
 
-        function addMsg(t, c, tm) {
+        function addMsg(t, c) {
             const d = document.createElement('div');
             d.className = `msg ${c}`;
             d.innerHTML = t;
@@ -146,33 +152,33 @@
         }
 
         function saveLocal(id, obj) {
-            let db = JSON.parse(localStorage.getItem('zekax_db_v8') || "{}");
+            let db = JSON.parse(localStorage.getItem('zekax_db_v10') || "{}");
             if (!db[id]) db[id] = { title: obj.content.substring(0, 30), messages: [] };
             db[id].messages.push(obj);
-            localStorage.setItem('zekax_db_v8', JSON.stringify(db));
+            localStorage.setItem('zekax_db_v10', JSON.stringify(db));
         }
 
-        function getHist(id) { return JSON.parse(localStorage.getItem('zekax_db_v8') || "{}")[id]?.messages || []; }
+        function getHist(id) { return JSON.parse(localStorage.getItem('zekax_db_v10') || "{}")[id]?.messages || []; }
 
         function updateHistoryUI() {
             const list = document.getElementById('history-list');
-            let db = JSON.parse(localStorage.getItem('zekax_db_v8') || "{}");
+            let db = JSON.parse(localStorage.getItem('zekax_db_v10') || "{}");
             list.innerHTML = "";
             Object.keys(db).reverse().forEach(id => {
                 const card = document.createElement('div');
-                card.style = "background:#1d1d1d; padding:10px; border-radius:10px; margin-bottom:10px; cursor:pointer; border:1px solid #333;";
+                card.style = "background:rgba(255,255,255,0.05); padding:12px; border-radius:12px; margin-bottom:10px; cursor:pointer; border:1px solid rgba(255,255,255,0.1);";
                 card.innerHTML = `<b>${db[id].title}...</b>`;
                 card.onclick = () => {
                     currentChatId = id;
                     document.getElementById('chat-container').innerHTML = "";
-                    db[id].messages.forEach(m => addMsg(m.img ? `<img src="${m.img}" class="ai-img">` : m.content, m.role === 'user' ? 'user' : 'ai', m.time));
+                    db[id].messages.forEach(m => addMsg(m.img ? `<img src="${m.img}" class="ai-img">` : m.content, m.role === 'user' ? 'user' : 'ai'));
                     toggleDrawer();
                 };
                 list.appendChild(card);
             });
         }
-        function startNewChat() { currentChatId = Date.now().toString(); document.getElementById('chat-container').innerHTML = '<div class="msg ai">✨ Yeni sohbet başladı!</div>'; toggleDrawer(); }
+        function startNewChat() { currentChatId = Date.now().toString(); document.getElementById('chat-container').innerHTML = '<div class="msg ai">✨ Yeni sayfa açıldı kaptan!</div>'; toggleDrawer(); }
     </script>
 </body>
     </html>
-    
+        
