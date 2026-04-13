@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ZEKA-X | OMNI PRO</title>
+    <style>
+        :root { --bg: #000; --panel: #0d0d0d; --text: #fff; --accent: #fff; }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        .nav { padding: 18px; text-align: center; border-bottom: 1px solid #222; font-weight: 900; letter-spacing: 6px; font-size: 20px; text-transform: uppercase; background: #000; z-index: 10; }
+        #chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; background: radial-gradient(circle at top, #111 0%, #000 100%); }
+        .box { padding: 16px 20px; border-radius: 22px; max-width: 85%; font-size: 15px; line-height: 1.6; animation: slideUp 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
+        .u { background: var(--accent); color: #000; align-self: flex-end; border-bottom-right-radius: 4px; font-weight: 600; }
+        .b { background: var(--panel); border: 1px solid #1a1a1a; align-self: flex-start; border-bottom-left-radius: 4px; }
+        .img-box { width: 100%; border-radius: 15px; margin-top: 12px; background: #050505; min-height: 280px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid #222; }
+        .card-img { width: 100%; height: auto; display: none; }
+        .loader { width: 35px; height: 35px; border: 3px solid #222; border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .btn { background: #1a1a1a; color: #fff; border: 1px solid #333; padding: 8px 16px; border-radius: 12px; font-size: 12px; cursor: pointer; margin-top: 10px; font-weight: bold; transition: 0.2s; }
+        .btn:hover { background: #fff; color: #000; }
+        .input-area { padding: 20px; background: #0a0a0a; display: flex; gap: 12px; border-top: 1px solid #222; }
+        input { flex: 1; padding: 16px 22px; border-radius: 30px; border: 1px solid #222; background: #000; color: #fff; outline: none; font-size: 16px; }
+        input:focus { border-color: #444; }
+        button#send { background: #fff; color: #000; border: none; width: 55px; height: 55px; border-radius: 50%; cursor: pointer; font-size: 22px; transition: 0.3s; flex-shrink: 0; }
+        button#send:active { transform: scale(0.9); }
+    </style>
+</head>
+<body>
+    <div class="nav">ZEKA-X OMNI</div>
+    <div id="chat"><div class="box b"><b>ZEKA-X:</b> Protokoller hazır yoldaş. Komutunu bekliyorum.</div></div>
+    <div class="input-area">
+        <input type="text" id="msg" placeholder="Bir şey çizdir veya sohbet et..." autocomplete="off">
+        <button id="send" onclick="run()">➤</button>
+    </div>
+    <script>
+        let mem = [];
+        const nicks = ["Dostum", "Şampiyon", "Yoldaş", "Kaptan", "Üstad"];
+        function speak(t) {
+            window.speechSynthesis.cancel();
+            const s = new SpeechSynthesisUtterance(t);
+            s.lang = "tr-TR"; s.pitch = 0.4; s.rate = 0.85; // En kalın ses
+            window.speechSynthesis.speak(s);
+        }
+        async function run() {
+            const i = document.getElementById("msg"), c = document.getElementById("chat"), v = i.value.trim();
+            if(!v) return;
+            c.innerHTML += `<div class="box u">${v}</div>`; i.value = ""; c.scrollTop = c.scrollHeight;
+            const drawKeywords = ["çiz", "oluştur", "resim", "görsel", "yap", "resmet"];
+            const isDraw = drawKeywords.some(w => v.toLowerCase().includes(w));
+            
+            if (isDraw && v.split(" ").length < 2) {
+                const res = `Tabii ${nicks[Math.floor(Math.random()*5)]}, ama neyi çizmemi istediğini söylemedin. Detay ver ki hemen yapayım.`;
+                c.innerHTML += `<div class="box b"><b>ZEKA-X:</b> ${res}</div>`;
+                speak(res); c.scrollTop = c.scrollHeight; return;
+            }
+            if (isDraw) {
+                const b = document.createElement("div"); b.className = "box b";
+                const url = `https://pollinations.ai/p/${encodeURIComponent(v)}?width=1024&height=1024&seed=${Date.now()}&model=flux`;
+                b.innerHTML = `<b>ZEKA-X:</b> Komut alındı. Hemen çiziyorum...<div class="img-box"><div class="loader"></div><img src="${url}" class="card-img"></div><button class="btn">Dinle 🔊</button>`;
+                c.appendChild(b); c.scrollTop = c.scrollHeight;
+                const img = b.querySelector(".card-img"), l = b.querySelector(".loader");
+                img.onload = () => { l.style.display = "none"; img.style.display = "block"; };
+                b.querySelector(".btn").onclick = () => speak("Senin için kusursuz bir görsel hazırladım.");
+                speak("Çizime başladım."); return;
+            }
+            try {
+                const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer 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', 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: "llama-3.3-70b-versatile",
+                        messages: [{role: "system", content: "Sen ZEKA-X Omni'sin. Karizmatik, çok kalın ve tok sesli bir erkeksin. Kısa, öz ve akıllı konuşursun."}, ...mem, {role: "user", content: v}],
+                        temperature: 0.6
+                    })
+                });
+                const d = await r.json(); const msg = d.choices[0].message.content;
+                mem.push({role: "user", content: v}, {role: "assistant", content: msg});
+                if(mem.length > 8) mem.splice(0, 2);
+                const div = document.createElement("div"); div.className = "box b";
+                div.innerHTML = `<b>ZEKA-X:</b> ${msg}<br><button class="btn">Dinle 🔊</button>`;
+                div.querySelector(".btn").onclick = () => speak(msg);
+                c.appendChild(div); c.scrollTop = c.scrollHeight;
+            } catch(e) { c.innerHTML += `<div class="box b">Hata: Sinyal zayıf. Tekrar dene.</div>`; }
+        }
+        document.getElementById("msg").addEventListener("keypress", (e) => { if(e.key === "Enter") run(); });
+    </script>
+</body>
+</html>
