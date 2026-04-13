@@ -41,7 +41,7 @@
         
         .drawer { position: fixed; top: 0; right: -100%; width: 85%; height: 100%; background: var(--panel); transition: 0.5s ease; z-index: 500; padding: 25px; box-sizing: border-box; border-left: 4px solid var(--accent); }
         .drawer.open { right: 0; }
-        .ai-img { width: 100%; border-radius: 18px; margin-top: 10px; border: 2px solid var(--accent); cursor: zoom-in; }
+        .ai-img { width: 100%; border-radius: 18px; margin-top: 10px; border: 2px solid var(--accent); }
     </style>
 </head>
 <body class="tema-besiktas">
@@ -71,33 +71,39 @@
     <div class="input-area">
         <div style="display:flex; gap:10px; margin-bottom:12px; align-items:center;">
             <button type="button" id="voiceBtn" onclick="toggleVoice()" class="action-btn" title="Sesli Komut">🎤</button>
-            <button type="button" id="drawBtn" onclick="handleAction('image')" class="action-btn" title="Görsel Oluştur">🖼️</button>
+            <button type="button" onclick="handleAction('image')" class="action-btn" title="Görsel Oluştur">🖼️</button>
             <button type="button" onclick="stopSpeech()" class="action-btn" title="Sesi Durdur">🔇</button>
-            <span id="statusLabel" style="font-size: 11px; color: var(--accent); opacity: 0.7;"></span>
         </div>
         <form class="input-row" onsubmit="event.preventDefault(); handleAction('chat');">
-            <input type="text" id="userInput" placeholder="Görsel oluşturmak için hayalini yaz..." autocomplete="off">
+            <input type="text" id="userInput" placeholder="Mesajını yaz veya konuş..." autocomplete="off">
             <button type="submit" class="send-btn">🚀</button>
         </form>
     </div>
 
     <script>
-        let API_KEY = localStorage.getItem('groq_key_v18');
+        let API_KEY = localStorage.getItem('groq_key_v19');
         let currentChatId = Date.now().toString();
 
         if (!API_KEY) {
             API_KEY = prompt("Lütfen Groq API Key gir:");
-            if (API_KEY) localStorage.setItem('groq_key_v18', API_KEY.trim());
+            if (API_KEY) localStorage.setItem('groq_key_v19', API_KEY.trim());
         }
 
+        // --- SESLİ YANIT MOTORU ---
         const synth = window.speechSynthesis;
         function speakText(text) {
-            const cleanText = text.replace(/[^\w\sğüşıöçĞÜŞİÖÇ.?!]/gi, '');
+            // Emojileri ve kod bloklarını süzerek temiz okuma sağlar
+            const cleanText = text.replace(/```[\s\S]*?```/g, 'Kod bloğu gönderildi.').replace(/[^\w\sğüşıöçĞÜŞİÖÇ.?!,]/gi, ' ');
             const utter = new SpeechSynthesisUtterance(cleanText);
-            utter.lang = 'tr-TR'; synth.cancel(); synth.speak(utter);
+            utter.lang = 'tr-TR';
+            utter.rate = 1.0;
+            utter.pitch = 1.0;
+            synth.cancel(); // Önceki ses varsa durdur
+            synth.speak(utter);
         }
         function stopSpeech() { synth.cancel(); }
 
+        // --- SES TANIMA SİSTEMİ ---
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         const recognition = SpeechRecognition ? new SpeechRecognition() : null;
         if (recognition) {
@@ -116,6 +122,7 @@
             else { btn.classList.add('active'); recognition.start(); }
         }
 
+        // --- TEMEL FONKSİYONLAR ---
         function setTheme(team) {
             document.body.className = 'tema-' + team;
             localStorage.setItem('user_theme', team);
@@ -127,45 +134,27 @@
         function openThemePicker() { document.getElementById('theme-overlay').classList.remove('hidden'); toggleDrawer(); }
         function toggleDrawer() { document.getElementById('drawer').classList.toggle('open'); if(document.getElementById('drawer').classList.contains('open')) updateHistoryUI(); }
 
-        // --- GÖRSEL OLUŞTURMA SİSTEMİ (REVIZED) ---
-        async function generateImage(promptText, msgElement) {
-            const time = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
-            const seed = Math.floor(Math.random() * 999999);
-            // Pollinations AI parametrelerini güçlendirdik
-            const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptText)}?width=1024&height=1024&nologo=true&seed=${seed}&enhance=true`;
-            
-            msgElement.innerHTML = "🎨 <i>Tablo çiziliyor, lütfen bekle kral...</i>";
-            
-            const img = new Image();
-            img.src = imgUrl;
-            img.className = "ai-img";
-            img.onload = () => {
-                msgElement.innerHTML = `<img src="${imgUrl}" class="ai-img" onclick="window.open('${imgUrl}')"><br><b>İşte hayalin kral:</b> "${promptText}"<span style="font-size:10px; display:block; opacity:0.3; text-align:right;">${time}</span>`;
-                saveLocal(currentChatId, { role: 'assistant', content: `[Görsel]: ${promptText}`, img: imgUrl, time });
-                speakText("Görselin hazır kaptan, beğendin mi?");
-            };
-            img.onerror = () => {
-                msgElement.innerText = "❌ Görsel motoru şu an meşgul, birazdan tekrar dene!";
-            };
-        }
-
         async function handleAction(type) {
             const input = document.getElementById('userInput');
             const text = input.value.trim();
             if (!text) return;
             const time = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
 
-            // Otomatik Görsel Algılama (Kelimeler: çiz, oluştur, görsel, resim)
-            const isImageRequest = text.toLowerCase().includes("çiz") || 
-                                  text.toLowerCase().includes("oluştur") || 
-                                  text.toLowerCase().includes("resim") || 
-                                  text.toLowerCase().includes("görsel");
+            const isImageRequest = type === 'image' || text.toLowerCase().includes("çiz") || text.toLowerCase().includes("oluştur");
 
-            if (type === 'image' || (type === 'chat' && isImageRequest)) {
+            if (isImageRequest) {
                 addMsg(text, 'user');
                 input.value = '';
-                const aiMsg = addMsg("🎨 Görsel motoru hazırlanıyor...", 'ai');
-                generateImage(text, aiMsg);
+                const aiMsg = addMsg("🎨 Çiziyorum kral...", 'ai');
+                const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(text)}?width=1024&height=1024&nologo=true&enhance=true`;
+                const img = new Image();
+                img.src = imgUrl;
+                img.className = "ai-img";
+                img.onload = () => {
+                    aiMsg.innerHTML = `<img src="${imgUrl}" class="ai-img" onclick="window.open('${imgUrl}')"><br>Hazır! Beğendin mi?`;
+                    speakText("Görselin hazır kaptan, beğendin mi?");
+                    saveLocal(currentChatId, { role: 'assistant', content: `[Görsel]: ${text}`, img: imgUrl, time });
+                };
                 return;
             }
 
@@ -173,7 +162,7 @@
                 addMsg(text, 'user');
                 input.value = '';
                 saveLocal(currentChatId, { role: 'user', content: text, time });
-                const aiMsg = addMsg("⚡ Zeka-X düşünüyor...", 'ai');
+                const aiMsg = addMsg("⚡ Zeka-X...", 'ai');
                 
                 try {
                     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -182,7 +171,7 @@
                         body: JSON.stringify({ 
                             model: "llama-3.3-70b-versatile", 
                             messages: [
-                                {role: "system", content: "Sen Zeka-X Elite'sin. Bedirhan Ayaz geliştirdi. Samimi, zeki ve kısa cevaplar ver. Görsel istenirken sadece kullanıcıya yardımcı ol."},
+                                {role: "system", content: "Sen Zeka-X Elite'sin. Bedirhan Ayaz geliştirdi. Samimi, zeki ve çok uzun olmayan cevaplar ver. Kullanıcıya 'Kaptan', 'Kral' veya 'Reis' diye hitap et."},
                                 ...getHist(currentChatId).map(m => ({ role: m.role, content: m.content }))
                             ]
                         })
@@ -191,8 +180,11 @@
                     const reply = data.choices[0].message.content;
                     aiMsg.innerHTML = reply + `<span style="font-size:10px; display:block; opacity:0.3; text-align:right;">${time}</span>`;
                     saveLocal(currentChatId, { role: 'assistant', content: reply, time });
+                    
+                    // --- BURADA SESLİ CEVAP VERİYOR ---
                     speakText(reply);
-                } catch { aiMsg.innerText = "Bağlantı hatası!"; }
+
+                } catch { aiMsg.innerText = "Hata oluştu kral!"; }
             }
         }
 
@@ -207,17 +199,17 @@
         }
 
         function saveLocal(id, obj) {
-            let db = JSON.parse(localStorage.getItem('zekax_db_v18') || "{}");
+            let db = JSON.parse(localStorage.getItem('zekax_db_v19') || "{}");
             if (!db[id]) db[id] = { title: obj.content.substring(0, 30), messages: [] };
             db[id].messages.push(obj);
-            localStorage.setItem('zekax_db_v18', JSON.stringify(db));
+            localStorage.setItem('zekax_db_v19', JSON.stringify(db));
         }
 
-        function getHist(id) { return JSON.parse(localStorage.getItem('zekax_db_v18') || "{}")[id]?.messages || []; }
+        function getHist(id) { return JSON.parse(localStorage.getItem('zekax_db_v19') || "{}")[id]?.messages || []; }
 
         function updateHistoryUI() {
             const list = document.getElementById('history-list');
-            let db = JSON.parse(localStorage.getItem('zekax_db_v18') || "{}");
+            let db = JSON.parse(localStorage.getItem('zekax_db_v19') || "{}");
             list.innerHTML = "";
             Object.keys(db).reverse().forEach(id => {
                 const card = document.createElement('div');
@@ -235,5 +227,5 @@
         function startNewChat() { currentChatId = Date.now().toString(); document.getElementById('chat-container').innerHTML = ''; toggleDrawer(); }
     </script>
 </body>
-                </html>
+            </html>
     
