@@ -6,126 +6,168 @@
     <title>ZEKA-X ELITE 🦾</title>
     <style>
         :root { --bg: #050505; --panel: #121212; --accent: #00ffcc; --text: #e0e0e0; }
-        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--panel); border-bottom: 2px solid #222; }
-        .logo { color: var(--accent); font-weight: bold; font-size: 1.2rem; }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* Üst Menü */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--panel); border-bottom: 2px solid #222; z-index: 10; }
+        .logo { color: var(--accent); font-weight: bold; font-size: 1.2rem; text-shadow: 0 0 10px rgba(0,255,204,0.3); }
+        
+        /* Sohbet Alanı */
         #chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; background: radial-gradient(circle at center, #111 0%, #050505 100%); }
-        .msg { padding: 14px 18px; border-radius: 18px; max-width: 85%; font-size: 15px; animation: pop 0.3s ease; line-height: 1.4; }
-        @keyframes pop { from { opacity:0; transform: scale(0.95); } to { opacity:1; transform: scale(1); } }
+        .msg { padding: 14px 18px; border-radius: 18px; max-width: 85%; font-size: 15px; animation: pop 0.3s ease; line-height: 1.5; position: relative; }
+        .msg-time { font-size: 10px; opacity: 0.5; margin-top: 5px; display: block; text-align: right; }
+        @keyframes pop { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
+        
         .user { align-self: flex-end; background: linear-gradient(135deg, var(--accent), #00cca3); color: #000; font-weight: 500; border-bottom-right-radius: 2px; }
         .ai { align-self: flex-start; background: #1d1d1d; border: 1px solid #333; border-bottom-left-radius: 2px; }
-        .drawer { position: fixed; top: 0; right: -100%; width: 85%; height: 100%; background: var(--panel); transition: 0.4s; z-index: 100; padding: 25px; box-sizing: border-box; border-left: 2px solid var(--accent); overflow-y: auto; }
+        
+        /* Yan Menü (Geçmiş) */
+        .drawer { position: fixed; top: 0; right: -100%; width: 85%; height: 100%; background: var(--panel); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 100; padding: 25px; box-sizing: border-box; border-left: 2px solid var(--accent); box-shadow: -10px 0 30px rgba(0,0,0,0.5); }
         .drawer.open { right: 0; }
-        .chat-topic { background: #1d1d1d; padding: 15px; border-radius: 12px; margin-bottom: 12px; cursor: pointer; border: 1px solid #333; font-size: 14px; }
-        .input-area { padding: 20px; background: var(--panel); display: flex; gap: 12px; border-top: 1px solid #222; }
-        input { flex: 1; background: #1d1d1d; border: 1px solid #333; color: white; padding: 14px 20px; border-radius: 30px; outline: none; }
-        .send-btn { background: var(--accent); border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-size: 22px; }
+        .history-item { background: #1d1d1d; padding: 15px; border-radius: 12px; margin-bottom: 12px; cursor: pointer; border: 1px solid #333; transition: 0.3s; }
+        .history-item:hover { border-color: var(--accent); background: #252525; }
+
+        /* Giriş Alanı */
+        .input-area { padding: 20px; background: var(--panel); display: flex; flex-direction: column; gap: 10px; border-top: 1px solid #222; }
+        .input-row { display: flex; gap: 10px; align-items: center; }
+        input { flex: 1; background: #1d1d1d; border: 1px solid #333; color: white; padding: 14px 20px; border-radius: 30px; outline: none; font-size: 16px; }
+        
+        /* Butonlar */
+        .btn { border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        .send-btn { background: var(--accent); width: 50px; height: 50px; border-radius: 50%; font-size: 22px; }
+        .image-btn { background: #8e44ad; color: white; padding: 8px 15px; border-radius: 15px; font-size: 12px; font-weight: bold; }
+        
+        /* Görsel Önizleme */
+        .ai-img { width: 100%; border-radius: 10px; margin-top: 10px; border: 1px solid #444; }
     </style>
 </head>
 <body>
 
     <div class="header">
         <div class="logo">⚡ ZEKA-X ELITE 🦾</div>
-        <div class="menu-btn" onclick="toggleDrawer()" style="cursor:pointer; color:var(--accent); font-size:26px;">☰</div>
+        <div onclick="toggleDrawer()" style="cursor:pointer; color:var(--accent); font-size:26px;">☰</div>
     </div>
 
     <div id="chat-container">
-        <div class="msg ai">👋 Selam BedoX! Zeka-X hazır. Bugün neler yapıyoruz? 🦅</div>
+        <div class="msg ai">
+            👋 Selam BedoX! Ben Zeka-X. Sohbet geçmişin ve görsel oluşturma yeteneğimle hizmetindeyim. Ne yapalım? 🦅
+            <span class="msg-time">Sistem Mesajı</span>
+        </div>
     </div>
 
     <div id="drawer" class="drawer">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <span style="font-weight:bold; color:var(--accent);">📂 GEÇMİŞ</span>
+            <span style="font-weight:bold; color:var(--accent); font-size: 1.2rem;">📂 SOHBET GEÇMİŞİ</span>
             <span onclick="toggleDrawer()" style="cursor:pointer; font-size:28px;">✕</span>
         </div>
-        <button onclick="startNewChat()" style="width:100%; padding:12px; margin-bottom:20px; background:none; border:1px dashed var(--accent); color:var(--accent); border-radius:10px; font-weight:bold;">➕ YENİ SOHBET</button>
-        <button onclick="resetKey()" style="width:100%; padding:8px; margin-bottom:20px; background:#441111; color:#ff8888; border:none; border-radius:8px; font-size:12px;">🔑 ANAHTARI SIFIRLA</button>
+        <button onclick="startNewChat()" style="width:100%; padding:12px; margin-bottom:20px; background:none; border:1px dashed var(--accent); color:var(--accent); border-radius:10px; font-weight:bold;">➕ YENİ SOHBET BAŞLAT</button>
         <div id="history-list"></div>
+        <button onclick="resetApp()" style="width:100%; padding:10px; margin-top:20px; background:#441111; color:#ff8888; border:none; border-radius:8px; font-size:11px;">⚙️ TÜM VERİLERİ SIFIRLA</button>
     </div>
 
-    <form class="input-area" onsubmit="event.preventDefault(); handleSend();">
-        <input type="text" id="userInput" placeholder="Zeka-X'e yaz... 🔥" autocomplete="off">
-        <button type="submit" class="send-btn">🚀</button>
+    <form class="input-area" onsubmit="event.preventDefault(); handleAction('chat');">
+        <div style="display: flex; gap: 10px;">
+            <button type="button" class="btn image-btn" onclick="handleAction('image')">🖼️ GÖRSEL OLUŞTUR</button>
+            <small style="color: #666; font-size: 10px;">Yaz ve tıkla!</small>
+        </div>
+        <div class="input-row">
+            <input type="text" id="userInput" placeholder="Mesajını yaz veya hayal et..." autocomplete="off">
+            <button type="submit" class="btn send-btn">🚀</button>
+        </div>
     </form>
 
     <script>
-        let API_KEY = localStorage.getItem('groq_key');
+        let API_KEY = localStorage.getItem('groq_key_final');
         let currentChatId = Date.now().toString();
 
         if (!API_KEY) {
-            API_KEY = prompt("Lütfen Groq API Anahtarını yapıştırın:");
-            if (API_KEY) localStorage.setItem('groq_key', API_KEY.trim());
+            API_KEY = prompt("Lütfen Groq API Anahtarını (gsk_...) yapıştırın:");
+            if (API_KEY) localStorage.setItem('groq_key_final', API_KEY.trim());
         }
 
         function toggleDrawer() { 
-            document.getElementById('drawer').classList.toggle('open'); 
-            if(document.getElementById('drawer').classList.contains('open')) loadHistoryList(); 
+            const drawer = document.getElementById('drawer');
+            drawer.classList.toggle('open'); 
+            if(drawer.classList.contains('open')) updateHistoryUI(); 
         }
 
-        async function handleSend() {
+        async function handleAction(type) {
             const input = document.getElementById('userInput');
             const text = input.value.trim();
-            if (!text || !API_KEY) return;
+            if (!text) return;
 
-            addMessage(text, 'user');
-            input.value = '';
-            saveMessage(currentChatId, { role: 'user', content: text });
+            const time = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+            const date = new Date().toLocaleDateString('tr-TR');
 
-            const aiLoadingMsg = addMessage("🤖 Düşünüyorum... 💭", 'ai');
-            
-            try {
-                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: "POST",
-                    headers: { "Authorization": "Bearer " + API_KEY, "Content-Type": "application/json" },
-                    body: JSON.stringify({ 
-                        model: "llama-3.3-70b-versatile", 
-                        messages: getChatHistory(currentChatId)
-                    })
-                });
+            if (type === 'chat') {
+                addMessage(text, 'user', time);
+                input.value = '';
+                saveToLocal(currentChatId, { role: 'user', content: text, time, date });
 
-                const data = await response.json();
-                const aiText = data.choices[0].message.content;
-                aiLoadingMsg.innerText = aiText;
-                saveMessage(currentChatId, { role: 'assistant', content: aiText });
-            } catch (e) { 
-                aiLoadingMsg.innerText = "❌ Hata: Bağlantı kesildi.";
+                const aiMsg = addMessage("🤖 Düşünüyorum...", 'ai', time);
+                try {
+                    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                        method: "POST",
+                        headers: { "Authorization": "Bearer " + API_KEY, "Content-Type": "application/json" },
+                        body: JSON.stringify({ 
+                            model: "llama-3.3-70b-versatile", 
+                            messages: getHistory(currentChatId).map(m => ({ role: m.role, content: m.content }))
+                        })
+                    });
+                    const data = await res.json();
+                    const reply = data.choices[0].message.content;
+                    aiMsg.innerHTML = reply + `<span class="msg-time">${time}</span>`;
+                    saveToLocal(currentChatId, { role: 'assistant', content: reply, time, date });
+                } catch { aiMsg.innerText = "❌ Bağlantı hatası! Lütfen anahtarını kontrol et."; }
+
+            } else {
+                addMessage(`🖼️ Görsel Oluşturuluyor: "${text}"`, 'user', time);
+                input.value = '';
+                const aiMsg = addMessage("🎨 Sanat eserin hazırlanıyor...", 'ai', time);
+                // Görsel oluşturma simülasyonu (Pollinations API kullanarak)
+                const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(text)}?width=1024&height=1024&nologo=true`;
+                aiMsg.innerHTML = `İşte hayalindeki görsel: <br><img src="${imgUrl}" class="ai-img" onload="this.style.opacity=1" style="opacity:0; transition:1s;"><span class="msg-time">${time}</span>`;
+                saveToLocal(currentChatId, { role: 'assistant', content: `[Görsel]: ${text}`, img: imgUrl, time, date });
             }
         }
 
-        function addMessage(text, type) {
+        function addMessage(text, type, time) {
             const div = document.createElement('div');
             div.className = `msg ${type}`;
-            div.innerText = text;
+            div.innerHTML = text + `<span class="msg-time">${time}</span>`;
             const container = document.getElementById('chat-container');
             container.appendChild(div);
             container.scrollTop = container.scrollHeight;
             return div;
         }
 
-        function saveMessage(chatId, msgObj) {
-            let allChats = JSON.parse(localStorage.getItem('zekax_history') || "{}");
-            if (!allChats[chatId]) allChats[chatId] = { title: msgObj.content.substring(0, 20) + "...", messages: [] };
-            allChats[chatId].messages.push(msgObj);
-            localStorage.setItem('zekax_history', JSON.stringify(allChats));
+        function saveToLocal(id, obj) {
+            let data = JSON.parse(localStorage.getItem('zekax_master_db') || "{}");
+            if (!data[id]) data[id] = { title: obj.content.substring(0, 20), date: obj.date, messages: [] };
+            data[id].messages.push(obj);
+            localStorage.setItem('zekax_master_db', JSON.stringify(data));
         }
 
-        function getChatHistory(chatId) {
-            let allChats = JSON.parse(localStorage.getItem('zekax_history') || "{}");
-            return allChats[chatId] ? allChats[chatId].messages : [];
+        function getHistory(id) {
+            let data = JSON.parse(localStorage.getItem('zekax_master_db') || "{}");
+            return data[id] ? data[id].messages : [];
         }
 
-        function loadHistoryList() {
+        function updateHistoryUI() {
             const list = document.getElementById('history-list');
-            let allChats = JSON.parse(localStorage.getItem('zekax_history') || "{}");
+            let data = JSON.parse(localStorage.getItem('zekax_master_db') || "{}");
             list.innerHTML = "";
-            Object.keys(allChats).reverse().forEach(id => {
+            Object.keys(data).reverse().forEach(id => {
                 const item = document.createElement('div');
-                item.className = 'chat-topic';
-                item.innerHTML = `<b>${allChats[id].title}</b>`;
+                item.className = 'history-item';
+                item.innerHTML = `<b>${data[id].title}...</b><br><small style="color:var(--accent)">📅 ${data[id].date}</small>`;
                 item.onclick = () => {
                     currentChatId = id;
                     document.getElementById('chat-container').innerHTML = "";
-                    allChats[id].messages.forEach(m => addMessage(m.content, m.role === 'user' ? 'user' : 'ai'));
+                    data[id].messages.forEach(m => {
+                        if(m.img) addMessage(`🖼️ Görsel: <br><img src="${m.img}" class="ai-img">`, m.role === 'user' ? 'user' : 'ai', m.time);
+                        else addMessage(m.content, m.role === 'user' ? 'user' : 'ai', m.time);
+                    });
                     toggleDrawer();
                 };
                 list.appendChild(item);
@@ -134,14 +176,12 @@
 
         function startNewChat() {
             currentChatId = Date.now().toString();
-            document.getElementById('chat-container').innerHTML = '<div class="msg ai">✨ Yeni bir sayfa açıldı! Sorunu bekliyorum. 🚀</div>';
+            document.getElementById('chat-container').innerHTML = '<div class="msg ai">✨ Yeni bir sayfa açıldı! Seni dinliyorum. 🚀</div>';
             toggleDrawer();
         }
 
-        function resetKey() {
-            localStorage.removeItem('groq_key');
-            location.reload();
-        }
+        function resetApp() { if(confirm("Tüm sohbet geçmişin silinecek. Emin misin?")) { localStorage.clear(); location.reload(); } }
     </script>
 </body>
-</html>
+    </html>
+    
