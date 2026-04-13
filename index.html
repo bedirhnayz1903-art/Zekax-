@@ -10,7 +10,6 @@
             --user-bg: linear-gradient(135deg, #00ffcc, #00cca3);
         }
         
-        /* 🔥 TAKIM ATMOSFERLERİ */
         body.tema-besiktas { --accent: #ffffff; --user-bg: linear-gradient(135deg, #444, #000); --panel: #111; }
         body.tema-galatasaray { --accent: #febd11; --user-bg: linear-gradient(135deg, #ff0000, #febd11); --panel: #2a0000; }
         body.tema-fenerbahce { --accent: #ffff00; --user-bg: linear-gradient(135deg, #003399, #ffff00); --panel: #001a4d; }
@@ -35,10 +34,13 @@
         .input-row { display: flex; gap: 10px; align-items: center; }
         input { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 16px 20px; border-radius: 35px; outline: none; }
         
-        .action-btn { background: #222; color: var(--accent); border: 1px solid #444; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; transition: 0.3s; }
-        .action-btn.active { background: #ff0000; color: white; border-color: #ff0000; animation: pulse 1s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-        
+        /* 🎤 Ses Butonu ve Efekti */
+        .voice-btn-container { position: relative; display: flex; align-items: center; gap: 10px; }
+        .action-btn { background: #222; color: var(--accent); border: 1px solid #444; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; transition: 0.3s; z-index: 10; }
+        .action-btn.active { background: #ff0000; color: white; border-color: #ff0000; box-shadow: 0 0 20px rgba(255,0,0,0.5); }
+        .voice-status { font-size: 12px; color: #ff0000; font-weight: bold; opacity: 0; transition: 0.3s; }
+        .action-btn.active + .voice-status { opacity: 1; }
+
         .send-btn { background: var(--accent); width: 50px; height: 50px; border: none; border-radius: 50%; cursor: pointer; color: #000; font-size: 24px; box-shadow: 0 0 10px var(--accent); }
 
         .drawer { position: fixed; top: 0; right: -100%; width: 85%; height: 100%; background: var(--panel); transition: 0.5s ease; z-index: 500; padding: 25px; box-sizing: border-box; border-left: 4px solid var(--accent); }
@@ -72,65 +74,65 @@
     </div>
 
     <div class="input-area">
-        <div style="display:flex; gap:10px; margin-bottom:12px;">
-            <button type="button" id="voiceBtn" onclick="toggleVoice()" class="action-btn">🎤</button>
+        <div style="display:flex; gap:10px; margin-bottom:12px; align-items:center;">
+            <div class="voice-btn-container">
+                <button type="button" id="voiceBtn" onclick="toggleVoice()" class="action-btn">🎤</button>
+                <span class="voice-status">Dinliyorum Kral...</span>
+            </div>
             <button type="button" onclick="handleAction('image')" class="action-btn">🖼️</button>
             <button type="button" onclick="toggleDrawer()" class="action-btn">📂</button>
         </div>
         <form class="input-row" onsubmit="event.preventDefault(); handleAction('chat');">
-            <input type="text" id="userInput" placeholder="Yaz veya konuş..." autocomplete="off">
+            <input type="text" id="userInput" placeholder="Mesajını buraya bırak..." autocomplete="off">
             <button type="submit" class="send-btn">🚀</button>
         </form>
     </div>
 
     <script>
-        let API_KEY = localStorage.getItem('groq_key_v15');
+        let API_KEY = localStorage.getItem('groq_key_v16');
         let currentChatId = Date.now().toString();
 
-        // API Key Kontrol
         if (!API_KEY) {
-            API_KEY = prompt("API Key Girin:");
-            if (API_KEY) localStorage.setItem('groq_key_v15', API_KEY.trim());
+            API_KEY = prompt("Lütfen Groq API Key gir:");
+            if (API_KEY) localStorage.setItem('groq_key_v16', API_KEY.trim());
         }
 
-        // Ses Tanıma (Speech Recognition) Ayarları
+        // --- SESLİ KOMUT SİSTEMİ ---
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         const recognition = SpeechRecognition ? new SpeechRecognition() : null;
+
         if (recognition) {
             recognition.lang = 'tr-TR';
             recognition.continuous = false;
-            recognition.interimResults = false;
 
-            recognition.onresult = (event) => {
-                const text = event.results[0][0].transcript;
-                document.getElementById('userInput').value = text;
-                document.getElementById('voiceBtn').classList.remove('active');
-                handleAction('chat'); // Konuşma bitince otomatik gönder
+            recognition.onresult = (e) => {
+                const transcript = e.results[0][0].transcript;
+                document.getElementById('userInput').value = transcript;
+                stopVoiceUI();
+                handleAction('chat');
             };
-            recognition.onend = () => document.getElementById('voiceBtn').classList.remove('active');
+
+            recognition.onerror = () => stopVoiceUI();
+            recognition.onend = () => stopVoiceUI();
         }
 
         function toggleVoice() {
-            if (!recognition) return alert("Tarayıcın ses tanımayı desteklemiyor kaptan!");
+            if (!recognition) return alert("Tarayıcın sesi desteklemiyor kaptan!");
             const btn = document.getElementById('voiceBtn');
             if (btn.classList.contains('active')) {
                 recognition.stop();
+                stopVoiceUI();
             } else {
                 btn.classList.add('active');
                 recognition.start();
             }
         }
 
-        // Yapay Zeka Sesli Yanıt (Text to Speech)
-        function speak(text) {
-            const synth = window.speechSynthesis;
-            const utter = new SpeechSynthesisUtterance(text);
-            utter.lang = 'tr-TR';
-            utter.rate = 1.1;
-            synth.speak(utter);
+        function stopVoiceUI() {
+            document.getElementById('voiceBtn').classList.remove('active');
         }
 
-        // Tema Fonksiyonları
+        // --- TEMEL FONKSİYONLAR ---
         function setTheme(team) {
             document.body.className = 'tema-' + team;
             localStorage.setItem('user_theme', team);
@@ -152,7 +154,7 @@
                 addMsg(text, 'user');
                 input.value = '';
                 saveLocal(currentChatId, { role: 'user', content: text, time });
-                const aiMsg = addMsg("⚡ Dinliyorum...", 'ai');
+                const aiMsg = addMsg("⚡ Analiz ediliyor...", 'ai');
                 
                 try {
                     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -161,21 +163,18 @@
                         body: JSON.stringify({ 
                             model: "llama-3.3-70b-versatile", 
                             messages: [
-                                {role: "system", content: "Sen Zeka-X Elite'sin. Bedirhan Ayaz tarafından geliştirildin. Kısa, öz ve samimi cevaplar ver."},
+                                {role: "system", content: "Sen Zeka-X'sin. Bedirhan Ayaz geliştirdi. 2026 yılındasın. Samimi ol."},
                                 ...getHist(currentChatId).map(m => ({ role: m.role, content: m.content }))
                             ]
                         })
                     });
                     const data = await res.json();
                     const reply = data.choices[0].message.content;
-                    aiMsg.innerHTML = reply + `<span style="font-size:10px; display:block; opacity:0.4; text-align:right; margin-top:8px;">${time}</span>`;
+                    aiMsg.innerHTML = reply + `<span style="font-size:10px; display:block; opacity:0.3; text-align:right;">${time}</span>`;
                     saveLocal(currentChatId, { role: 'assistant', content: reply, time });
-                    
-                    // İstersen burada konuşabilir:
-                    // speak(reply); 
-                } catch { aiMsg.innerText = "Bağlantı koptu kral!"; }
+                } catch { aiMsg.innerText = "Hata oluştu kral!"; }
             } else {
-                addMsg(`🖼️ Hayal: ${text}`, 'user');
+                addMsg(`🖼️ İstek: ${text}`, 'user');
                 input.value = '';
                 const aiMsg = addMsg("🎨 Çiziyorum...", 'ai');
                 const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(text)}?width=1024&height=1024&nologo=true`;
@@ -195,17 +194,17 @@
         }
 
         function saveLocal(id, obj) {
-            let db = JSON.parse(localStorage.getItem('zekax_db_v15') || "{}");
+            let db = JSON.parse(localStorage.getItem('zekax_db_v16') || "{}");
             if (!db[id]) db[id] = { title: obj.content.substring(0, 30), messages: [] };
             db[id].messages.push(obj);
-            localStorage.setItem('zekax_db_v15', JSON.stringify(db));
+            localStorage.setItem('zekax_db_v16', JSON.stringify(db));
         }
 
-        function getHist(id) { return JSON.parse(localStorage.getItem('zekax_db_v15') || "{}")[id]?.messages || []; }
+        function getHist(id) { return JSON.parse(localStorage.getItem('zekax_db_v16') || "{}")[id]?.messages || []; }
 
         function updateHistoryUI() {
             const list = document.getElementById('history-list');
-            let db = JSON.parse(localStorage.getItem('zekax_db_v15') || "{}");
+            let db = JSON.parse(localStorage.getItem('zekax_db_v16') || "{}");
             list.innerHTML = "";
             Object.keys(db).reverse().forEach(id => {
                 const card = document.createElement('div');
@@ -220,7 +219,7 @@
                 list.appendChild(card);
             });
         }
-        function startNewChat() { currentChatId = Date.now().toString(); document.getElementById('chat-container').innerHTML = '<div class="msg ai">✨ Hazırım kral!</div>'; toggleDrawer(); }
+        function startNewChat() { currentChatId = Date.now().toString(); document.getElementById('chat-container').innerHTML = ''; toggleDrawer(); }
     </script>
 </body>
     </html>
