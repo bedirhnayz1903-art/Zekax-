@@ -124,5 +124,104 @@
         // Yapay Zeka Sesli Yanıt (Text to Speech)
         function speak(text) {
             const synth = window.speechSynthesis;
-            const utter = new SpeechSynthesisUt
-            
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.lang = 'tr-TR';
+            utter.rate = 1.1;
+            synth.speak(utter);
+        }
+
+        // Tema Fonksiyonları
+        function setTheme(team) {
+            document.body.className = 'tema-' + team;
+            localStorage.setItem('user_theme', team);
+            document.getElementById('theme-overlay').classList.add('hidden');
+        }
+        const savedTheme = localStorage.getItem('user_theme');
+        if(savedTheme) setTheme(savedTheme);
+
+        function openThemePicker() { document.getElementById('theme-overlay').classList.remove('hidden'); toggleDrawer(); }
+        function toggleDrawer() { document.getElementById('drawer').classList.toggle('open'); if(document.getElementById('drawer').classList.contains('open')) updateHistoryUI(); }
+
+        async function handleAction(type) {
+            const input = document.getElementById('userInput');
+            const text = input.value.trim();
+            if (!text) return;
+            const time = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+
+            if (type === 'chat') {
+                addMsg(text, 'user');
+                input.value = '';
+                saveLocal(currentChatId, { role: 'user', content: text, time });
+                const aiMsg = addMsg("⚡ Dinliyorum...", 'ai');
+                
+                try {
+                    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                        method: "POST",
+                        headers: { "Authorization": "Bearer " + API_KEY, "Content-Type": "application/json" },
+                        body: JSON.stringify({ 
+                            model: "llama-3.3-70b-versatile", 
+                            messages: [
+                                {role: "system", content: "Sen Zeka-X Elite'sin. Bedirhan Ayaz tarafından geliştirildin. Kısa, öz ve samimi cevaplar ver."},
+                                ...getHist(currentChatId).map(m => ({ role: m.role, content: m.content }))
+                            ]
+                        })
+                    });
+                    const data = await res.json();
+                    const reply = data.choices[0].message.content;
+                    aiMsg.innerHTML = reply + `<span style="font-size:10px; display:block; opacity:0.4; text-align:right; margin-top:8px;">${time}</span>`;
+                    saveLocal(currentChatId, { role: 'assistant', content: reply, time });
+                    
+                    // İstersen burada konuşabilir:
+                    // speak(reply); 
+                } catch { aiMsg.innerText = "Bağlantı koptu kral!"; }
+            } else {
+                addMsg(`🖼️ Hayal: ${text}`, 'user');
+                input.value = '';
+                const aiMsg = addMsg("🎨 Çiziyorum...", 'ai');
+                const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(text)}?width=1024&height=1024&nologo=true`;
+                aiMsg.innerHTML = `<img src="${imgUrl}" class="ai-img">`;
+                saveLocal(currentChatId, { role: 'assistant', content: `[Görsel]: ${text}`, img: imgUrl, time });
+            }
+        }
+
+        function addMsg(t, c) {
+            const d = document.createElement('div');
+            d.className = `msg ${c}`;
+            d.innerHTML = t;
+            const cont = document.getElementById('chat-container');
+            cont.appendChild(d);
+            cont.scrollTop = cont.scrollHeight;
+            return d;
+        }
+
+        function saveLocal(id, obj) {
+            let db = JSON.parse(localStorage.getItem('zekax_db_v15') || "{}");
+            if (!db[id]) db[id] = { title: obj.content.substring(0, 30), messages: [] };
+            db[id].messages.push(obj);
+            localStorage.setItem('zekax_db_v15', JSON.stringify(db));
+        }
+
+        function getHist(id) { return JSON.parse(localStorage.getItem('zekax_db_v15') || "{}")[id]?.messages || []; }
+
+        function updateHistoryUI() {
+            const list = document.getElementById('history-list');
+            let db = JSON.parse(localStorage.getItem('zekax_db_v15') || "{}");
+            list.innerHTML = "";
+            Object.keys(db).reverse().forEach(id => {
+                const card = document.createElement('div');
+                card.style = "background:rgba(255,255,255,0.03); padding:10px; border-radius:10px; margin-bottom:10px; cursor:pointer;";
+                card.innerHTML = `<b>${db[id].title}...</b>`;
+                card.onclick = () => {
+                    currentChatId = id;
+                    document.getElementById('chat-container').innerHTML = "";
+                    db[id].messages.forEach(m => addMsg(m.img ? `<img src="${m.img}" class="ai-img">` : m.content, m.role === 'user' ? 'user' : 'ai'));
+                    toggleDrawer();
+                };
+                list.appendChild(card);
+            });
+        }
+        function startNewChat() { currentChatId = Date.now().toString(); document.getElementById('chat-container').innerHTML = '<div class="msg ai">✨ Hazırım kral!</div>'; toggleDrawer(); }
+    </script>
+</body>
+    </html>
+    
