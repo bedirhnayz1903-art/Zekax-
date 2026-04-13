@@ -2,109 +2,70 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZEKA-X ELITE 🦾</title>
     <style>
-        :root { --bg: #050505; --panel: #121212; --accent: #00ffcc; --text: #e0e0e0; }
-        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--panel); border-bottom: 2px solid #222; }
-        #chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; background: radial-gradient(circle at center, #111 0%, #050505 100%); }
-        .msg { padding: 14px 18px; border-radius: 18px; max-width: 85%; font-size: 15px; animation: pop 0.3s ease; }
-        @keyframes pop { from { opacity:0; transform: scale(0.95); } to { opacity:1; transform: scale(1); } }
-        .user { align-self: flex-end; background: linear-gradient(135deg, var(--accent), #00cca3); color: #000; font-weight: 500; border-bottom-right-radius: 2px; }
-        .ai { align-self: flex-start; background: #1d1d1d; border: 1px solid #333; border-bottom-left-radius: 2px; }
-        .drawer { position: fixed; top: 0; right: -100%; width: 85%; height: 100%; background: var(--panel); transition: 0.4s; z-index: 100; padding: 25px; box-sizing: border-box; border-left: 2px solid var(--accent); }
-        .drawer.open { right: 0; }
-        .input-area { padding: 20px; background: var(--panel); display: flex; gap: 12px; border-top: 1px solid #222; }
-        input { flex: 1; background: #1d1d1d; border: 1px solid #333; color: white; padding: 14px 20px; border-radius: 30px; outline: none; }
-        .send-btn { background: var(--accent); border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-size: 22px; }
+        :root { --bg: #050505; --accent: #00ffcc; --text: #e0e0e0; }
+        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        #chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { padding: 12px; border-radius: 15px; max-width: 80%; }
+        .user { align-self: flex-end; background: var(--accent); color: #000; }
+        .ai { align-self: flex-start; background: #222; }
+        .input-box { padding: 15px; background: #111; display: flex; gap: 10px; }
+        input { flex: 1; padding: 10px; border-radius: 20px; border: none; outline: none; background: #222; color: #fff; }
+        button { background: var(--accent); border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
-
-    <div class="header">
-        <div class="logo">⚡ ZEKA-X ELITE 🦾</div>
-        <div class="menu-btn" onclick="toggleDrawer()" style="cursor:pointer; color:var(--accent); font-size:26px;">☰</div>
+    <div style="padding:15px; background:#111; border-bottom:1px solid #333; display:flex; justify-content:space-between;">
+        <span style="color:var(--accent); font-weight:bold;">⚡ ZEKA-X 🦾</span>
+        <button onclick="localStorage.removeItem('groq_key'); location.reload();" style="font-size:10px; padding:5px;">ANAHTARI SIFIRLA</button>
     </div>
-
-    <div id="chat-container">
-        <div class="msg ai">👋 Selam! Eğer hala hata alıyorsan, kendi oluşturduğun anahtarı menüden tekrar girip sayfayı yenilemeyi dene. ✨</div>
+    <div id="chat"></div>
+    <div class="input-box">
+        <input type="text" id="userInput" placeholder="Bir şey yaz...">
+        <button onclick="send()">🚀</button>
     </div>
-
-    <div id="drawer" class="drawer">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <span style="font-weight:bold; color:var(--accent);">📂 AYARLAR</span>
-            <span onclick="toggleDrawer()" style="cursor:pointer; font-size:28px;">✕</span>
-        </div>
-        <button onclick="setApiKey()" style="width:100%; padding:12px; background:var(--accent); color:#000; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">🔑 ANAHTARI GİR/GÜNCELLE</button>
-        <p style="font-size:12px; color:#888; margin-top:15px;">⚠️ Uyarı: Kendi oluşturduğun <b>gsk_...</b> ile başlayan anahtarı kullanmalısın.</p>
-    </div>
-
-    <form class="input-area" onsubmit="event.preventDefault(); handleSend();">
-        <input type="text" id="userInput" placeholder="Zeka-X'e bir şeyler yaz... 🔥" autocomplete="off">
-        <button type="submit" class="send-btn">🚀</button>
-    </form>
 
     <script>
-        let API_KEY = localStorage.getItem('groq_key_final');
-
-        function setApiKey() {
-            const key = prompt("Yeni oluşturduğun Groq API anahtarını yapıştır:");
-            if (key) {
-                localStorage.setItem('groq_key_final', key.trim());
-                API_KEY = key.trim();
-                alert("Anahtar cihazına kaydedildi! ✅");
-                location.reload();
-            }
+        let key = localStorage.getItem('groq_key');
+        if (!key) {
+            key = prompt("Groq API Anahtarını (gsk_...) gir:");
+            if (key) localStorage.setItem('groq_key', key.trim());
         }
 
-        function toggleDrawer() { document.getElementById('drawer').classList.toggle('open'); }
-
-        async function handleSend() {
-            if (!API_KEY) { setApiKey(); return; }
+        async function send() {
             const input = document.getElementById('userInput');
             const text = input.value.trim();
-            if (!text) return;
+            if (!text || !key) return;
 
-            addMessage("👤 Sen: " + text, 'user');
+            addMsg("👤 Sen: " + text, 'user');
             input.value = '';
-            
-            const aiLoadingMsg = addMessage("🤖 Düşünüyorum... 💭", 'ai');
-            
+            const aiMsg = addMsg("🤖 Düşünüyorum...", 'ai');
+
             try {
-                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
-                    headers: { 
-                        "Authorization": "Bearer " + API_KEY,
-                        "Content-Type": "application/json"
-                    },
+                    headers: { "Authorization": "Bearer " + key, "Content-Type": "application/json" },
                     body: JSON.stringify({ 
-                        model: "llama3-8b-8192", 
-                        messages: [{ role: "user", content: text }],
-                        temperature: 0.7
+                        model: "llama-3.3-70b-versatile", // En güncel model
+                        messages: [{ role: "user", content: text }] 
                     })
                 });
-
-                if (!response.ok) {
-                    const errorResponse = await response.json();
-                    throw new Error(errorResponse.error.message || "Bağlantı hatası.");
-                }
-
-                const data = await response.json();
-                aiLoadingMsg.innerHTML = "🤖 <b>Zeka-X:</b> " + data.choices[0].message.content;
-            } catch (e) { 
-                aiLoadingMsg.innerHTML = "❌ <b>Sistem Notu:</b> " + e.message;
+                const data = await res.json();
+                if (data.choices) aiMsg.innerText = "🤖 Zeka-X: " + data.choices[0].message.content;
+                else throw new Error();
+            } catch {
+                aiMsg.innerText = "❌ Hata! Anahtarın yanlış olabilir veya Groq şu an yoğun.";
             }
         }
 
-        function addMessage(text, type) {
-            const div = document.createElement('div');
-            div.className = `msg ${type}`;
-            div.innerHTML = text;
-            const container = document.getElementById('chat-container');
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
-            return div;
+        function addMsg(t, c) {
+            const d = document.createElement('div');
+            d.className = 'msg ' + c;
+            d.innerText = t;
+            document.getElementById('chat').appendChild(d);
+            return d;
         }
     </script>
 </body>
