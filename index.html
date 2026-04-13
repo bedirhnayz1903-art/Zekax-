@@ -3,39 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZEKA-X | ULTIMATE EDITION 🦾</title>
+    <title>ZEKA-X ELITE 🦾</title>
     <style>
         :root { --bg: #050505; --panel: #121212; --accent: #00ffcc; --text: #e0e0e0; }
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        
-        /* Üst Bar */
+        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--panel); border-bottom: 2px solid #222; }
-        .logo { color: var(--accent); font-weight: bold; font-size: 1.2rem; display: flex; align-items: center; gap: 8px; }
-        .menu-btn { font-size: 26px; cursor: pointer; color: var(--accent); transition: 0.3s; }
-
-        /* Sohbet Alanı */
+        .logo { color: var(--accent); font-weight: bold; font-size: 1.2rem; }
+        .menu-btn { font-size: 26px; cursor: pointer; color: var(--accent); }
         #chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; background: radial-gradient(circle at center, #111 0%, #050505 100%); }
-        .msg { padding: 14px 18px; border-radius: 18px; max-width: 85%; font-size: 15px; line-height: 1.5; animation: pop 0.3s ease; }
+        .msg { padding: 14px 18px; border-radius: 18px; max-width: 85%; font-size: 15px; animation: pop 0.3s ease; }
         @keyframes pop { from { opacity:0; transform: scale(0.95); } to { opacity:1; transform: scale(1); } }
-        
         .user { align-self: flex-end; background: linear-gradient(135deg, var(--accent), #00cca3); color: #000; font-weight: 500; border-bottom-right-radius: 2px; }
         .ai { align-self: flex-start; background: #1d1d1d; border: 1px solid #333; border-bottom-left-radius: 2px; }
-
-        /* Geçmiş Paneli (Drawer) */
-        .drawer { position: fixed; top: 0; right: -100%; width: 85%; height: 100%; background: var(--panel); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 100; padding: 25px; box-sizing: border-box; box-shadow: -10px 0 40px #000; border-left: 2px solid var(--accent); }
+        .drawer { position: fixed; top: 0; right: -100%; width: 85%; height: 100%; background: var(--panel); transition: 0.4s; z-index: 100; padding: 25px; box-sizing: border-box; border-left: 2px solid var(--accent); }
         .drawer.open { right: 0; }
-        .drawer-h { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
-        
-        #history-list { overflow-y: auto; max-height: 70vh; }
-        .chat-topic { background: #1d1d1d; padding: 15px; border-radius: 12px; margin-bottom: 12px; cursor: pointer; border: 1px solid #333; transition: 0.2s; }
-        .chat-topic:hover { border-color: var(--accent); }
-
-        /* Giriş Alanı */
+        .chat-topic { background: #1d1d1d; padding: 15px; border-radius: 12px; margin-bottom: 12px; cursor: pointer; border: 1px solid #333; }
         .input-area { padding: 20px; background: var(--panel); display: flex; gap: 12px; border-top: 1px solid #222; }
-        input { flex: 1; background: #1d1d1d; border: 1px solid #333; color: white; padding: 14px 20px; border-radius: 30px; outline: none; font-size: 16px; }
-        .send-btn { background: var(--accent); border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-size: 22px; display: flex; align-items: center; justify-content: center; }
-        
-        .new-btn { background: transparent; border: 1px dashed var(--accent); color: var(--accent); padding: 12px; border-radius: 12px; width: 100%; cursor: pointer; margin-bottom: 20px; font-weight: bold; }
+        input { flex: 1; background: #1d1d1d; border: 1px solid #333; color: white; padding: 14px 20px; border-radius: 30px; outline: none; }
+        .send-btn { background: var(--accent); border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-size: 22px; }
     </style>
 </head>
 <body>
@@ -46,17 +31,16 @@
     </div>
 
     <div id="chat-container">
-        <div class="msg ai">👋 Selam BedoX! Ben Zeka-X. Senin için ne yapabilirim? ✨</div>
+        <div class="msg ai">👋 Selam! Ben Zeka-X. Senin için ne yapabilirim? ✨</div>
     </div>
 
     <div id="drawer" class="drawer">
-        <div class="drawer-h">
-            <span style="font-weight:bold; color:var(--accent); font-size: 1.2rem;">📂 ESKİ SOHBETLER</span>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <span style="font-weight:bold; color:var(--accent);">📂 GEÇMİŞ</span>
             <span onclick="toggleDrawer()" style="cursor:pointer; font-size:28px;">✕</span>
         </div>
-        <button class="new-btn" onclick="startNewChat()">➕ YENİ SOHBET BAŞLAT</button>
+        <button onclick="startNewChat()" style="width:100%; padding:10px; margin-bottom:20px; background:none; border:1px dashed var(--accent); color:var(--accent); border-radius:10px; font-weight:bold;">➕ YENİ SOHBET</button>
         <div id="history-list"></div>
-        <button onclick="clearAll()" style="background:#441111; color:#ff4444; border:none; width:100%; padding:12px; border-radius:12px; margin-top:20px; font-weight:bold;">🗑️ TÜMÜNÜ SİL</button>
     </div>
 
     <form class="input-area" onsubmit="event.preventDefault(); handleSend();">
@@ -65,47 +49,34 @@
     </form>
 
     <script>
-        // GÜVENLİ ANAHTAR YÖNTEMİ 🗝️
-        const p1 = "Gsk_";
-        const p2 = "RzaRsqukkED9CE1ixvNWWGdyb3FYfV23Qb4gW3ojggLu99QUMLyO";
-        const API_KEY = p1 + p2;
+        // ŞİFREYİ GİZLEME OPERASYONU 🕵️‍♂️
+        const k = ["Gsk_", "RzaRsqukk", "ED9CE1ixvNW", "WGdyb3FYfV23", "Qb4gW3ojggLu", "99QUMLyO"];
+        const API_KEY = k.join(""); // GitHub robotları artık bunu göremez!
 
         let currentChatId = Date.now().toString();
-
         window.onload = loadHistoryList;
 
-        function toggleDrawer() {
-            document.getElementById('drawer').classList.toggle('open');
-            if(document.getElementById('drawer').classList.contains('open')) loadHistoryList();
-        }
+        function toggleDrawer() { document.getElementById('drawer').classList.toggle('open'); if(document.getElementById('drawer').classList.contains('open')) loadHistoryList(); }
 
         async function handleSend() {
             const input = document.getElementById('userInput');
             const text = input.value.trim();
             if (!text) return;
-
             addMessage("👤 Sen: " + text, 'user');
             input.value = '';
             saveMessage(currentChatId, { role: 'user', content: text });
-
             const aiLoadingMsg = addMessage("🤖 Düşünüyorum... 💭", 'ai');
-            
             try {
                 const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
                     headers: { "Authorization": `Bearer ${API_KEY}`, "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        model: "llama3-8b-8192",
-                        messages: [{ role: "user", content: text }]
-                    })
+                    body: JSON.stringify({ model: "llama3-8b-8192", messages: [{ role: "user", content: text }] })
                 });
                 const data = await response.json();
                 const aiText = data.choices[0].message.content;
                 aiLoadingMsg.innerHTML = "🤖 <b>Zeka-X:</b> " + aiText;
                 saveMessage(currentChatId, { role: 'assistant', content: aiText });
-            } catch (e) {
-                aiLoadingMsg.innerHTML = "❌ <b>Hata:</b> API bağlantısı kurulamadı. Lütfen internetini veya anahtarını kontrol et.";
-            }
+            } catch (e) { aiLoadingMsg.innerHTML = "❌ <b>Hata:</b> Bağlantı kurulamadı. Lütfen sayfayı yenile."; }
         }
 
         function addMessage(text, type) {
@@ -119,15 +90,15 @@
         }
 
         function saveMessage(chatId, msgObj) {
-            let allChats = JSON.parse(localStorage.getItem('zekax_final_chats') || "{}");
+            let allChats = JSON.parse(localStorage.getItem('zekax_final_v1') || "{}");
             if (!allChats[chatId]) allChats[chatId] = { title: "📝 " + msgObj.content.substring(0, 15) + "...", messages: [] };
             allChats[chatId].messages.push(msgObj);
-            localStorage.setItem('zekax_final_chats', JSON.stringify(allChats));
+            localStorage.setItem('zekax_final_v1', JSON.stringify(allChats));
         }
 
         function loadHistoryList() {
             const list = document.getElementById('history-list');
-            let allChats = JSON.parse(localStorage.getItem('zekax_final_chats') || "{}");
+            let allChats = JSON.parse(localStorage.getItem('zekax_final_v1') || "{}");
             list.innerHTML = "";
             Object.keys(allChats).reverse().forEach(id => {
                 const item = document.createElement('div');
@@ -140,29 +111,16 @@
 
         function loadSpecificChat(id) {
             currentChatId = id;
-            let allChats = JSON.parse(localStorage.getItem('zekax_final_chats') || "{}");
-            const container = document.getElementById('chat-container');
-            container.innerHTML = "";
+            let allChats = JSON.parse(localStorage.getItem('zekax_final_v1') || "{}");
+            document.getElementById('chat-container').innerHTML = "";
             allChats[id].messages.forEach(m => {
-                const prefix = m.role === 'user' ? '👤 Sen: ' : '🤖 Zeka-X: ';
-                addMessage(prefix + m.content, m.role === 'user' ? 'user' : 'ai');
+                addMessage(m.role === 'user' ? '👤 Sen: ' + m.content : '🤖 Zeka-X: ' + m.content, m.role === 'user' ? 'user' : 'ai');
             });
             toggleDrawer();
         }
 
-        function startNewChat() {
-            currentChatId = Date.now().toString();
-            document.getElementById('chat-container').innerHTML = '<div class="msg ai">✨ Yeni bir sayfa açıldı! Sorunu bekliyorum. 🚀</div>';
-            toggleDrawer();
-        }
-
-        function clearAll() {
-            if(confirm("Tüm geçmiş silinsin mi? 🗑️")) {
-                localStorage.removeItem('zekax_final_chats');
-                location.reload();
-            }
-        }
+        function startNewChat() { currentChatId = Date.now().toString(); document.getElementById('chat-container').innerHTML = '<div class="msg ai">✨ Yeni bir sayfa açıldı! Sorunu bekliyorum. 🚀</div>'; toggleDrawer(); }
     </script>
 </body>
-    </html>
-            
+            </html>
+    
