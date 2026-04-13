@@ -2,104 +2,131 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZEKA-X ELITE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ZEKA-X | ULTIMATE</title>
     <style>
-        /* Genel Stil */
-        body { background-color: #0f0f0f; color: white; font-family: sans-serif; margin: 0; }
-        
-        /* Üç Nokta Menüsü */
-        .menu-container { position: fixed; top: 15px; right: 15px; z-index: 1000; }
-        #menu-btn { font-size: 28px; cursor: pointer; padding: 5px 10px; background: #1a1a1a; border-radius: 50%; }
-        
-        /* Geçmiş Paneli */
-        .history-panel { 
-            display: none; position: absolute; right: 0; top: 45px; 
-            background: #1a1a1a; border: 1px solid #333; width: 220px; 
-            max-height: 300px; overflow-y: auto; border-radius: 8px; padding: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
-        .history-panel h3 { font-size: 14px; margin-top: 0; color: #00ffcc; border-bottom: 1px solid #333; padding-bottom: 5px; }
-        #history-list { list-style: none; padding: 0; margin: 0; }
-        #history-list li { font-size: 13px; padding: 8px 0; border-bottom: 1px solid #222; color: #bbb; }
+        :root { --bg: #050505; --panel: #121212; --accent: #00ffcc; --text: #e0e0e0; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; }
 
-        /* Sohbet Alanı (Örnek) */
-        .chat-box { padding: 20px; margin-top: 50px; }
-        input { padding: 10px; width: 70%; border-radius: 5px; border: none; }
-        button { padding: 10px; background: #00ffcc; border: none; cursor: pointer; font-weight: bold; }
+        /* Üst Bar */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--panel); border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 10; }
+        .logo { color: var(--accent); font-weight: bold; font-size: 1.2rem; letter-spacing: 1px; }
+        .menu-btn { font-size: 24px; cursor: pointer; color: var(--accent); padding: 5px; }
+
+        /* Sohbet Alanı */
+        #chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .message { padding: 12px 16px; border-radius: 15px; max-width: 85%; line-height: 1.4; font-size: 15px; animation: slideUp 0.3s ease; }
+        .user-msg { align-self: flex-end; background: var(--accent); color: #000; font-weight: 500; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Yan Panel (Geçmiş) */
+        .drawer { position: fixed; top: 0; right: -100%; width: 85%; height: 100%; background: var(--panel); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 100; box-shadow: -10px 0 30px rgba(0,0,0,0.8); padding: 20px; box-sizing: border-box; }
+        .drawer.open { right: 0; }
+        .drawer-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 15px; }
+        .close-btn { font-size: 28px; cursor: pointer; }
+
+        #history-list { list-style: none; padding: 0; margin: 0; overflow-y: auto; max-height: 70vh; }
+        .history-item { background: #1d1d1d; padding: 15px; border-radius: 10px; margin-bottom: 10px; cursor: pointer; border-left: 3px solid transparent; transition: 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 14px; }
+        .history-item:active { background: #252525; border-left-color: var(--accent); }
+
+        /* Giriş Alanı */
+        .input-box { padding: 15px; background: var(--panel); border-top: 1px solid #222; display: flex; gap: 10px; }
+        input { flex: 1; background: #1d1d1d; border: 1px solid #333; color: white; padding: 12px 15px; border-radius: 25px; outline: none; font-size: 16px; }
+        input:focus { border-color: var(--accent); }
+        .send-btn { background: var(--accent); border: none; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; }
+
+        .clear-btn { width: 100%; background: #331111; color: #ff5555; border: 1px solid #442222; padding: 12px; border-radius: 10px; margin-top: 20px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div class="menu-container">
-        <div id="menu-btn" onclick="toggleHistory()">⋮</div>
-        <div id="history-panel" class="history-panel">
-            <h3>Geçmiş Yazışmalar</h3>
-            <ul id="history-list"></ul>
-            <button onclick="clearHistory()" style="width:100%; font-size:10px; margin-top:10px; background:#ff4444; color:white;">Geçmişi Temizle</button>
-        </div>
+    <div class="header">
+        <div class="logo">ZEKA-X ELITE</div>
+        <div class="menu-btn" onclick="toggleDrawer()">⋮</div>
     </div>
 
-    <div class="chat-box">
-        <div id="messages"></div>
-        <input type="text" id="userInput" placeholder="Zeka-X'e bir şey yaz...">
-        <button onclick="sendMessage()">Gönder</button>
+    <div id="chat-container">
+        </div>
+
+    <div id="drawer" class="drawer">
+        <div class="drawer-header">
+            <span style="font-weight: bold; color: var(--accent);">GEÇMİŞ YAZIŞMALAR</span>
+            <span class="close-btn" onclick="toggleDrawer()">✕</span>
+        </div>
+        <div id="history-list"></div>
+        <button class="clear-btn" onclick="clearHistory()">Geçmişi Temizle</button>
     </div>
+
+    <form class="input-box" onsubmit="event.preventDefault(); sendMessage();">
+        <input type="text" id="userInput" placeholder="Mesajınızı yazın..." autocomplete="off">
+        <button type="submit" class="send-btn">➤</button>
+    </form>
 
     <script>
-        // Sayfa açıldığında geçmişi yükle
-        window.onload = function() {
-            displayHistory();
-        };
+        const chatContainer = document.getElementById('chat-container');
+        const historyList = document.getElementById('history-list');
+        const drawer = document.getElementById('drawer');
+        const userInput = document.getElementById('userInput');
 
-        // Menüyü Aç/Kapat
-        function toggleHistory() {
-            var panel = document.getElementById("history-panel");
-            panel.style.display = (panel.style.display === "block") ? "none" : "block";
+        // Başlangıçta geçmişi yükle
+        window.onload = loadHistory;
+
+        function toggleDrawer() {
+            drawer.classList.toggle('open');
         }
 
-        // Mesaj Gönder ve Geçmişe Kaydet
-        function sendMessage() {
-            var input = document.getElementById("userInput");
-            var text = input.value;
-            if (text.trim() !== "") {
-                // Geçmişi Al
-                var history = JSON.parse(localStorage.getItem("chatHistory") || "[]");
-                // Yeni mesajı ekle
-                history.push(text);
-                // Geri kaydet (Sadece son 10 mesajı tutalım yer kaplamasın)
-                if (history.length > 10) history.shift();
-                localStorage.setItem("chatHistory", JSON.stringify(history));
-                
-                input.value = ""; // Kutuyu boşalt
-                displayHistory(); // Listeyi güncelle
-                alert("Mesaj gönderildi ve geçmişe eklendi!");
+        function sendMessage(text = null) {
+            const messageText = text || userInput.value.trim();
+            if (!messageText) return;
+
+            // Ekrana mesajı bas
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'message user-msg';
+            msgDiv.textContent = messageText;
+            chatContainer.appendChild(msgDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            // Eğer manuel yazıldıysa geçmişe kaydet
+            if (!text) {
+                saveToHistory(messageText);
+                userInput.value = '';
             }
-        }
-
-        // Geçmişi Ekrana Yazdır
-        function displayHistory() {
-            var list = document.getElementById("history-list");
-            var history = JSON.parse(localStorage.getItem("chatHistory") || "[]");
-            list.innerHTML = ""; 
             
-            if (history.length === 0) {
-                list.innerHTML = "<li>Henüz geçmiş yok...</li>";
-            } else {
-                history.reverse().forEach(function(item) {
-                    var li = document.createElement("li");
-                    li.textContent = item;
-                    list.appendChild(li);
-                });
+            // Paneli kapat (eğer geçmişten tıklandıysa)
+            drawer.classList.remove('open');
+        }
+
+        function saveToHistory(msg) {
+            let history = JSON.parse(localStorage.getItem('zekax_v3_history') || "[]");
+            // Aynı mesajı üst üste ekleme
+            if (history[0] !== msg) {
+                history.unshift(msg);
+                if (history.length > 20) history.pop(); // Son 20 mesaj
+                localStorage.setItem('zekax_v3_history', JSON.stringify(history));
+                loadHistory();
             }
         }
 
-        // Geçmişi Sil
+        function loadHistory() {
+            let history = JSON.parse(localStorage.getItem('zekax_v3_history') || "[]");
+            historyList.innerHTML = history.length ? "" : "<p style='text-align:center; color:#666;'>Geçmiş henüz boş.</p>";
+            
+            history.forEach(msg => {
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.textContent = msg;
+                item.onclick = () => sendMessage(msg); // Tıklayınca mesaj olarak atar
+                historyList.appendChild(item);
+            });
+        }
+
         function clearHistory() {
-            localStorage.removeItem("chatHistory");
-            displayHistory();
+            if(confirm("Tüm geçmiş silinsin mi?")) {
+                localStorage.removeItem('zekax_v3_history');
+                loadHistory();
+            }
         }
     </script>
 </body>
-            </html>
+    </html>
     
