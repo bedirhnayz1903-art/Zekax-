@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
-    <title>ZEKA-X ULTIMATE 🦾</title>
+    <title>ZEKA-X SUPREME 🦾</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #030303; --panel: #0d0d0d; --accent: #00ffcc; --text: #ffffff; }
@@ -11,37 +11,46 @@
         html, body { height: 100%; width: 100%; overflow: hidden; background: var(--bg); position: fixed; }
         body { display: flex; flex-direction: column; color: var(--text); }
 
+        /* 🚀 Intro */
         #intro-screen {
             position: fixed; inset: 0; background: #000; z-index: 99999;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             padding: 30px; text-align: center;
         }
-        .intro-box h1 { color: var(--accent); font-size: 2.2rem; margin-bottom: 10px; letter-spacing: 5px; font-weight: 800; }
-        .start-btn { background: var(--accent); color: #000; border: none; padding: 18px 50px; border-radius: 35px; font-weight: 800; cursor: pointer; margin-top: 20px; }
+        .intro-box h1 { color: var(--accent); font-size: 2.5rem; margin-bottom: 10px; letter-spacing: 5px; font-weight: 800; }
+        .start-btn { background: var(--accent); color: #000; border: none; padding: 18px 50px; border-radius: 35px; font-weight: 800; cursor: pointer; transition: 0.3s; box-shadow: 0 0 20px rgba(0,255,204,0.3); }
 
+        /* Sidebar */
         #sidebar {
             position: fixed; top: 0; right: -280px; width: 280px; height: 100%;
-            background: var(--panel); z-index: 10000; transition: 0.3s;
+            background: var(--panel); z-index: 10000; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex; flex-direction: column; padding: 25px; border-left: 1px solid #222;
         }
         #sidebar.open { right: 0; }
-        .session-item { padding: 12px; background: #181818; border-radius: 12px; margin-bottom: 8px; font-size: 13px; cursor: pointer; }
-        .session-item.active { border: 1px solid var(--accent); color: var(--accent); }
+        .session-item { padding: 12px; background: #181818; border-radius: 12px; margin-bottom: 8px; font-size: 13px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: 1px solid transparent; }
+        .session-item.active { border-color: var(--accent); color: var(--accent); }
 
-        .header { height: 60px; padding: 0 20px; background: #000; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; flex-shrink: 0; }
+        /* Header */
+        .header { height: 65px; padding: 0 20px; background: #000; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; flex-shrink: 0; }
         .brand { color: var(--accent); font-weight: 800; letter-spacing: 2px; }
 
-        #chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        .msg { padding: 14px 18px; border-radius: 20px; max-width: 85%; font-size: 14.5px; line-height: 1.5; }
-        .user { align-self: flex-end; background: var(--accent); color: #000; font-weight: 600; }
-        .ai { align-self: flex-start; background: #111; border: 1px solid #222; }
+        /* Chat */
+        #chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth; }
+        .msg { padding: 14px 18px; border-radius: 20px; max-width: 85%; font-size: 14.5px; line-height: 1.6; animation: fadeInUp 0.3s ease; word-wrap: break-word; }
+        @keyframes fadeInUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        .user { align-self: flex-end; background: var(--accent); color: #000; font-weight: 600; border-bottom-right-radius: 4px; }
+        .ai { align-self: flex-start; background: #111; border: 1px solid #222; border-bottom-left-radius: 4px; }
+        .ai-img { width: 100%; border-radius: 15px; margin-top: 10px; border: 1px solid #333; display: block; }
 
+        /* Input */
         .input-area { padding: 10px 15px 25px 15px; background: #000; border-top: 1px solid #222; flex-shrink: 0; }
         .wrapper { display: flex; gap: 10px; background: #151515; padding: 5px 5px 5px 15px; border-radius: 30px; align-items: center; border: 1px solid #252525; }
         input { flex: 1; background: none; border: none; color: #fff; outline: none; height: 45px; font-size: 16px; }
-        .btn { background: var(--accent); border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn { background: var(--accent); border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; }
         
-        #preview { display: none; height: 60px; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--accent); }
+        #preview-container { display: none; padding: 10px; position: relative; }
+        #preview { height: 80px; border-radius: 12px; border: 2px solid var(--accent); object-fit: cover; }
+        .del-img { position: absolute; top: 0; left: 80px; background: #ff4444; color: #fff; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; }
         .hidden { display: none !important; }
     </style>
 </head>
@@ -50,41 +59,43 @@
     <div id="intro-screen">
         <div class="intro-box">
             <h1>ZEKA-X</h1>
-            <p>Bedirhan Ayaz'ın özel yapay zekası.</p>
+            <p>Bedirhan Ayaz tarafından geliştirilen<br>Supreme Yapay Zeka Sistemi</p>
             <button class="start-btn" onclick="initApp()">SİSTEMİ BAŞLAT</button>
         </div>
     </div>
 
     <div id="sidebar">
-        <button onclick="newChat()" style="background:var(--accent); color:#000; padding:12px; border-radius:10px; border:none; font-weight:800; margin-bottom:20px;">+ YENİ SOHBET</button>
+        <button onclick="newChat()" style="background:var(--accent); color:#000; padding:14px; border-radius:12px; border:none; font-weight:800; margin-bottom:25px; cursor:pointer;">+ YENİ SOHBET</button>
         <div id="session-list" style="flex:1; overflow-y:auto;"></div>
-        <button onclick="localStorage.clear(); location.reload();" style="color:#444; background:none; border:none; font-size:10px;">RESET</button>
+        <button onclick="localStorage.clear(); location.reload();" style="color:#444; background:none; border:none; font-size:10px; cursor:pointer;">BELLEĞİ SIFIRLA</button>
     </div>
 
     <div class="header">
-        <div class="brand">ZEKA-X CORE</div>
-        <div onclick="document.getElementById('sidebar').classList.toggle('open'); renderList();" style="font-size: 28px; cursor: pointer; color: var(--accent);">⋮</div>
+        <div class="brand">ZEKA-X PRIME</div>
+        <div onclick="document.getElementById('sidebar').classList.toggle('open'); renderList();" style="font-size: 28px; cursor: pointer; color: var(--accent); padding: 5px;">⋮</div>
     </div>
 
     <div id="chat-container"></div>
 
     <div class="input-area">
-        <img id="preview" src="">
+        <div id="preview-container">
+            <img id="preview" src="">
+            <div class="del-img" onclick="removeImg()">×</div>
+        </div>
         <form onsubmit="event.preventDefault(); handleSend();" class="wrapper">
-            <button type="button" onclick="document.getElementById('f').click()" style="color:#555; background:none; border:none; font-size:24px;">⊕</button>
+            <button type="button" onclick="document.getElementById('f').click()" style="color:#555; background:none; border:none; font-size:24px; cursor:pointer;">⊕</button>
             <input type="file" id="f" style="display:none" accept="image/*" onchange="handleImg(this)">
-            <input type="text" id="in" placeholder="Zeka-X'e bir şey yaz..." autocomplete="off">
+            <input type="text" id="in" placeholder="Yaz, çiz veya resim sor..." autocomplete="off">
             <button type="submit" class="btn">🚀</button>
         </form>
     </div>
 
     <script>
-        // --- 🔑 ANAHTAR BURADA (DOĞRULANDI) ---
+        // --- 🔑 CONFIG ---
         const API_KEY = "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";
-        
-        let sessions = JSON.parse(localStorage.getItem('zx_v44_data')) || {};
-        let currentId = localStorage.getItem('zx_v44_id');
-        let currentImg = null;
+        let sessions = JSON.parse(localStorage.getItem('zx_supreme_v1')) || {};
+        let currentId = localStorage.getItem('zx_supreme_cid');
+        let currentImgBase = null;
 
         function initApp() {
             document.getElementById('intro-screen').classList.add('hidden');
@@ -93,8 +104,9 @@
 
         function newChat() {
             currentId = 'zx_' + Date.now();
-            sessions[currentId] = { title: "Yeni Sohbet", msgs: [{role: "system", content: "Sen Zeka-X'sin. Bedirhan Ayaz tarafından yapıldın. Kısa ve net cevaplar ver."}] };
+            sessions[currentId] = { title: "Yeni Sohbet", msgs: [{role: "system", content: "Sen Zeka-X'sin. Bedirhan Ayaz tarafından geliştirildin. Kısa, öz ve net cevaplar ver. Görsel oluşturma yeteneğin var."}] };
             save(); renderChat();
+            document.getElementById('sidebar').classList.remove('open');
         }
 
         function handleImg(input) {
@@ -102,63 +114,85 @@
                 const r = new FileReader();
                 r.onload = e => {
                     document.getElementById('preview').src = e.target.result;
-                    document.getElementById('preview').style.display = 'block';
-                    currentImg = e.target.result.split(',')[1];
+                    document.getElementById('preview-container').style.display = 'block';
+                    currentImgBase = e.target.result.split(',')[1];
                 };
                 r.readAsDataURL(input.files[0]);
             }
         }
 
+        function removeImg() {
+            currentImgBase = null;
+            document.getElementById('preview-container').style.display = 'none';
+            document.getElementById('f').value = '';
+        }
+
         async function handleSend() {
             const input = document.getElementById('in');
             const txt = input.value.trim();
-            if(!txt && !currentImg) return;
+            if(!txt && !currentImgBase) return;
 
-            addMsgUI(txt || "(Görsel)", 'user');
+            // UI'da göster
+            let uiTxt = txt;
+            if(currentImgBase) uiTxt += `<br><img src="data:image/jpeg;base64,${currentImgBase}" style="width:100px; border-radius:10px; margin-top:10px;">`;
+            addMsgUI(uiTxt, 'user');
 
-            let payload = currentImg ? 
-                {role:"user", content:[{type:"text", text:txt || "Bunu gör"}, {type:"image_url", image_url:{url:`data:image/jpeg;base64,${currentImg}`}}]} : 
-                {role:"user", content:txt};
+            // Payload Hazırla
+            let payload;
+            if(currentImgBase) {
+                payload = { role: "user", content: [
+                    { type: "text", text: txt || "Bu resmi analiz et." },
+                    { type: "image_url", image_url: { url: `data:image/jpeg;base64,${currentImgBase}` } }
+                ]};
+            } else {
+                payload = { role: "user", content: txt };
+            }
 
             sessions[currentId].msgs.push(payload);
-            const tempImg = currentImg;
-            input.value = ''; currentImg = null; document.getElementById('preview').style.display = 'none';
+            if(sessions[currentId].title === "Yeni Sohbet") sessions[currentId].title = txt ? txt.substring(0,20) : "Görsel Analiz";
+            
+            // Çizim Kontrolü
+            let drawUrl = (txt.toLowerCase().includes("çiz") || txt.toLowerCase().includes("oluştur")) ? 
+                `https://image.pollinations.ai/prompt/${encodeURIComponent(txt)}?width=1024&height=1024&nologo=true` : null;
+
+            const tempImg = currentImgBase;
+            input.value = ''; removeImg();
 
             try {
-                // BAĞLANTIYI KURUYORUZ
                 const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
-                    headers: { 
-                        "Authorization": "Bearer " + API_KEY, 
-                        "Content-Type": "application/json" 
-                    },
+                    headers: { "Authorization": `Bearer ${API_KEY}`, "Content-Type": "application/json" },
                     body: JSON.stringify({
                         model: tempImg ? "llama-3.2-11b-vision-preview" : "llama-3.3-70b-versatile",
-                        messages: sessions[currentId].msgs
+                        messages: sessions[currentId].msgs,
+                        max_tokens: 500
                     })
                 });
 
                 const data = await res.json();
-                
-                if (data.error) {
-                    addMsgUI("❌ Hata: " + (data.error.message || "Anahtar reddedildi."), 'ai');
-                    return;
+                let reply = data.choices[0].message.content;
+
+                if(drawUrl) {
+                    reply += `<br><img src="${drawUrl}" class="ai-img" onload="scrollToBottom()">`;
                 }
 
-                const reply = data.choices[0].message.content;
                 addMsgUI(reply, 'ai');
                 sessions[currentId].msgs.push({role: "assistant", content: reply});
                 save();
-
             } catch (err) {
-                addMsgUI("❌ İnternet veya API hatası oluştu kral.", 'ai');
+                addMsgUI("Bir sorun oluştu, lütfen tekrar dener misin kaptan?", 'ai');
             }
         }
 
         function addMsgUI(t, c) {
             const d = document.createElement('div'); d.className = `msg ${c}`; d.innerHTML = t;
             const cnt = document.getElementById('chat-container');
-            cnt.appendChild(d); cnt.scrollTop = cnt.scrollHeight;
+            cnt.appendChild(d); scrollToBottom();
+        }
+
+        function scrollToBottom() {
+            const cnt = document.getElementById('chat-container');
+            cnt.scrollTop = cnt.scrollHeight;
         }
 
         function renderList() {
@@ -177,7 +211,7 @@
             if(currentId && sessions[currentId]) {
                 sessions[currentId].msgs.forEach(m => {
                     if(m.role !== 'system') {
-                        let text = typeof m.content === 'string' ? m.content : "Görsel Mesaj";
+                        let text = typeof m.content === 'string' ? m.content : m.content[0].text;
                         addMsgUI(text, m.role === 'user' ? 'user' : 'ai');
                     }
                 });
@@ -185,10 +219,12 @@
         }
 
         function save() { 
-            localStorage.setItem('zx_v44_data', JSON.stringify(sessions)); 
-            localStorage.setItem('zx_v44_id', currentId); 
+            localStorage.setItem('zx_supreme_v1', JSON.stringify(sessions)); 
+            localStorage.setItem('zx_supreme_cid', currentId); 
         }
+
+        window.onload = () => { if(currentId) renderChat(); };
     </script>
 </body>
-    </html>
-                
+                                                                                                                                                                        </html>
+        
