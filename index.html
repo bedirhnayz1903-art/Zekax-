@@ -3,36 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
-    
     <title>Zeka-X | Bedirhan Ayaz Supreme AI</title>
-    <meta name="description" content="Bedirhan Ayaz tarafından geliştirilen, internet erişimli ve görsel analiz yetenekli gelişmiş yapay zeka asistanı Zeka-X.">
-    <meta name="keywords" content="Zeka-X, Bedirhan Ayaz, Yapay Zeka, AI, BedoX, Teknoloji, Akıllı Asistan">
-    <meta name="author" content="Bedirhan Ayaz">
-
+    <meta name="description" content="Bedirhan Ayaz tarafından geliştirilen gelişmiş yapay zeka asistanı Zeka-X.">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #030303; --panel: #0d0d0d; --accent: #00ffcc; --text: #ffffff; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
         html, body { height: 100%; width: 100%; overflow: hidden; background: var(--bg); position: fixed; }
         body { display: flex; flex-direction: column; color: var(--text); }
-
-        /* 🚀 Giriş Paneli */
         #intro-screen { position: fixed; inset: 0; background: #000; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
         .intro-box h1 { color: var(--accent); font-size: 2.8rem; margin-bottom: 10px; letter-spacing: 5px; font-weight: 800; }
         .start-btn { background: var(--accent); color: #000; border: none; padding: 18px 60px; border-radius: 35px; font-weight: 800; cursor: pointer; transition: 0.3s; box-shadow: 0 0 25px rgba(0,255,204,0.3); }
-
-        /* ☰ Sidebar */
         #sidebar { position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background: var(--panel); z-index: 10000; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; padding: 25px; border-left: 1px solid #222; }
         #sidebar.open { right: 0; }
         .session-item { padding: 12px; background: #181818; border-radius: 12px; margin-bottom: 8px; font-size: 13px; cursor: pointer; border: 1px solid transparent; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .session-item.active { border-color: var(--accent); color: var(--accent); }
-
-        /* Header */
         .header { height: 65px; padding: 0 20px; background: #000; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; flex-shrink: 0; }
         .brand { color: var(--accent); font-weight: 800; letter-spacing: 2px; }
-        .status-badge { font-size: 10px; background: rgba(0,255,204,0.1); color: var(--accent); padding: 4px 10px; border-radius: 20px; border: 1px solid var(--accent); }
-
-        /* Chat */
         #chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth; }
         .msg { padding: 14px 18px; border-radius: 20px; max-width: 85%; font-size: 14.5px; line-height: 1.6; animation: fadeInUp 0.3s ease; word-wrap: break-word; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -40,52 +27,30 @@
         .ai { align-self: flex-start; background: #111; border: 1px solid #222; border-bottom-left-radius: 4px; }
         .ai-img { width: 100%; border-radius: 15px; margin-top: 10px; border: 1px solid #333; }
         .searching { font-style: italic; color: var(--accent); font-size: 12px; margin-bottom: 5px; opacity: 0.8; }
-
-        /* Input */
         .input-area { padding: 10px 15px 25px 15px; background: #000; border-top: 1px solid #222; flex-shrink: 0; }
         .wrapper { display: flex; gap: 10px; background: #151515; padding: 5px 5px 5px 15px; border-radius: 30px; align-items: center; border: 1px solid #252525; }
         input { flex: 1; background: none; border: none; color: #fff; outline: none; height: 45px; font-size: 16px; }
-        .btn { background: var(--accent); border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .btn:active { transform: scale(0.9); }
-        
+        .btn { background: var(--accent); border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         #preview-container { display: none; padding: 10px; position: relative; }
         #preview { height: 80px; border-radius: 12px; border: 2px solid var(--accent); }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
-
-    <div id="intro-screen">
-        <div class="intro-box">
-            <h1>ZEKA-X</h1>
-            <p style="color:#666; margin-bottom:20px;">Bedirhan Ayaz Supreme AI System<br>v49.0 Pure Edition</p>
-            <button class="start-btn" onclick="initApp()">SİSTEMİ BAŞLAT</button>
-        </div>
-    </div>
-
+    <div id="intro-screen"><div class="intro-box"><h1>ZEKA-X</h1><p style="color:#666; margin-bottom:20px;">Bedirhan Ayaz Supreme AI<br>v50 Shield Edition</p><button class="start-btn" onclick="initApp()">SİSTEMİ BAŞLAT</button></div></div>
     <div id="sidebar">
         <button onclick="newChat()" style="background:var(--accent); color:#000; padding:14px; border-radius:12px; border:none; font-weight:800; margin-bottom:25px; cursor:pointer; width:100%;">+ YENİ SOHBET</button>
         <div id="session-list" style="flex:1; overflow-y:auto;"></div>
-        <button onclick="localStorage.clear(); location.reload();" style="color:#444; background:none; border:none; font-size:10px; cursor:pointer; width:100%;">BELLEĞİ TEMİZLE</button>
+        <button onclick="localStorage.clear(); location.reload();" style="color:#444; background:none; border:none; font-size:10px; cursor:pointer; width:100%;">BELLEĞİ SIFIRLA</button>
     </div>
-
-    <div class="header">
-        <div class="brand">ZEKA-X</div>
-        <div class="status-badge">ONLINE</div>
-        <div onclick="document.getElementById('sidebar').classList.toggle('open'); renderList();" style="font-size: 28px; cursor: pointer; color: var(--accent); padding:5px;">⋮</div>
-    </div>
-
+    <div class="header"><div class="brand">ZEKA-X</div><div onclick="document.getElementById('sidebar').classList.toggle('open'); renderList();" style="font-size: 28px; cursor: pointer; color: var(--accent); padding:5px;">⋮</div></div>
     <div id="chat-container"></div>
-
     <div class="input-area">
-        <div id="preview-container">
-            <img id="preview" src="">
-            <div onclick="removeImg()" style="position:absolute; top:0; left:80px; background:red; color:white; border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; cursor:pointer;">×</div>
-        </div>
+        <div id="preview-container"><img id="preview" src=""><div onclick="removeImg()" style="position:absolute; top:0; left:80px; background:red; color:white; border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; cursor:pointer;">×</div></div>
         <form onsubmit="event.preventDefault(); handleSend();" class="wrapper">
             <button type="button" onclick="document.getElementById('f').click()" style="color:#555; background:none; border:none; font-size:24px; cursor:pointer;">⊕</button>
             <input type="file" id="f" style="display:none" accept="image/*" onchange="handleImg(this)">
-            <input type="text" id="in" placeholder="Zeka-X'e bir şeyler sor..." autocomplete="off">
+            <input type="text" id="in" placeholder="Mesaj gönder..." autocomplete="off">
             <button type="submit" class="btn">🚀</button>
         </form>
     </div>
@@ -93,79 +58,34 @@
     <script>
         const GROQ_KEY = "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";
         const TAVILY_KEY = "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";
-
-        let sessions = JSON.parse(localStorage.getItem('zx_v49_data')) || {};
-        let currentId = localStorage.getItem('zx_v49_id');
+        let sessions = JSON.parse(localStorage.getItem('zx_v50_data')) || {};
+        let currentId = localStorage.getItem('zx_v50_id');
         let currentImgBase = null;
 
-        function initApp() {
-            document.getElementById('intro-screen').classList.add('hidden');
-            if(!currentId) newChat(); else renderChat();
-        }
-
-        function newChat() {
-            currentId = 'zx_' + Date.now();
-            sessions[currentId] = { title: "Yeni Sohbet", msgs: [{role: "system", content: "Sen Zeka-X'sin. Bedirhan Ayaz tarafından geliştirildin. Kısa ve net konuş. İnternet erişimin ve görsel yeteneklerin var."}] };
-            save(); renderChat();
-            document.getElementById('sidebar').classList.remove('open');
-        }
-
-        function handleImg(input) {
-            if (input.files[0]) {
-                const r = new FileReader();
-                r.onload = e => {
-                    document.getElementById('preview').src = e.target.result;
-                    document.getElementById('preview-container').style.display = 'block';
-                    currentImgBase = e.target.result.split(',')[1];
-                };
-                r.readAsDataURL(input.files[0]);
-            }
-        }
-
-        function removeImg() {
-            currentImgBase = null;
-            document.getElementById('preview-container').style.display = 'none';
-        }
+        function initApp() { document.getElementById('intro-screen').classList.add('hidden'); if(!currentId) newChat(); else renderChat(); }
+        function newChat() { currentId = 'zx_' + Date.now(); sessions[currentId] = { title: "Yeni Sohbet", msgs: [{role: "system", content: "Sen Zeka-X'sin. Bedirhan Ayaz tarafından yapıldın."}] }; save(); renderChat(); document.getElementById('sidebar').classList.remove('open'); }
+        function handleImg(input) { if (input.files[0]) { const r = new FileReader(); r.onload = e => { document.getElementById('preview').src = e.target.result; document.getElementById('preview-container').style.display = 'block'; currentImgBase = e.target.result.split(',')[1]; }; r.readAsDataURL(input.files[0]); } }
+        function removeImg() { currentImgBase = null; document.getElementById('preview-container').style.display = 'none'; document.getElementById('f').value = ''; }
 
         async function handleSend() {
-            const input = document.getElementById('in');
-            const txt = input.value.trim();
+            const input = document.getElementById('in'); const txt = input.value.trim();
             if(!txt && !currentImgBase) return;
-
-            let uiTxt = txt;
-            if(currentImgBase) uiTxt += `<br><img src="data:image/jpeg;base64,${currentImgBase}" style="width:100px; border-radius:10px; margin-top:10px;">`;
+            let uiTxt = txt; if(currentImgBase) uiTxt += `<br><small style="color:var(--accent)">(Görsel Analiz Ediliyor...)</small>`;
             addMsgUI(uiTxt, 'user');
+            const loader = document.createElement('div'); loader.className = 'searching'; loader.innerText = '🔍 İşleniyor...';
+            document.getElementById('chat-container').appendChild(loader);
 
-            const searchLoader = document.createElement('div');
-            searchLoader.className = 'searching';
-            searchLoader.innerText = '🔍 Araştırılıyor...';
-            document.getElementById('chat-container').appendChild(searchLoader);
+            let payload = currentImgBase ? 
+                { role: "user", content: [{ type: "text", text: txt || "Resmi açıkla." }, { type: "image_url", image_url: { url: `data:image/jpeg;base64,${currentImgBase}` } }]} : 
+                { role: "user", content: txt };
 
-            let payload;
-            if(currentImgBase) {
-                payload = { role: "user", content: [{ type: "text", text: txt || "Resmi analiz et" }, { type: "image_url", image_url: { url: `data:image/jpeg;base64,${currentImgBase}` } }]};
-            } else {
-                payload = { role: "user", content: txt };
-            }
-
-            sessions[currentId].msgs.push(payload);
-            
-            let drawUrl = (txt.toLowerCase().includes("çiz") || txt.toLowerCase().includes("oluştur")) ? 
-                `https://image.pollinations.ai/prompt/${encodeURIComponent(txt)}?width=1024&height=1024&nologo=true` : null;
-
-            const tempImg = currentImgBase;
-            input.value = ''; removeImg();
+            const tempImg = currentImgBase; input.value = ''; removeImg();
 
             try {
                 let context = "";
                 if(!tempImg) {
-                    const sRes = await fetch("https://api.tavily.com/search", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ api_key: TAVILY_KEY, query: txt, max_results: 3 })
-                    });
-                    const sData = await sRes.json();
-                    context = sData.results.map(r => r.content).join("\n\n");
+                    const sRes = await fetch("https://api.tavily.com/search", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ api_key: TAVILY_KEY, query: txt, max_results: 3 }) });
+                    const sData = await sRes.json(); context = sData.results ? sData.results.map(r => r.content).join("\n") : "";
                 }
 
                 const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -173,61 +93,31 @@
                     headers: { "Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json" },
                     body: JSON.stringify({
                         model: tempImg ? "llama-3.2-11b-vision-preview" : "llama-3.3-70b-versatile",
-                        messages: [
-                            ...sessions[currentId].msgs,
-                            {role: "system", content: context ? `Güncel Veriler: ${context}` : ""}
-                        ]
+                        messages: [...sessions[currentId].msgs, payload, {role:"system", content: context ? "İnternet: "+context : ""}],
+                        temperature: 0.5
                     })
                 });
 
-                const data = await res.json();
-                searchLoader.remove();
-                let reply = data.choices[0].message.content;
-                if(drawUrl) reply += `<br><img src="${drawUrl}" class="ai-img">`;
+                const data = await res.json(); loader.remove();
+                if(data.error) throw new Error(data.error.message);
 
+                const reply = data.choices[0].message.content;
                 addMsgUI(reply, 'ai');
-                sessions[currentId].msgs.push({role: "assistant", content: reply});
+                sessions[currentId].msgs.push(payload, {role: "assistant", content: reply});
                 save();
             } catch (err) {
-                searchLoader.remove();
-                addMsgUI("Bir hata oluştu, lütfen tekrar deneyin.", 'ai');
+                loader.remove();
+                addMsgUI("⚠️ Bir sorun oluştu. Belleği temizleyip tekrar dene kaptan.", 'ai');
+                console.error(err);
             }
         }
 
-        function addMsgUI(t, c) {
-            const d = document.createElement('div'); d.className = `msg ${c}`; d.innerHTML = t;
-            const cnt = document.getElementById('chat-container');
-            cnt.appendChild(d); cnt.scrollTop = cnt.scrollHeight;
-        }
-
-        function renderList() {
-            const list = document.getElementById('session-list'); list.innerHTML = '';
-            Object.keys(sessions).reverse().forEach(id => {
-                const item = document.createElement('div');
-                item.className = `session-item ${id === currentId ? 'active' : ''}`;
-                item.innerText = sessions[id].title;
-                item.onclick = () => { currentId = id; save(); renderChat(); document.getElementById('sidebar').classList.remove('open'); };
-                list.appendChild(item);
-            });
-        }
-
-        function renderChat() {
-            const cnt = document.getElementById('chat-container'); cnt.innerHTML = '';
-            if(currentId && sessions[currentId]) {
-                sessions[currentId].msgs.forEach(m => {
-                    if(m.role !== 'system') {
-                        let text = typeof m.content === 'string' ? m.content : (m.content[0].text || "Medya");
-                        addMsgUI(text, m.role === 'user' ? 'user' : 'ai');
-                    }
-                });
-            }
-        }
-
-        function save() { 
-            localStorage.setItem('zx_v49_data', JSON.stringify(sessions)); 
-            localStorage.setItem('zx_v49_id', currentId); 
-        }
+        function addMsgUI(t, c) { const d = document.createElement('div'); d.className = `msg ${c}`; d.innerHTML = t; document.getElementById('chat-container').appendChild(d); document.getElementById('chat-container').scrollTop = document.getElementById('chat-container').scrollHeight; }
+        function renderList() { const list = document.getElementById('session-list'); list.innerHTML = ''; Object.keys(sessions).reverse().forEach(id => { const item = document.createElement('div'); item.className = `session-item ${id === currentId ? 'active' : ''}`; item.innerText = sessions[id].title; item.onclick = () => { currentId = id; save(); renderChat(); document.getElementById('sidebar').classList.remove('open'); }; list.appendChild(item); }); }
+        function renderChat() { document.getElementById('chat-container').innerHTML = ''; if(currentId && sessions[currentId]) { sessions[currentId].msgs.forEach(m => { if(m.role !== 'system') { let text = typeof m.content === 'string' ? m.content : (m.content[0].text || "Medya"); addMsgUI(text, m.role === 'user' ? 'user' : 'ai'); } }); } }
+        function save() { localStorage.setItem('zx_v50_data', JSON.stringify(sessions)); localStorage.setItem('zx_v50_id', currentId); }
         window.onload = () => { if(currentId) renderChat(); };
     </script>
 </body>
-</html>
+            </html>
+    
