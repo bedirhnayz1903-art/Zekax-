@@ -3,127 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZEKA-X ELITE PRO 🦾</title>
+    <title>ZEKA-X ELITE PRO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root { 
-            --bg: #050505; --panel: #121212; --accent: #00ffcc; --text: #e0e0e0; 
-            --user-bg: linear-gradient(135deg, #00ffcc, #0088cc);
+            --bg: #080808; --panel: #111111; --accent: #00ffcc; --text: #f0f0f0; 
+            --glass: rgba(255, 255, 255, 0.03);
         }
         
-        /* 🔥 TEMALAR */
-        body.tema-besiktas { --accent: #ffffff; --user-bg: linear-gradient(135deg, #444, #000); --panel: #111; --glow: rgba(255,255,255,0.08); }
-        body.tema-galatasaray { --accent: #febd11; --user-bg: linear-gradient(135deg, #ff0000, #febd11); --panel: #2a0000; --glow: rgba(255,0,0,0.15); }
-        body.tema-fenerbahce { --accent: #ffff00; --user-bg: linear-gradient(135deg, #003399, #ffff00); --panel: #001a4d; --glow: rgba(0,51,153,0.2); }
-        body.tema-trabzonspor { --accent: #0099cc; --user-bg: linear-gradient(135deg, #660033, #0099cc); --panel: #33001a; --glow: rgba(0,153,204,0.15); }
-        body.tema-klasik { --accent: #00ffcc; --user-bg: linear-gradient(135deg, #00ffcc, #0088cc); --panel: #121212; --glow: rgba(0,255,204,0.1); }
+        /* 🔥 TAKIM VURGULARI (SADECE RENK OLARAK) */
+        body.tema-besiktas { --accent: #ffffff; --glow: rgba(255,255,255,0.1); }
+        body.tema-galatasaray { --accent: #febd11; --glow: rgba(255,0,0,0.15); }
+        body.tema-fenerbahce { --accent: #ffff00; --glow: rgba(0,51,153,0.2); }
+        body.tema-trabzonspor { --accent: #0099cc; --glow: rgba(102,0,51,0.15); }
+        body.tema-klasik { --accent: #00ffcc; --glow: rgba(0,255,204,0.1); }
 
-        body { background-color: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { 
+            background-color: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; 
+            margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+        }
 
-        /* Arka Plan Efekti - Tıklamaya Engel Olmaması İçin pointer-events:none */
+        /* Dinamik Arka Plan */
         body::before {
             content: ""; position: absolute; inset: 0;
-            background: radial-gradient(circle at 50% 50%, var(--glow) 0%, transparent 75%);
-            pointer-events: none; z-index: -1; animation: pulseGlow 5s infinite alternate;
+            background: radial-gradient(circle at top right, var(--glow), transparent),
+                        radial-gradient(circle at bottom left, var(--glow), transparent);
+            z-index: -1; pointer-events: none; opacity: 0.6;
         }
-        @keyframes pulseGlow { from { opacity: 0.4; } to { opacity: 1; } }
 
-        /* TEMA SEÇİM EKRANI (Düzeltildi) */
+        /* Üst Menü */
+        .header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 18px 25px; background: rgba(0,0,0,0.4); backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .logo { 
+            font-weight: 800; font-size: 1.1rem; letter-spacing: 2px; color: var(--accent);
+            text-shadow: 0 0 15px var(--accent);
+        }
+
+        /* Sohbet Alanı */
+        #chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
+        
+        /* Mesaj Balonları - Profesyonel Glassmorphism */
+        .msg { 
+            padding: 14px 18px; border-radius: 18px; max-width: 85%; font-size: 14px; 
+            line-height: 1.6; position: relative; transition: 0.3s;
+            animation: msgShow 0.4s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+        }
+        @keyframes msgShow { from { opacity: 0; transform: translateY(10px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+        .user { 
+            align-self: flex-end; background: var(--accent); color: #000; 
+            font-weight: 500; border-bottom-right-radius: 2px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .ai { 
+            align-self: flex-start; background: var(--glass); border: 1px solid rgba(255,255,255,0.08); 
+            backdrop-filter: blur(10px); border-bottom-left-radius: 2px;
+        }
+
+        /* Yazıyor... Göstergesi */
+        .typing { font-size: 12px; color: var(--accent); margin-bottom: 10px; display: none; font-weight: 600; letter-spacing: 1px; }
+
+        /* Giriş Alanı */
+        .input-area { 
+            padding: 20px; background: rgba(10,10,10,0.8); backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .input-box { 
+            display: flex; gap: 10px; background: rgba(255,255,255,0.03); 
+            padding: 8px 8px 8px 18px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.1);
+            transition: 0.3s;
+        }
+        .input-box:focus-within { border-color: var(--accent); box-shadow: 0 0 15px rgba(var(--accent-rgb), 0.2); }
+        input { flex: 1; background: none; border: none; color: white; outline: none; font-size: 14px; }
+        
+        .send-btn { 
+            background: var(--accent); border: none; width: 40px; height: 40px; 
+            border-radius: 50%; color: #000; cursor: pointer; transition: 0.3s;
+        }
+        .send-btn:hover { transform: scale(1.1); }
+
+        /* Tema Seçici */
         #theme-overlay { 
-            position: fixed; inset: 0; background: rgba(0,0,0,0.98); 
-            z-index: 10000; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; gap: 15px; 
-            backdrop-filter: blur(15px); transition: 0.4s;
+            position: fixed; inset: 0; background: #000; z-index: 10000; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; 
         }
-        #theme-overlay.hidden { opacity: 0; pointer-events: none; visibility: hidden; }
-        
-        /* Butonların Tıklanabilirliğini Garantileyen Sınıf */
         .theme-card { 
-            width: 85%; max-width: 320px; padding: 20px; 
-            border-radius: 18px; border: 2px solid rgba(255,255,255,0.1); 
-            cursor: pointer; text-align: center; font-weight: bold; 
-            font-size: 1.1rem; position: relative; z-index: 10001;
-            transition: 0.2s; -webkit-tap-highlight-color: transparent;
+            width: 80%; max-width: 300px; padding: 15px; border-radius: 12px; 
+            border: 1px solid rgba(255,255,255,0.1); cursor: pointer; text-align: center; 
+            font-weight: 600; transition: 0.3s;
         }
-        .theme-card:active { transform: scale(0.96); opacity: 0.8; }
+        .theme-card:hover { border-color: var(--accent); background: rgba(255,255,255,0.05); }
+        .hidden { display: none !important; }
 
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--panel); border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .logo { color: var(--accent); font-weight: 900; font-size: 1.2rem; }
-        
-        #match-ticker { background: var(--accent); color: #000; font-size: 10px; font-weight: bold; text-align: center; padding: 4px 0; }
-        #chat-container { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
-        
-        .msg { padding: 12px 18px; border-radius: 20px; max-width: 80%; font-size: 14.5px; line-height: 1.5; }
-        .user { align-self: flex-end; background: var(--user-bg); color: #fff; border-bottom-right-radius: 4px; }
-        .ai { align-self: flex-start; background: rgba(30, 30, 30, 0.9); border-bottom-left-radius: 4px; border: 1px solid rgba(255,255,255,0.05); }
-
-        .input-area { padding: 15px; background: var(--panel); border-top: 1px solid rgba(255,255,255,0.05); }
-        input { flex: 1; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 14px 18px; border-radius: 30px; outline: none; }
-        
-        .send-btn { background: var(--accent); width: 45px; height: 45px; border: none; border-radius: 50%; color: #000; font-size: 20px; }
-        .drawer { position: fixed; top: 0; right: -100%; width: 80%; height: 100%; background: var(--panel); transition: 0.3s; z-index: 999; border-left: 2px solid var(--accent); padding: 25px; }
-        .drawer.open { right: 0; }
+        /* Resim Görüntüleme */
+        .ai-img { width: 100%; border-radius: 12px; margin-top: 10px; border: 1px solid rgba(255,255,255,0.1); }
     </style>
 </head>
 <body>
 
     <div id="theme-overlay">
-        <h2 style="color:white; margin-bottom:10px;">Tarafını Seç Kaptan ⚽</h2>
-        <div class="theme-card" style="background:#111; color:#fff;" onclick="setTheme('besiktas')">BEŞİKTAŞ 🦅</div>
-        <div class="theme-card" style="background:#ff0000; color:#febd11;" onclick="setTheme('galatasaray')">GALATASARAY 🦁</div>
-        <div class="theme-card" style="background:#003399; color:#ffff00;" onclick="setTheme('fenerbahce')">FENERBAHÇE 🐦</div>
-        <div class="theme-card" style="background:#660033; color:#0099cc;" onclick="setTheme('trabzonspor')">TRABZONSPOR 🌪️</div>
-        <div class="theme-card" style="background:#121212; color:#00ffcc; border: 1px solid #00ffcc;" onclick="setTheme('klasik')">🤖 KLASİK / TARAFSIZ</div>
+        <h1 style="font-size: 1.5rem; margin-bottom: 20px; letter-spacing: 2px;">ZEKA-X <span style="font-weight:300">ELITE</span></h1>
+        <div class="theme-card" style="border-left: 5px solid #fff;" onclick="setTheme('besiktas')">BEŞİKTAŞ EDITION</div>
+        <div class="theme-card" style="border-left: 5px solid #ff0000;" onclick="setTheme('galatasaray')">GALATASARAY EDITION</div>
+        <div class="theme-card" style="border-left: 5px solid #ffff00;" onclick="setTheme('fenerbahce')">FENERBAHÇE EDITION</div>
+        <div class="theme-card" style="border-left: 5px solid #0099cc;" onclick="setTheme('trabzonspor')">TRABZONSPOR EDITION</div>
+        <div class="theme-card" style="border-left: 5px solid #00ffcc;" onclick="setTheme('klasik')">PURE AI (KLASİK)</div>
     </div>
-
-    <div id="match-ticker">SİSTEM ÇALIŞIYOR • ZEKA-X ELITE PRO</div>
 
     <div class="header">
-        <div class="logo">⚡ ZEKA-X PRO</div>
-        <div onclick="toggleDrawer()" style="cursor:pointer; color:var(--accent); font-size:28px;">☰</div>
+        <div class="logo">ZEKA-X</div>
+        <div style="font-size: 10px; color: gray; letter-spacing: 1px;">SYSTEM V26.4</div>
     </div>
 
-    <div id="chat-container"></div>
-
-    <div id="drawer" class="drawer">
-        <h3 style="color:var(--accent)">AYARLAR</h3>
-        <button onclick="openThemePicker()" style="width:100%; padding:12px; background:var(--accent); color:#000; border:none; border-radius:10px; font-weight:bold; margin-bottom:15px;">🎨 TEMA DEĞİŞTİR</button>
-        <button onclick="resetKey()" style="width:100%; padding:8px; background:transparent; color:#ff4444; border:1px solid #ff4444; border-radius:10px;">🔑 ANAHTARI SIFIRLA</button>
+    <div id="chat-container">
+        <div class="msg ai">Sistem hazır kaptan. Sana bugün nasıl asistanlık yapabilirim?</div>
     </div>
+
+    <div id="typing-indicator" class="typing" style="padding: 0 25px;">ZEKA-X DÜŞÜNÜYOR...</div>
 
     <div class="input-area">
-        <form style="display:flex; gap:8px; align-items:center;" onsubmit="event.preventDefault(); handleAction('chat');">
-            <input type="text" id="userInput" placeholder="Mesajını yaz..." autocomplete="off">
+        <form class="input-box" onsubmit="event.preventDefault(); handleAction();">
+            <input type="text" id="userInput" placeholder="Mesajını buraya bırak..." autocomplete="off">
             <button type="submit" class="send-btn">🚀</button>
         </form>
     </div>
 
     <script>
-        let API_KEY = localStorage.getItem('groq_key_v25');
+        let API_KEY = localStorage.getItem('groq_key_v26');
         if (!API_KEY) {
-            API_KEY = prompt("API Key gir kaptan:");
-            if (API_KEY) localStorage.setItem('groq_key_v25', API_KEY.trim());
+            API_KEY = prompt("Lütfen sistem yetkilendirme anahtarını (API KEY) girin:");
+            if (API_KEY) localStorage.setItem('groq_key_v26', API_KEY.trim());
         }
 
-        function resetKey() { localStorage.removeItem('groq_key_v25'); location.reload(); }
-
-        // TEMA SEÇME FONKSİYONU - HATASIZ SÜRÜM
         function setTheme(team) {
-            console.log("Seçilen tema tıklandı: " + team);
             document.body.className = 'tema-' + team;
             localStorage.setItem('user_theme', team);
-            
-            const overlay = document.getElementById('theme-overlay');
-            overlay.style.opacity = '0';
-            setTimeout(() => {
-                overlay.classList.add('hidden');
-            }, 400);
-
-            const ticker = document.getElementById('match-ticker');
-            if(team === 'besiktas') ticker.innerText = "🦅 BEŞİKTAŞ MODU AKTİF";
-            else if(team === 'galatasaray') ticker.innerText = "🦁 GALATASARAY MODU AKTİF";
-            else if(team === 'fenerbahce') ticker.innerText = "🐦 FENERBAHÇE MODU AKTİF";
-            else if(team === 'trabzonspor') ticker.innerText = "🌪️ TRABZONSPOR MODU AKTİF";
-            else ticker.innerText = "🤖 KLASİK MOD AKTİF";
+            document.getElementById('theme-overlay').classList.add('hidden');
         }
 
         window.onload = () => {
@@ -131,38 +150,59 @@
             if(saved) setTheme(saved);
         };
 
-        function openThemePicker() { document.getElementById('theme-overlay').classList.remove('hidden'); document.getElementById('theme-overlay').style.opacity = '1'; toggleDrawer(); }
-        function toggleDrawer() { document.getElementById('drawer').classList.toggle('open'); }
-
-        async function handleAction(type) {
+        async function handleAction() {
             const input = document.getElementById('userInput');
             const text = input.value.trim();
             if (!text) return;
 
             addMsg(text, 'user');
             input.value = '';
-            const aiMsg = addMsg("⚡...", 'ai');
             
+            const typing = document.getElementById('typing-indicator');
+            typing.style.display = 'block';
+
             try {
+                // Görsel Komutu Kontrolü
+                if (text.toLowerCase().includes("çiz") || text.toLowerCase().includes("oluştur")) {
+                    const aiMsg = addMsg("🎨 İstediğin görseli nöral ağlarda tasarlıyorum...", 'ai');
+                    const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(text)}?width=1024&height=1024&nologo=true&enhance=true`;
+                    aiMsg.innerHTML = `<img src="${imgUrl}" class="ai-img" onclick="window.open('${imgUrl}')">`;
+                    typing.style.display = 'none';
+                    return;
+                }
+
                 const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
                     headers: { "Authorization": `Bearer ${API_KEY}`, "Content-Type": "application/json" },
                     body: JSON.stringify({ 
                         model: "llama-3.3-70b-versatile", 
-                        messages: [{role: "system", content: "Sen Zeka-X Pro'sun. Samimi ol."}, {role: "user", content: text}]
+                        messages: [
+                            {role: "system", content: "Sen Zeka-X adında profesyonel bir yapay zekasın. Bedirhan Ayaz tarafından geliştirildin. Yanıtların çok zeki, kısa ve etkileyici olsun."},
+                            {role: "user", content: text}
+                        ]
                     })
                 });
+                
                 const data = await res.json();
-                aiMsg.innerHTML = data.choices[0].message.content;
-            } catch { aiMsg.innerText = "Hata oluştu!"; }
+                typing.style.display = 'none';
+                addMsg(data.choices[0].message.content, 'ai');
+
+            } catch (err) {
+                typing.style.display = 'none';
+                addMsg("Bağlantı hatası. Lütfen API anahtarını kontrol et.", 'ai');
+            }
         }
 
         function addMsg(t, c) {
-            const d = document.createElement('div'); d.className = `msg ${c}`; d.innerHTML = t;
+            const d = document.createElement('div'); 
+            d.className = `msg ${c}`; 
+            d.innerHTML = t;
             const cont = document.getElementById('chat-container');
-            cont.appendChild(d); cont.scrollTop = cont.scrollHeight; return d;
+            cont.appendChild(d); 
+            cont.scrollTo({ top: cont.scrollHeight, behavior: 'smooth' });
+            return d;
         }
     </script>
 </body>
-            </html>
+    </html>
     
