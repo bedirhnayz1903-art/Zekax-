@@ -10,17 +10,21 @@
             --user-bg: linear-gradient(135deg, #00ffcc, #00cca3);
         }
         
+        /* 🔥 TAKIM VE KLASİK TEMA TANIMLARI */
         body.tema-besiktas { --accent: #ffffff; --user-bg: linear-gradient(135deg, #444, #000); --panel: #111; }
         body.tema-galatasaray { --accent: #febd11; --user-bg: linear-gradient(135deg, #ff0000, #febd11); --panel: #2a0000; }
         body.tema-fenerbahce { --accent: #ffff00; --user-bg: linear-gradient(135deg, #003399, #ffff00); --panel: #001a4d; }
         body.tema-trabzonspor { --accent: #0099cc; --user-bg: linear-gradient(135deg, #660033, #0099cc); --panel: #33001a; }
+        body.tema-klasik { --accent: #00ffcc; --user-bg: linear-gradient(135deg, #00ffcc, #0088cc); --panel: #121212; }
 
         body { background-color: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; transition: 0.6s ease; }
         
+        /* Tema Seçim Ekranı */
         #theme-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; backdrop-filter: blur(20px); transition: 0.5s; }
         #theme-overlay.hidden { opacity: 0; pointer-events: none; visibility: hidden; }
         
-        .theme-card { width: 85%; max-width: 350px; padding: 22px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; text-align: center; font-weight: bold; font-size: 1.1rem; }
+        .theme-card { width: 85%; max-width: 350px; padding: 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; text-align: center; font-weight: bold; font-size: 1.1rem; transition: 0.3s; }
+        .theme-card:active { transform: scale(0.95); }
         
         .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--panel); border-bottom: 2px solid rgba(255,255,255,0.05); }
         .logo { color: var(--accent); font-weight: 900; font-size: 1.3rem; text-shadow: 0 0 15px var(--accent); }
@@ -39,7 +43,7 @@
         .action-btn { background: #222; color: var(--accent); border: 1px solid #444; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; font-size: 20px; transition: 0.3s; }
         .action-btn.active { background: #ff0000; color: white; border-color: #ff0000; box-shadow: 0 0 15px rgba(255,0,0,0.5); }
 
-        .send-btn { background: var(--accent); width: 50px; height: 50px; border: none; border-radius: 50%; cursor: pointer; color: #000; font-size: 24px; }
+        .send-btn { background: var(--accent); width: 50px; height: 50px; border: none; border-radius: 50%; cursor: pointer; color: #000; font-size: 24px; box-shadow: 0 0 10px var(--accent); }
         
         .drawer { position: fixed; top: 0; right: -100%; width: 85%; height: 100%; background: var(--panel); transition: 0.5s ease; z-index: 1000; padding: 25px; box-sizing: border-box; border-left: 4px solid var(--accent); }
         .drawer.open { right: 0; }
@@ -49,11 +53,12 @@
 <body>
 
     <div id="theme-overlay">
-        <h2 style="color:white; margin-bottom:20px;">Tarafını Seç Kaptan ⚽</h2>
+        <h2 style="color:white; margin-bottom:15px; font-family: sans-serif;">Tarafını Seç Kaptan ⚽</h2>
         <div class="theme-card" style="background:#111; color:#fff;" onclick="setTheme('besiktas')">BEŞİKTAŞ 🦅</div>
         <div class="theme-card" style="background:#ff0000; color:#febd11;" onclick="setTheme('galatasaray')">GALATASARAY 🦁</div>
         <div class="theme-card" style="background:#003399; color:#ffff00;" onclick="setTheme('fenerbahce')">FENERBAHÇE 🐦</div>
         <div class="theme-card" style="background:#660033; color:#0099cc;" onclick="setTheme('trabzonspor')">TRABZONSPOR 🌪️</div>
+        <div class="theme-card" style="background:#121212; color:#00ffcc; border: 1px solid #00ffcc; margin-top: 10px;" onclick="setTheme('klasik')">🤖 KLASİK / TARAFSIZ 🤖</div>
     </div>
 
     <div class="header">
@@ -84,15 +89,14 @@
     </div>
 
     <script>
-        // API Key yönetimi - Hataları önlemek için v21 sürümü
-        let API_KEY = localStorage.getItem('groq_key_v21');
+        let API_KEY = localStorage.getItem('groq_key_v22');
 
         if (!API_KEY) {
             API_KEY = prompt("Zeka-X için Groq API Key gir kral:");
-            if (API_KEY) localStorage.setItem('groq_key_v21', API_KEY.trim());
+            if (API_KEY) localStorage.setItem('groq_key_v22', API_KEY.trim());
         }
 
-        function resetKey() { localStorage.removeItem('groq_key_v21'); location.reload(); }
+        function resetKey() { localStorage.removeItem('groq_key_v22'); location.reload(); }
 
         const synth = window.speechSynthesis;
         function speakText(text) {
@@ -102,14 +106,25 @@
         }
         function stopSpeech() { synth.cancel(); }
 
+        // Tema Seçimi ve Karşılama
         function setTheme(team) {
             document.body.className = 'tema-' + team;
             localStorage.setItem('user_theme', team);
             document.getElementById('theme-overlay').classList.add('hidden');
+            
+            // Eğer yeni bir sohbetse ufak bir sesli karşılama yap
+            if(document.getElementById('chat-container').innerHTML === "") {
+                const aiMsg = addMsg("⚡ Sistem aktif! Seni dinliyorum kaptan...", 'ai');
+                speakText("Sistem aktif! Seni dinliyorum kaptan.");
+            }
         }
         
-        const savedTheme = localStorage.getItem('user_theme');
-        if(savedTheme) setTheme(savedTheme);
+        window.onload = () => {
+            const savedTheme = localStorage.getItem('user_theme');
+            if(savedTheme) {
+                setTheme(savedTheme);
+            }
+        };
 
         function openThemePicker() { document.getElementById('theme-overlay').classList.remove('hidden'); toggleDrawer(); }
         function toggleDrawer() { document.getElementById('drawer').classList.toggle('open'); }
@@ -156,7 +171,7 @@
                 aiMsg.innerHTML = reply;
                 speakText(reply);
             } catch (err) { 
-                aiMsg.innerText = "Kral bir hata oluştu. API anahtarını kontrol et veya tekrar dene!"; 
+                aiMsg.innerText = "Kral bir hata oluştu. Ayarlardan API anahtarını sıfırlayıp tekrar girmeyi dene!"; 
                 console.error(err);
             }
         }
