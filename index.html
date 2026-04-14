@@ -23,7 +23,6 @@
         .zx-logo { width: 20px; height: 20px; background-color: var(--accent); mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/%3E%3C/svg%3E") no-repeat center; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/%3E%3C/svg%3E") no-repeat center; }
         .zx-text { font-weight: 800; letter-spacing: 2px; color: var(--accent); font-size: 0.8rem; }
 
-        /* Oturum Menüsü (Sidebar) */
         #history-sidebar {
             position: fixed; top: 0; right: -300px; width: 300px; height: 100%;
             background: var(--panel); z-index: 2000; transition: 0.4s ease;
@@ -32,11 +31,7 @@
         #history-sidebar.open { right: 0; }
         .new-chat-btn { background: var(--accent); color: #000; padding: 12px; border-radius: 12px; border: none; font-weight: 800; margin-bottom: 20px; cursor: pointer; }
         
-        .session-item { 
-            padding: 12px; background: rgba(255,255,255,0.03); border-radius: 10px; 
-            margin-bottom: 8px; font-size: 13px; cursor: pointer; border: 1px solid transparent;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
+        .session-item { padding: 12px; background: rgba(255,255,255,0.03); border-radius: 10px; margin-bottom: 8px; font-size: 13px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .session-item.active { border-color: var(--accent); background: rgba(0, 255, 204, 0.05); color: var(--accent); }
 
         #chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
@@ -45,9 +40,19 @@
         .ai { align-self: flex-start; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
 
         .input-area { padding: 20px; background: rgba(0,0,0,0.8); border-top: 1px solid rgba(255,255,255,0.05); }
-        .input-wrapper { display: flex; gap: 10px; background: #111; padding: 10px 15px; border-radius: 30px; border: 1px solid #222; }
-        input { flex: 1; background: none; border: none; color: white; outline: none; }
-        .send-btn { background: var(--accent); border: none; width: 40px; height: 40px; border-radius: 50%; color: #000; cursor: pointer; }
+        .input-wrapper { display: flex; gap: 10px; background: #111; padding: 5px 10px 5px 18px; border-radius: 30px; border: 1px solid #222; align-items: center; }
+        input { flex: 1; background: none; border: none; color: white; outline: none; font-size: 14px; }
+        
+        .action-btn { background: #181818; color: #888; border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 18px; cursor: pointer; transition: 0.2s; }
+        .action-btn:hover { color: #fff; background: #222; }
+        .send-btn { background: var(--accent); border: none; width: 40px; height: 40px; border-radius: 50%; color: #000; cursor: pointer; font-size: 18px; }
+
+        .hidden { display: none !important; }
+        .user-img { max-width: 150px; border-radius: 10px; margin-top: 5px; border: 1px solid rgba(255,255,255,0.1); }
+        .ai-img { width: 100%; border-radius: 15px; margin-top: 10px; border: 1px solid var(--accent); }
+        
+        #preview-area { display: none; padding: 10px; background: #111; border-top: 1px solid #222; border-radius: 15px 15px 0 0; }
+        #preview-img { max-width: 80px; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -70,18 +75,28 @@
     <div id="chat-container"></div>
     <div id="typing" style="display:none; padding:10px 25px; font-size:11px; color:var(--accent); font-weight:bold;">İŞLENİYOR...</div>
 
+    <div id="preview-area">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <img id="preview-img" src="" alt="Önizleme">
+            <button onclick="clearImage()" style="color: #ff4444; background:none; border:none; padding:10px;">Kaldır ✕</button>
+        </div>
+    </div>
+
     <div class="input-area">
         <form class="input-wrapper" onsubmit="event.preventDefault(); handleAction();">
-            <input type="text" id="userInput" placeholder="Mesajını yaz..." autocomplete="off">
+            <button type="button" class="action-btn" onclick="document.getElementById('imageInput').click()">+</button>
+            <input type="file" id="imageInput" class="hidden" accept="image/*" onchange="previewImage(this)">
+            
+            <input type="text" id="userInput" placeholder="Mesajını yaz, bir şey çizdir veya fotoğraf at..." autocomplete="off">
             <button type="submit" class="send-btn">🚀</button>
         </form>
     </div>
 
     <script>
-        // ANA HAFIZA YAPISI
         let allSessions = JSON.parse(localStorage.getItem('zx_sessions')) || {};
         let currentSessionId = localStorage.getItem('zx_current_id') || null;
         const API_KEY = localStorage.getItem('groq_key_v30');
+        let selectedImageBase64 = null; // Yüklenen resmi saklar
 
         function toggleSidebar() { 
             document.getElementById('history-sidebar').classList.toggle('open');
@@ -92,7 +107,7 @@
             currentSessionId = 'chat_' + Date.now();
             allSessions[currentSessionId] = {
                 title: "Yeni Sohbet",
-                messages: [{role: "system", content: "Sen Zeka-X'sin. Bedirhan Ayaz tarafından geliştirildin."}]
+                messages: [{role: "system", content: "Sen Zeka-X'sin. Bedirhan Ayaz tarafından geliştirildin. Samimi, zeki, çok yönlü bir asistansın (hem görsel anlar hem de oluşturursun). Önceki mesajları hatırla ve ona göre cevap ver."}]
             };
             saveAndRender();
             toggleSidebar();
@@ -130,29 +145,83 @@
             });
         }
 
+        // --- GÖRSEL YÜKLEME VE ÖNİZLEME ---
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('preview-img').src = e.target.result;
+                    document.getElementById('preview-area').style.display = 'block';
+                    selectedImageBase64 = e.target.result.split(',')[1]; // Sadece Base64 verisini al
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function clearImage() {
+            document.getElementById('imageInput').value = '';
+            document.getElementById('preview-area').style.display = 'none';
+            document.getElementById('preview-img').src = '';
+            selectedImageBase64 = null;
+        }
+
         async function handleAction() {
             const input = document.getElementById('userInput');
             const text = input.value.trim();
-            if (!text) return;
+            if (!text && !selectedImageBase64) return;
 
-            // Eğer hiç session yoksa oluştur
             if (!currentSessionId) createNewChat();
 
-            renderMsg(text, 'user');
-            allSessions[currentSessionId].messages.push({role: "user", content: text});
+            // Kullanıcı mesajını ve resmini ekrana bas
+            let userContentHTML = text;
+            if (selectedImageBase64) {
+                const imgSrc = document.getElementById('preview-img').src;
+                userContentHTML += `<br><img src="${imgSrc}" class="user-img">`;
+            }
+            renderMsg(userContentHTML, 'user');
+
+            // --- Hafıza İçin Mesaj Paketini Hazırla ---
+            let groqMessages = [];
+            // Önceki mesajları ekle (Groq Llama 3.2 Vision'ın mesaj yapısına uygun)
+            allSessions[currentSessionId].messages.forEach(m => {
+                groqMessages.push(m);
+            });
+
+            // Yeni mesajı oluştur
+            let newMessageObject = {
+                role: "user",
+                content: []
+            };
+
+            // Metin varsa ekle
+            if (text) newMessageObject.content.push({ type: "text", text: text });
+
+            // Resim varsa ekle
+            if (selectedImageBase64) {
+                newMessageObject.content.push({
+                    type: "image_url",
+                    image_url: {
+                        url: `data:image/jpeg;base64,${selectedImageBase64}`
+                    }
+                });
+            }
+
+            // Hafızaya ekle (Hafızada metin HTML olarak kalacak, ama Groq'a obje olarak gidecek)
+            allSessions[currentSessionId].messages.push({role: "user", content: userContentHTML});
             
-            // İlk mesajsa başlığı güncelle
             if (allSessions[currentSessionId].title === "Yeni Sohbet") {
                 allSessions[currentSessionId].title = text.substring(0, 20) + "...";
             }
 
             input.value = '';
+            clearImage();
             document.getElementById('typing').style.display = 'block';
 
-            // GÖRSEL OLUŞTURMA
-            if (["çiz", "oluştur", "resmet"].some(k => text.toLowerCase().includes(k))) {
+            // --- GÖRSEL OLUŞTURMA KONTROLÜ (Aynı soruda varsa bile) ---
+            if (text && ["çiz", "oluştur", "resmet"].some(k => text.toLowerCase().includes(k))) {
                 const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(text)}?width=1024&height=1024&nologo=true&seed=${Math.random()}`;
                 const htmlContent = `<img src="${imgUrl}" style="width:100%; border-radius:15px; margin-top:10px; border:1px solid var(--accent);">`;
+                // Bu kısımda sadece resmi oluşturuyoruz. Metin analizini Groq yapacak.
                 renderMsg(htmlContent, 'ai');
                 allSessions[currentSessionId].messages.push({role: "assistant", content: htmlContent});
                 document.getElementById('typing').style.display = 'none';
@@ -160,24 +229,32 @@
                 return;
             }
 
+            // --- AKILLI SOHBET (Llama 3.2 Vision) ---
             try {
+                // Groq'a mesaj paketini (multimodal) gönder
+                const groqRequest = {
+                    model: "llama-3.2-90b-vision-preview", // Vision modeli
+                    messages: [ ...allSessions[currentSessionId].messages.filter(m => m.role === 'system'), newMessageObject],
+                    temperature: 0.7
+                }
+
                 const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
                     headers: { "Authorization": `Bearer ${API_KEY}`, "Content-Type": "application/json" },
-                    body: JSON.stringify({ 
-                        model: "llama-3.3-70b-versatile", 
-                        messages: allSessions[currentSessionId].messages 
-                    })
+                    body: JSON.stringify(groqRequest)
                 });
                 const data = await res.json();
                 const reply = data.choices[0].message.content;
+                
+                document.getElementById('typing').style.display = 'none';
                 renderMsg(reply, 'ai');
                 allSessions[currentSessionId].messages.push({role: "assistant", content: reply});
-                document.getElementById('typing').style.display = 'none';
                 saveAndRender();
-            } catch {
+
+            } catch (err) {
                 document.getElementById('typing').style.display = 'none';
                 renderMsg("Bağlantı kesildi kral.", 'ai');
+                console.error(err);
             }
         }
 
@@ -190,5 +267,5 @@
         window.onload = () => { if(currentSessionId) saveAndRender(); };
     </script>
 </body>
-            </html>
+    </html>
     
