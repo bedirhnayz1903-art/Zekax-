@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root { 
-            --bg: #050505; --panel: rgba(20, 20, 20, 0.85); 
+            --bg: #030303; --panel: rgba(15, 15, 15, 0.95); 
             --accent: #00ffcc; --text: #ffffff;
         }
         
@@ -18,112 +18,149 @@
         body.tema-klasik { --accent: #00ffcc; --glow: rgba(0,255,204,0.05); }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        body { background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
+        /* Arka Plan */
         body::before {
             content: ""; position: absolute; inset: 0;
-            background: radial-gradient(circle at top right, var(--glow), transparent 70%),
-                        radial-gradient(circle at bottom left, var(--glow), transparent 70%);
+            background: radial-gradient(circle at top right, var(--glow), transparent 70%);
             z-index: -1; pointer-events: none;
         }
 
+        /* Üst Menü */
         .header { 
-            padding: 15px 20px; background: rgba(0,0,0,0.3); backdrop-filter: blur(20px);
+            padding: 15px 20px; background: rgba(0,0,0,0.4); backdrop-filter: blur(15px);
             display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 100;
+            border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 1000;
         }
         
-        .logo-wrapper { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .logo-wrapper { display: flex; align-items: center; gap: 8px; }
         .zx-logo {
-            width: 24px; height: 24px; background-color: var(--accent);
-            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M21 16.5c0 .38-.21.71-.53.88l-7.9 4.44c-.16.09-.36.14-.57.14s-.41-.05-.57-.14l-7.9-4.44A.991.991 0 013 16.5v-9c0-.38.21-.71.53-.88l7.9-4.44c.16-.09.36-.14.57-.14s.41.05.57.14l7.9 4.44c.32.17.53.5.53.88v9z'/%3E%3C/svg%3E") no-repeat center;
-            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M21 16.5c0 .38-.21.71-.53.88l-7.9 4.44c-.16.09-.36.14-.57.14s-.41-.05-.57-.14l-7.9-4.44A.991.991 0 013 16.5v-9c0-.38.21-.71.53-.88l7.9-4.44c.16-.09.36-.14.57-.14s.41.05.57.14l7.9 4.44c.32.17.53.5.53.88v9z'/%3E%3C/svg%3E") no-repeat center;
-            opacity: 0.7;
+            width: 22px; height: 22px; background-color: var(--accent);
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/%3E%3C/svg%3E") no-repeat center;
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/%3E%3C/svg%3E") no-repeat center;
         }
-        .zx-text { font-weight: 800; letter-spacing: 2px; color: var(--accent); font-size: 0.9rem; opacity: 0.8; }
+        .zx-text { font-weight: 800; letter-spacing: 2px; color: var(--accent); font-size: 0.85rem; }
 
+        .menu-btn { font-size: 24px; cursor: pointer; color: var(--accent); padding: 5px; }
+
+        /* Giriş Bilgi Paneli */
+        #intro-overlay {
+            position: fixed; inset: 0; background: #000; z-index: 5000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 30px; text-align: center; transition: 0.5s;
+        }
+        .intro-content { max-width: 400px; }
+        .intro-content h1 { font-size: 2rem; margin-bottom: 15px; color: var(--accent); }
+        .intro-content p { font-size: 0.95rem; color: #ccc; line-height: 1.6; margin-bottom: 30px; }
+        .start-btn { 
+            padding: 15px 40px; border-radius: 30px; background: var(--accent); 
+            color: #000; border: none; font-weight: 800; cursor: pointer; letter-spacing: 1px;
+        }
+
+        /* Geçmiş Paneli (Sidebar) */
+        #history-sidebar {
+            position: fixed; top: 0; right: -300px; width: 300px; height: 100%;
+            background: var(--panel); backdrop-filter: blur(20px); border-left: 1px solid rgba(255,255,255,0.1);
+            z-index: 2000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; flex-direction: column; padding: 20px;
+        }
+        #history-sidebar.open { right: 0; }
+        .history-title { font-weight: 800; color: var(--accent); margin-bottom: 20px; font-size: 1.2rem; }
+        #history-list { flex: 1; overflow-y: auto; list-style: none; }
+        .history-item { 
+            padding: 12px; background: rgba(255,255,255,0.03); border-radius: 10px; 
+            margin-bottom: 8px; font-size: 13px; color: #aaa; white-space: nowrap; 
+            overflow: hidden; text-overflow: ellipsis; border: 1px solid transparent;
+        }
+        .history-item:hover { border-color: var(--accent); color: #fff; }
+
+        /* Mesajlaşma Alanı */
         #chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        .msg { padding: 14px 18px; border-radius: 20px; max-width: 85%; font-size: 14px; line-height: 1.5; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .user { align-self: flex-end; background: var(--accent); color: #000; font-weight: 600; border-bottom-right-radius: 2px; }
-        .ai { align-self: flex-start; background: var(--panel); border: 1px solid rgba(255,255,255,0.08); border-bottom-left-radius: 2px; }
+        .msg { padding: 14px 18px; border-radius: 20px; max-width: 85%; font-size: 14px; line-height: 1.5; }
+        .user { align-self: flex-end; background: var(--accent); color: #000; font-weight: 600; }
+        .ai { align-self: flex-start; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
 
-        .typing { display: none; padding: 0 25px 10px; font-size: 11px; color: var(--accent); font-weight: bold; letter-spacing: 1px; }
+        .input-area { padding: 20px; background: rgba(0,0,0,0.8); border-top: 1px solid rgba(255,255,255,0.05); }
+        .input-wrapper { display: flex; gap: 10px; background: #111; padding: 10px 15px; border-radius: 30px; border: 1px solid #222; }
+        input { flex: 1; background: none; border: none; color: white; outline: none; }
+        .send-btn { background: var(--accent); border: none; width: 40px; height: 40px; border-radius: 50%; color: #000; cursor: pointer; }
 
-        .input-area { padding: 20px; background: rgba(0,0,0,0.6); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.05); }
-        .input-wrapper { display: flex; gap: 10px; background: rgba(255,255,255,0.05); padding: 8px 10px 8px 18px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.1); }
-        input { flex: 1; background: none; border: none; color: white; outline: none; font-size: 14px; }
-        .send-btn { background: var(--accent); border: none; width: 38px; height: 38px; border-radius: 50%; color: #000; cursor: pointer; font-size: 18px; transition: 0.3s; }
-
-        #theme-overlay { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
-        .theme-item { width: 85%; max-width: 300px; padding: 16px; border-radius: 12px; background: #111; border: 1px solid #222; cursor: pointer; text-align: center; font-weight: 600; transition: 0.2s; }
-        .theme-item:active { transform: scale(0.95); }
         .hidden { display: none !important; }
-        .ai-img { width: 100%; border-radius: 15px; margin-top: 10px; border: 1px solid var(--accent); }
     </style>
 </head>
 <body>
 
-    <div id="theme-overlay">
-        <div class="logo-wrapper" style="margin-bottom: 20px;">
-            <div class="zx-logo" style="width: 40px; height: 40px;"></div>
-            <h2 class="zx-text" style="font-size: 1.5rem;">ZEKA-X</h2>
+    <div id="intro-overlay">
+        <div class="intro-content">
+            <div class="zx-logo" style="width: 50px; height: 50px; margin: 0 auto 20px;"></div>
+            <h1>ZEKA-X CORE</h1>
+            <p>
+                Bedirhan Ayaz tarafından tasarlanan <b>Zeka-X</b>, yüksek performanslı nöral ağlar üzerine inşa edilmiş hibrit bir yapay zekadır. 
+                <br><br>
+                Hem karmaşık soruları yanıtlar hem de hayalindeki görselleri saniyeler içinde gerçeğe dönüştürür. Hız, zeka ve samimiyetin buluştuğu noktaya hoş geldin.
+            </p>
+            <button class="start-btn" onclick="closeIntro()">SİSTEMİ BAŞLAT</button>
         </div>
-        <div class="theme-item" onclick="setTheme('besiktas')">BEŞİKTAŞ EDITION</div>
-        <div class="theme-item" onclick="setTheme('galatasaray')">GALATASARAY EDITION</div>
-        <div class="theme-item" onclick="setTheme('fenerbahce')">FENERBAHÇE EDITION</div>
-        <div class="theme-item" onclick="setTheme('trabzonspor')">TRABZONSPOR EDITION</div>
-        <div class="theme-item" onclick="setTheme('klasik')" style="border: 1px solid var(--accent);">PURE AI MODE</div>
+    </div>
+
+    <div id="history-sidebar">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <div class="history-title">BELLEK GÜNLÜĞÜ</div>
+            <div onclick="toggleSidebar()" style="cursor:pointer; color:#ff4444;">✕</div>
+        </div>
+        <div id="history-list">
+            </div>
+        <button onclick="resetSystem()" style="background:transparent; color:#555; border:1px solid #333; padding:10px; border-radius:10px; cursor:pointer; font-size:10px; margin-top:10px;">BELLEĞİ SIFIRLA</button>
     </div>
 
     <div class="header">
-        <div class="logo-wrapper" onclick="toggleThemeMenu()">
+        <div class="logo-wrapper">
             <div class="zx-logo"></div>
-            <div class="zx-text">ZEKA-X CORE</div>
+            <div class="zx-text">ZEKA-X ULTIMATE</div>
         </div>
-        <div onclick="resetSystem()" style="font-size: 10px; color: #555; cursor: pointer;">SISTEMI_SIFIRLA</div>
+        <div class="menu-btn" onclick="toggleSidebar()">⋮</div>
     </div>
 
     <div id="chat-container"></div>
-    <div id="typing" class="typing">ZEKA-X DÜŞÜNÜYOR...</div>
+    <div id="typing" style="display:none; padding:10px 25px; font-size:11px; color:var(--accent); font-weight:bold;">İŞLENİYOR...</div>
 
     <div class="input-area">
         <form class="input-wrapper" onsubmit="event.preventDefault(); handleAction();">
-            <input type="text" id="userInput" placeholder="Mesajını yaz veya bir şey çizdir..." autocomplete="off">
+            <input type="text" id="userInput" placeholder="Zeka-X ile iletişime geç..." autocomplete="off">
             <button type="submit" class="send-btn">🚀</button>
         </form>
     </div>
 
     <script>
-        // HAFIZA SİSTEMİ (Chat History)
         let chatHistory = JSON.parse(sessionStorage.getItem('zx_history')) || [
-            {role: "system", content: "Sen Zeka-X'sin. Bedirhan Ayaz tarafından geliştirildin. Samimi, zeki ve profesyonelsin. Önceki mesajları hatırla ve ona göre cevap ver."}
+            {role: "system", content: "Sen Zeka-X'sin. Bedirhan Ayaz tarafından geliştirildin. Samimi ve zekisin."}
         ];
 
-        let API_KEY = localStorage.getItem('groq_key_v30');
-        if (!API_KEY) {
-            API_KEY = prompt("Lütfen Groq API Key girin:");
-            if (API_KEY) localStorage.setItem('groq_key_v30', API_KEY.trim());
+        function closeIntro() { 
+            document.getElementById('intro-overlay').style.opacity = '0';
+            setTimeout(() => document.getElementById('intro-overlay').classList.add('hidden'), 500);
         }
 
-        function resetSystem() { 
-            sessionStorage.removeItem('zx_history'); 
-            localStorage.removeItem('user_theme');
-            location.reload(); 
+        function toggleSidebar() { 
+            document.getElementById('history-sidebar').classList.toggle('open');
+            updateHistoryList();
         }
 
-        function toggleThemeMenu() { document.getElementById('theme-overlay').classList.remove('hidden'); }
-
-        function setTheme(team) {
-            document.body.className = 'tema-' + team;
-            localStorage.setItem('user_theme', team);
-            document.getElementById('theme-overlay').classList.add('hidden');
+        function updateHistoryList() {
+            const list = document.getElementById('history-list');
+            list.innerHTML = '';
+            chatHistory.filter(m => m.role === 'user').forEach(m => {
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.innerText = m.content;
+                list.appendChild(item);
+            });
         }
+
+        function resetSystem() { sessionStorage.clear(); location.reload(); }
 
         window.onload = () => {
-            if(localStorage.getItem('user_theme')) setTheme(localStorage.getItem('user_theme'));
-            // Eski mesajları ekrana bas
             chatHistory.forEach(m => { if(m.role !== 'system') renderMsg(m.content, m.role === 'user' ? 'user' : 'ai'); });
         };
 
@@ -137,37 +174,29 @@
             input.value = '';
             document.getElementById('typing').style.display = 'block';
 
-            // GÖRSEL OLUŞTURMA
-            if (["çiz", "oluştur", "resmet", "image", "draw"].some(k => text.toLowerCase().includes(k))) {
-                const aiMsg = renderMsg("🎨 Görsel hazırlanıyor...", 'ai');
+            if (["çiz", "oluştur", "resmet"].some(k => text.toLowerCase().includes(k))) {
+                const aiMsg = renderMsg("🎨 Hayal gücü işleniyor...", 'ai');
                 const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(text)}?width=1024&height=1024&nologo=true&seed=${Math.random()}`;
-                aiMsg.innerHTML = `<img src="${imgUrl}" class="ai-img" onclick="window.open('${imgUrl}')">`;
+                aiMsg.innerHTML = `<img src="${imgUrl}" style="width:100%; border-radius:15px; margin-top:10px; border:1px solid var(--accent);">`;
                 document.getElementById('typing').style.display = 'none';
                 return;
             }
 
-            // AKILLI SOHBET (Groq 70B)
             try {
                 const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
-                    headers: { "Authorization": `Bearer ${API_KEY}`, "Content-Type": "application/json" },
-                    body: JSON.stringify({ 
-                        model: "llama-3.3-70b-versatile", 
-                        messages: chatHistory,
-                        temperature: 0.7
-                    })
+                    headers: { "Authorization": `Bearer ${localStorage.getItem('groq_key_v30')}`, "Content-Type": "application/json" },
+                    body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: chatHistory })
                 });
                 const data = await res.json();
                 const reply = data.choices[0].message.content;
-                
                 document.getElementById('typing').style.display = 'none';
                 renderMsg(reply, 'ai');
                 chatHistory.push({role: "assistant", content: reply});
-                sessionStorage.setItem('zx_history', JSON.stringify(chatHistory)); // Kaydet
-
+                sessionStorage.setItem('zx_history', JSON.stringify(chatHistory));
             } catch {
                 document.getElementById('typing').style.display = 'none';
-                renderMsg("Bağlantı hatası! API anahtarını veya internetini kontrol et kral.", 'ai');
+                renderMsg("Bağlantı kesildi kral.", 'ai');
             }
         }
 
@@ -178,4 +207,5 @@
         }
     </script>
 </body>
-</html>
+    </html>
+                
