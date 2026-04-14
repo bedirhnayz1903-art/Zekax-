@@ -3,6 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ZEKA-X ELITE PRO 🦾</title>
+    <style>
+        :root { 
+            --bg: #050505; --panel: #121212; --accent: #00ffcc; --text: #e0e0e0; 
+            --user-bg: linear-gradient(135deg, #00ffcc, #0088cc);
+        }
+        
+        /* 🔥 TAKIM TEMALARI & ANİMASYONLARI */
+        body.tema-besiktas { --accent: #ffffff; --user-bg: linear-gradient(135deg, #444, #000); --panel: #111; --glow: rgba(255,255,255,0.05); }
+        body.tema-galatasaray { --accent: #febd11; --user-bg: linear-gradient(135deg, #ff0000, #febd11); --panel: #2a0000; --glow: rgba(255,0,0,0.1); }
+        body.tema-fenerbahce { --accent: #ffff00; --user-bg: linear-gradient(135deg, #003399, #ffff00); --panel: #001a4d; --glow: rgba(0,51,153,0.15); }
+        body.tema-trabzonspor { --accent: #0099cc; --user-bg: linear-gradient(135deg, #660033, #0099cc); --panel: #33001a; --glow: rgba(0,153,204,0.1); }
+        body.tema-klasik { --accent: #00ffcc; --user-bg: linear-gradient(135deg, #00ffcc, #0088cc); --panel: #121212; --glow: rgba(0,255,204,0.05); }
+
+        body { 
+            background-color: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; 
+            margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; 
+            transition: 0.6s ease; position: relative;
+        }
+
+        /* 3. MADDE: ANİMASYONLU ARKA PLAN */
+        body::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, var(--glow) 0%, transparent 70%);
+            pointer-events: none; animation: pulseGlow 8s infinite alternate; z-index: -1;
+        }
+        @keyframes pulseGlow { from { transform: scale(1); opacity: 0.5; } to { transform: scale(1.5); opacity: 1; } }
+
+        #theme-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; backdrop-filter: blur(20px); transition: 0.5s; }
+        #theme-overlay.hidden { opacity: 0; pointer-events: none; visibility: hidden; }
+        
+        .theme-card { width: 85%; max-width: 350px; padding: 18px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; text-align: center; font-weight: bold; font-size: 1rem; transition: 0.3s; }
+        .theme-card:hover { border-color: var(--accent); background: rgba(255,255,255,0.05); }
+
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: var(--panel); border-bottom: 2px solid rgba(255,255,255,0.05); }
+        .logo { color: var(--accent); font-weight: 900; font-size: 1.2rem; text-shadow: 0 0 10px var(--accent); }
+        
+        /* 5. MADDE: MAÇ SAYACI (HAFİF PANEL) */
+        #match-ticker { background: var(--accent); color: #000; font-size: 11px; font-weight: bold; text-align: center; padding: 3px 0; letter-spacing: 1px; }
+
+        /* 1. MADDE: HIZLI KISAYOL PANELİ */
+        #quick-actions { display: flex; gap: 8px; padding: 10px 20px; overflow-x: auto; background: rgba(0,0,0,0.2); scrollbar-width: none; }
+        #quick-actions::-webkit-scrollbar { display: none; }
+        .q-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text); padding: 7px 15px; border-radius: 20px; font-size: 11px; white-space: nowrap; cursor: pointer; transition: 0.3s; }
+        .q-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+        #chat-container { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
+        .msg { padding: 12px 18px; border-radius: 20px; max-width: 80%; font-size: 14.5px; line-height: 1.5; }
+        .user { align-self: flex-end; background: var(--user-bg); color: #fff; border-bottom-right-radius: 4px; }
+        .ai { align-self: flex-start; background: rgba(30, 30, 30, 0.9); border: 1px solid rgba(255,255,255,0.05); border-bottom-left-radius: 4px; }
+
+        .input-area { padding: 15px; background: var(--panel); border-top: 1px solid rgba(255,255,255,0.05); }
+        .input-row { display: flex; gap: 8px; align-items: center; }
+        input { flex: 1; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 14px 18px; border-radius: 30px; outline: none; }
+        
+        .action-btn { background: #1a1a1a; color: var(--accent); border: 1px solid #333; width: 42px; height: 42px; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
+        .send-btn { background: var(--accent); width: 45px; height: 45px; border: none; border-radius: 50%; cursor: pointer; color: #000; font-size: 20px; }
+
+        .drawer { position: fixed; top: 0; right: -100%; width: 80%; height: 100%; background: var(--panel); transition: 0.4s ease; z-index: 1000; padding: 25px; border-left: 2px solid var(--accent); }
+        .drawer.open { right: 0; }
+        .ai-img { width: 100%; border-radius: 15px; margin-top: 8px; border: 1px solid var(--accent); }
+    </style>
+</head>
+<body>
+
+    <div id="theme-overlay">
+        <h2 style="color:white; margin-bottom:10px;">Tarafını Seç Kaptan ⚽</h2>
+        <div class="theme-card" style="background:#111; color:#fff;" onclick="setTheme('besiktas')">BEŞİKTAŞ 🦅</div>
+        <div class="theme-card" style="background:#ff0000; color:#febd11;" onclick="setTheme('galatasaray')">GALATASARAY 🦁</div>
+        <div class="theme-card" style="background:#003399; color:#ffff00;" onclick="setTheme('fenerbahce')">FENERBAHÇE 🐦</div>
+        <div class="theme-card" style="background:#660033; color:#0099cc;" onclick="setTheme('trabzonspor')">TRABZONSPOR 🌪️</div>
+        <div class="theme-card" style="background:#121212; color:#00ffcc; border: 1px solid #00ffcc;" onclick="setTheme('klasik')">🤖 KLASİK / TARAFSIZ</div>
+    </div>
+
+    <div id="match-ticker">SİSTEM ÇALIŞIYOR • ZEKA-X ELITE PRO • V23</div>
+
+    <div class="header">
+        <div class="logo">⚡ ZEKA-X PRO</div>
+        <div onclick="toggleDrawer()" style="cursor:pointer; color:var(--accent); font-size:28px;">☰</div>
+    </div>
+
+    <div id="quick-actions">
+        <button onclick="quickCmd('Günün özetini çıkar')" class="q-btn">📋 Özetle</button>
+        <button onclick="quickCmd('Bu kodu açıkla: ')" class="q-btn">💻 Kod Analizi</button>
+        <button onclick="quickCmd('Bana bir fıkra anlat')" class="q-btn">😂 Eğlence</button>
+        <button onclick="quickCmd('İngilizce pratik yapalım')" class="q-btn">🌍 English</button>
+        <button onclick="quickCmd('Bana bir yemek tarifi ver')" class="q-btn">🍳 Mutfak</button>
+    </div>
+
+    <div id="chat-container"></div>
+
+    <div id="drawer" class="drawer">
+        <h3 style="color:var(--accent)">AYARLAR</h3>
+        <button onclick="openThemePicker()" style="width:100%; padding:12px; background:var(--accent); color:#000; border:none; border-radius:10px; font-weight:bold; margin-bottom:15px;">🎨 TEMA DEĞİŞTİR</button>
+        <button onclick="resetKey()" style="width:100%; padding:8px; background:transparent; color:#ff4444; border:1px solid #ff4444; border-radius:10px; font-size:11px;">🔑 API ANAHTARINI SIFIRLA</button>
+        <p style="font-size:10px; color:gray; margin-top:20px;">Zeka-X v23 Pro Edition<br>Geliştirici: Bedirhan Ayaz</p>
+    </div>
+
+    <div class="input-area">
+        <div style="display:flex; gap:10px; margin-bottom:10px;">
+            <button type="button" id="voiceBtn" onclick="toggleVoice()" class="action-btn">🎤</button>
+            <button type="button" onclick="handleAction('image')" class="action-btn">🖼️</button>
+            <button type="button" onclick="stopSpeech()" class="action-btn">🔇</button>
+        </div>
+        <form class="input-row" onsubmit="event.preventDefault(); handleAction('chat');">
+            <input type="text" id="userInput" placeholder="Mesajını buraya bırak..." autocomplete="off">
+            <button type="submit" class="send-btn">🚀</button>
+        </form>
+    </div>
+
+    <script>
+        let API_KEY = localStorage.getItem('groq_key_v23');
+        if (!API_KEY) {
+            API_KEY = prompt("Zeka-X Pro için Groq API Key gir:");
+            if (API_KEY) localStorage.setItem('groq_key_v23', API_KEY.trim());
+        }
+
+        function resetKey() { localStorage.removeItem('groq_key_v23'); location.reload(); }
+        function quickCmd(cmd) { document.getElementById('userInput').value = cmd; document.getElementById('userInput').focus(); }
+
+        const synth = window.speechSynthesis;
+        function speakText(text) {
+            const cleanText = text.replace(/```[\s\S]*?```/g, 'Kod gönderdim.').replace(/[^\w\sğüşıöçĞÜŞİÖÇ.?!]/gi, ' ');
+            const utter = new SpeechSynthesisUtterance(cleanText);
+            utter.lang = 'tr-TR'; synth.cancel(); synth.speak(utter);
+        }
+        function stopSpeech() { synth.cancel(); }
+
+        function setTheme(team) {
+            document.body.className = 'tema-' + team;
+            localStorage.setItem('user_theme', team);
+            document.getElementById('theme-overlay').classList.add('hidden');
+            
+            // 5. MADDE: MAÇ SAYAÇ METNİ GÜNCELLEME
+            const ticker = document.getElementById('match-ticker');
+            if(team === 'besiktas') ticker.innerText = "🦅 SİYAH BEYAZ ASALET • SIRADAKİ MAÇ İÇİN HAZIRLAN";
+            else if(team === 'galatasaray') ticker.innerText = "🦁 ŞAMPİYONLARIN TERCİHİ • ASLAN KÜKREMEYE HAZIR";
+            else if(team === 'fenerbahce') ticker.innerText = "🐦 SARI LACİVERT TUTKU • KANARYA UÇUŞA GEÇİYOR";
+            else if(team === 'trabzonspor') ticker.innerText = "🌪️ FIRTINA ETKİSİ • KARADENİZ'İN GÜCÜ BURADA";
+            else ticker.innerText = "🤖 KLASİK MOD • ZEKA-X TÜM GÜCÜYLE YANINDA";
+        }
+        
+        window.onload = () => { if(localStorage.getItem('user_theme')) setTheme(localStorage.getItem('user_theme')); };
+        function openThemePicker() { document.getElementById('theme-overlay').classList.remove('hidden'); toggleDrawer(); }
+        function toggleDrawer() { document.getElementById('drawer').classList.toggle('open'); }
+
+        async function handleAction(type) {
+            const input = document.getElementById('userInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            // 2. MADDE: GÖRSEL ANALİZ/OLUŞTURMA MANTIĞI
+            if (type === 'image' || text.toLowerCase().includes("çiz") || text.toLowerCase().includes("oluştur")) {
+                addMsg(text, 'user'); input.value = '';
+                const aiMsg = addMsg("🎨 Görselini tasarlıyorum kral...", 'ai');
+                const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(text)}?width=1024&height=1024&nologo=true&enhance=true`;
+                const img = new Image(); img.src = imgUrl; img.className = "ai-img";
+                img.onload = () => { aiMsg.innerHTML = `<img src="${imgUrl}" class="ai-img" onclick="window.open('${imgUrl}')">`; speakText("Görselin hazır."); };
+                return;
+            }
+
+            addMsg(text, 'user'); input.value = '';
+            const aiMsg = addMsg("⚡...", 'ai');
+            
+            try {
+                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${API_KEY}`, "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        model: "llama-3.3-70b-versatile", 
+                        messages: [{role: "system", content: "Sen Zeka-X Pro'sun. Samimi, çok zeki ve her konuda yardımcı ol."}, {role: "user", content: text}]
+                    })
+                });
+                const data = await res.json();
+                const reply = data.choices[0].message.content;
+                aiMsg.innerHTML = reply;
+                speakText(reply);
+            } catch { aiMsg.innerText = "Hata oluştu kral!"; }
+        }
+
+        function addMsg(t, c) {
+            const d = document.createElement('div'); d.className = `msg ${c}`; d.innerHTML = t;
+            const cont = document.getElementById('chat-container');
+            cont.appendChild(d); cont.scrollTop = cont.scrollHeight; return d;
+        }
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = SpeechRecognition ? new SpeechRecognition() : null;
+        if (recognition) {
+            recognition.lang = 'tr-TR';
+            recognition.onresult = (e) => { document.getElementById('userInput').value = e.results[0][0].transcript; handleAction('chat'); };
+        }
+        function toggleVoice() {
+            const btn = document.getElementById('voiceBtn');
+            if (btn.classList.contains('active')) { recognition.stop(); btn.classList.remove('active'); }
+            else { btn.classList.add('active'); recognition.start(); }
+        }
+        function startNewChat() { document.getElementById('chat-container').innerHTML = ''; toggleDrawer(); }
+    </script>
+</body>
+            </html>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ZEKA-X ELITE 🦾</title>
     <style>
         :root { 
