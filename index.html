@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
-    <title>Zeka-X | Bedirhan Ayaz Supreme AI</title>
+    <title>Zeka-X | Bedirhan Ayaz Chronos AI</title>
     <meta name="description" content="Bedirhan Ayaz tarafından geliştirilen gelişmiş yapay zeka asistanı Zeka-X.">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -37,7 +37,7 @@
     </style>
 </head>
 <body>
-    <div id="intro-screen"><div class="intro-box"><h1>ZEKA-X</h1><p style="color:#666; margin-bottom:20px;">Bedirhan Ayaz Supreme AI<br>v50 Shield Edition</p><button class="start-btn" onclick="initApp()">SİSTEMİ BAŞLAT</button></div></div>
+    <div id="intro-screen"><div class="intro-box"><h1>ZEKA-X</h1><p style="color:#666; margin-bottom:20px;">Bedirhan Ayaz Supreme AI<br>v51 Chronos Edition</p><button class="start-btn" onclick="initApp()">SİSTEMİ BAŞLAT</button></div></div>
     <div id="sidebar">
         <button onclick="newChat()" style="background:var(--accent); color:#000; padding:14px; border-radius:12px; border:none; font-weight:800; margin-bottom:25px; cursor:pointer; width:100%;">+ YENİ SOHBET</button>
         <div id="session-list" style="flex:1; overflow-y:auto;"></div>
@@ -58,12 +58,13 @@
     <script>
         const GROQ_KEY = "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";
         const TAVILY_KEY = "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";
-        let sessions = JSON.parse(localStorage.getItem('zx_v50_data')) || {};
-        let currentId = localStorage.getItem('zx_v50_id');
+        let sessions = JSON.parse(localStorage.getItem('zx_v51_data')) || {};
+        let currentId = localStorage.getItem('zx_v51_id');
         let currentImgBase = null;
+        let lastDrawPrompt = ""; // 🛠️ Çizim Tutarlılığı Hafızası
 
         function initApp() { document.getElementById('intro-screen').classList.add('hidden'); if(!currentId) newChat(); else renderChat(); }
-        function newChat() { currentId = 'zx_' + Date.now(); sessions[currentId] = { title: "Yeni Sohbet", msgs: [{role: "system", content: "Sen Zeka-X'sin. Bedirhan Ayaz tarafından yapıldın."}] }; save(); renderChat(); document.getElementById('sidebar').classList.remove('open'); }
+        function newChat() { currentId = 'zx_' + Date.now(); lastDrawPrompt = ""; sessions[currentId] = { title: "Yeni Sohbet", msgs: [{role: "system", content: "Sen Zeka-X'sin. Bedirhan Ayaz tarafından yapıldın. Görsel analiz ve çizim yeteneğin var."}] }; save(); renderChat(); document.getElementById('sidebar').classList.remove('open'); }
         function handleImg(input) { if (input.files[0]) { const r = new FileReader(); r.onload = e => { document.getElementById('preview').src = e.target.result; document.getElementById('preview-container').style.display = 'block'; currentImgBase = e.target.result.split(',')[1]; }; r.readAsDataURL(input.files[0]); } }
         function removeImg() { currentImgBase = null; document.getElementById('preview-container').style.display = 'none'; document.getElementById('f').value = ''; }
 
@@ -82,42 +83,71 @@
             const tempImg = currentImgBase; input.value = ''; removeImg();
 
             try {
+                // 🌐 İNTERNET ARAMASI (Vizyon varsa yapma, vizyon hata verirse yapma)
                 let context = "";
-                if(!tempImg) {
+                if(!tempImg && !txt.toLowerCase().includes("çiz") && !txt.toLowerCase().includes("oluştur")) {
                     const sRes = await fetch("https://api.tavily.com/search", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ api_key: TAVILY_KEY, query: txt, max_results: 3 }) });
                     const sData = await sRes.json(); context = sData.results ? sData.results.map(r => r.content).join("\n") : "";
                 }
 
+                // 🧠 YAPAY ZEKA MODELİ SEÇİMİ VE YANIT (Vizyon varsa Groq Vision, yoksa Groq Versatile)
+                let model = tempImg ? "llama-3.2-11b-vision-preview" : "llama-3.3-70b-versatile";
+                let messages = [...sessions[currentId].msgs, payload, {role:"system", content: context ? "İnternet: "+context : ""}];
+
                 const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: "POST",
-                    headers: { "Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        model: tempImg ? "llama-3.2-11b-vision-preview" : "llama-3.3-70b-versatile",
-                        messages: [...sessions[currentId].msgs, payload, {role:"system", content: context ? "İnternet: "+context : ""}],
-                        temperature: 0.5
-                    })
+                    method: "POST", headers: { "Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json" },
+                    body: JSON.stringify({ model: model, messages: messages, temperature: 0.5 })
                 });
 
                 const data = await res.json(); loader.remove();
                 if(data.error) throw new Error(data.error.message);
 
                 const reply = data.choices[0].message.content;
-                addMsgUI(reply, 'ai');
-                sessions[currentId].msgs.push(payload, {role: "assistant", content: reply});
+                let replyUI = reply;
+
+                // 🎨 ARDI ARDINA ÇİZİM TUTARLILIĞI MOTORU
+                if(txt.toLowerCase().includes("çiz") || txt.toLowerCase().includes("oluştur") || (lastDrawPrompt && !tempImg && txt.length < 30)) {
+                    if(!tempImg) {
+                        // Eğer çizim isteği varsa veya eski çizime devam ediliyorsa
+                        if(lastDrawPrompt && !txt.toLowerCase().includes("çiz") && !txt.toLowerCase().includes("oluştur")) {
+                            lastDrawPrompt = `${lastDrawPrompt}, ${txt}`; // Eski çizime yeni talimatı ekle
+                        } else {
+                            lastDrawPrompt = txt; // Yeni çizim isteği başlat
+                        }
+                        
+                        let drawPrompt = lastDrawPrompt.replace(/çiz|oluştur/gi, "").trim();
+                        let drawUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(drawPrompt)}?width=1024&height=1024&nologo=true&seed=${currentId.substring(3)}`;
+                        
+                        // Zeka-X'in cevabına resmi ekle
+                        if(!replyUI.includes("ai-img")) {
+                            replyUI += `<br><img src="${drawUrl}" class="ai-img" alt="Zeka-X Çizimi">`;
+                        }
+                    }
+                } else if(!drawUrl && txt.length > 30) {
+                    // Eğer çizim değilse ve kullanıcı uzun bir şey yazdıysa, çizim hafızasını temizle
+                    lastDrawPrompt = "";
+                }
+
+                addMsgUI(replyUI, 'ai');
+                sessions[currentId].msgs.push(payload, {role: "assistant", content: replyUI}); // Resmi hafızaya al
                 save();
             } catch (err) {
                 loader.remove();
-                addMsgUI("⚠️ Bir sorun oluştu. Belleği temizleyip tekrar dene kaptan.", 'ai');
+                if(tempImg) {
+                     addMsgUI("⚠️ Görsel analizi sırasında bir sorun oluştu, ancak sohbet geçmişin korundu. Lütfen tekrar dene kaptan.", 'ai');
+                } else {
+                     addMsgUI("⚠️ Bir hata oluştu. Lütfen tekrar deneyin.", 'ai');
+                }
                 console.error(err);
             }
         }
 
         function addMsgUI(t, c) { const d = document.createElement('div'); d.className = `msg ${c}`; d.innerHTML = t; document.getElementById('chat-container').appendChild(d); document.getElementById('chat-container').scrollTop = document.getElementById('chat-container').scrollHeight; }
-        function renderList() { const list = document.getElementById('session-list'); list.innerHTML = ''; Object.keys(sessions).reverse().forEach(id => { const item = document.createElement('div'); item.className = `session-item ${id === currentId ? 'active' : ''}`; item.innerText = sessions[id].title; item.onclick = () => { currentId = id; save(); renderChat(); document.getElementById('sidebar').classList.remove('open'); }; list.appendChild(item); }); }
+        function renderList() { const list = document.getElementById('session-list'); list.innerHTML = ''; Object.keys(sessions).reverse().forEach(id => { const item = document.createElement('div'); item.className = `session-item ${id === currentId ? 'active' : ''}`; item.innerText = sessions[id].title; item.onclick = () => { currentId = id; lastDrawPrompt = ""; save(); renderChat(); document.getElementById('sidebar').classList.remove('open'); }; list.appendChild(item); }); }
         function renderChat() { document.getElementById('chat-container').innerHTML = ''; if(currentId && sessions[currentId]) { sessions[currentId].msgs.forEach(m => { if(m.role !== 'system') { let text = typeof m.content === 'string' ? m.content : (m.content[0].text || "Medya"); addMsgUI(text, m.role === 'user' ? 'user' : 'ai'); } }); } }
-        function save() { localStorage.setItem('zx_v50_data', JSON.stringify(sessions)); localStorage.setItem('zx_v50_id', currentId); }
+        function save() { localStorage.setItem('zx_v51_data', JSON.stringify(sessions)); localStorage.setItem('zx_v51_id', currentId); }
         window.onload = () => { if(currentId) renderChat(); };
     </script>
 </body>
             </html>
-    
+                
