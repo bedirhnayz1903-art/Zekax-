@@ -12,18 +12,15 @@
         html, body { height: 100%; width: 100%; overflow: hidden; background: var(--bg); position: fixed; }
         body { display: flex; flex-direction: column; color: var(--text); }
 
-        /* 🚀 Karşılama Ekranı (Üstte Kalması İçin Düzenlendi) */
+        /* 🚀 Karşılama Paneli */
         #intro-screen {
             position: fixed; inset: 0; background: #000; z-index: 99999;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             padding: 30px; text-align: center;
         }
-        .intro-box h1 { color: var(--accent); font-size: 2.5rem; margin-bottom: 15px; letter-spacing: 5px; font-weight: 800; }
-        .intro-box p { color: #aaa; line-height: 1.6; margin-bottom: 30px; }
-        .start-btn { 
-            background: var(--accent); color: #000; border: none; padding: 18px 50px; 
-            border-radius: 35px; font-weight: 800; cursor: pointer; position: relative; z-index: 100000;
-        }
+        .intro-box h1 { color: var(--accent); font-size: 2.2rem; margin-bottom: 15px; letter-spacing: 5px; font-weight: 800; }
+        .intro-box p { color: #aaa; line-height: 1.6; margin-bottom: 30px; font-size: 0.9rem; }
+        .start-btn { background: var(--accent); color: #000; border: none; padding: 18px 50px; border-radius: 35px; font-weight: 800; cursor: pointer; }
 
         /* Sidebar */
         #sidebar {
@@ -32,11 +29,11 @@
             display: flex; flex-direction: column; padding: 25px; border-left: 1px solid #222;
         }
         #sidebar.open { right: 0; }
-        .session-item { padding: 12px; background: #181818; border-radius: 12px; margin-bottom: 10px; font-size: 13px; cursor: pointer; }
+        .session-item { padding: 12px; background: #181818; border-radius: 12px; margin-bottom: 10px; font-size: 13px; cursor: pointer; border: 1px solid transparent; }
         .session-item.active { border-color: var(--accent); color: var(--accent); }
 
         /* Header */
-        .header { height: 65px; padding: 0 20px; background: #000; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; flex-shrink: 0; }
+        .header { height: 60px; padding: 0 20px; background: #000; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; flex-shrink: 0; }
         .brand { color: var(--accent); font-weight: 800; letter-spacing: 2px; }
 
         /* Mesaj Alanı */
@@ -60,140 +57,140 @@
     <div id="intro-screen">
         <div class="intro-box">
             <h1>ZEKA-X</h1>
-            <p>Bedirhan Ayaz tarafından tasarlanan, akıllı bellek ve görsel analiz yeteneğine sahip asistan.</p>
-            <button class="start-btn" onclick="startSystem()">BAŞLAT</button>
+            <p>Bedirhan Ayaz tarafından geliştirilen, görsel okuyabilen ve zeki bellek sistemine sahip asistan.</p>
+            <button class="start-btn" onclick="startApp()">SİSTEMİ BAŞLAT</button>
         </div>
     </div>
 
     <div id="sidebar">
         <button onclick="newChat()" style="background:var(--accent); color:#000; padding:12px; border-radius:10px; border:none; font-weight:800; cursor:pointer; margin-bottom:20px;">+ YENİ SOHBET</button>
         <div id="session-list" style="flex:1; overflow-y:auto;"></div>
-        <button onclick="localStorage.clear(); location.reload();" style="color:#444; background:none; border:none; font-size:10px; cursor:pointer;">SIFIRLA</button>
+        <button onclick="localStorage.clear(); location.reload();" style="color:#444; background:none; border:none; font-size:10px; cursor:pointer;">BELLEĞİ TEMİZLE</button>
     </div>
 
     <div class="header">
         <div class="brand">ZEKA-X PRIME</div>
-        <div id="menu-trigger" style="font-size: 28px; cursor: pointer; color: var(--accent); padding: 5px;">⋮</div>
+        <div onclick="toggleMenu()" style="font-size: 28px; cursor: pointer; color: var(--accent); padding: 5px;">⋮</div>
     </div>
 
     <div id="chat-container"></div>
 
     <div class="input-area">
         <img id="preview" src="">
-        <form id="chat-form" class="wrapper">
-            <button type="button" onclick="document.getElementById('f').click()" style="background:none; border:none; color:#555; font-size:24px; cursor:pointer;">⊕</button>
-            <input type="file" id="f" style="display:none" accept="image/*">
-            <input type="text" id="in" placeholder="Bir şey sor..." autocomplete="off">
+        <form onsubmit="event.preventDefault(); sendMsg();" class="wrapper">
+            <button type="button" onclick="document.getElementById('file-in').click()" style="background:none; border:none; color:#555; font-size:24px; cursor:pointer;">⊕</button>
+            <input type="file" id="file-in" style="display:none" accept="image/*" onchange="previewImg(this)">
+            <input type="text" id="user-in" placeholder="Zeka-X'e yaz..." autocomplete="off">
             <button type="submit" class="btn">🚀</button>
         </form>
     </div>
 
     <script>
-        // --- SİSTEM DEĞİŞKENLERİ ---
-        let sessions = JSON.parse(localStorage.getItem('zx_v40_sessions')) || {};
-        let currentId = localStorage.getItem('zx_v40_cid');
-        let imgBase = null;
-        const KEY = localStorage.getItem('groq_key_v30');
+        let sessions = JSON.parse(localStorage.getItem('zx_v41_data')) || {};
+        let currentId = localStorage.getItem('zx_v41_id');
+        let imgData = null;
+        
+        // ÖNEMLİ: API Key kontrolü
+        const API_KEY = localStorage.getItem('groq_key_v30');
 
-        // --- BUTONLARI ÇALIŞTIRAN ANA FONKSİYONLAR ---
-        function startSystem() {
-            document.getElementById('intro-screen').classList.add('hidden');
-            if(!currentId) newChat();
-        }
-
-        document.getElementById('menu-trigger').onclick = function() {
-            document.getElementById('sidebar').classList.toggle('open');
-            renderList();
-        };
+        function startApp() { document.getElementById('intro-screen').classList.add('hidden'); if(!currentId) newChat(); }
+        function toggleMenu() { document.getElementById('sidebar').classList.toggle('open'); renderHistory(); }
 
         function newChat() {
             currentId = 'zx_' + Date.now();
-            sessions[currentId] = { title: "Yeni Sohbet", msgs: [{role:"system", content:"Ben Zeka-X. Bedirhan Ayaz tarafından geliştirildim. Kısa, öz ve net bilgi veririm."}] };
-            save(); renderChat();
-            document.getElementById('sidebar').classList.remove('open');
+            sessions[currentId] = { title: "Yeni Sohbet", msgs: [{role: "system", content: "Sen Zeka-X'sin. Bedirhan Ayaz tarafından geliştirildin. Soruları kısa ve net cevapla."}] };
+            save(); renderMessages(); document.getElementById('sidebar').classList.remove('open');
         }
 
-        // --- GÖRSEL İŞLEME ---
-        document.getElementById('f').onchange = function(e) {
-            if (e.target.files[0]) {
+        function previewImg(input) {
+            if (input.files[0]) {
                 const r = new FileReader();
-                r.onload = ev => { 
-                    document.getElementById('preview').src = ev.target.result; 
-                    document.getElementById('preview').style.display='block'; 
-                    imgBase = ev.target.result.split(',')[1]; 
+                r.onload = e => {
+                    document.getElementById('preview').src = e.target.result;
+                    document.getElementById('preview').style.display = 'block';
+                    imgData = e.target.result.split(',')[1];
                 };
-                r.readAsDataURL(e.target.files[0]);
+                r.readAsDataURL(input.files[0]);
             }
-        };
+        }
 
-        // --- MESAJ GÖNDERME ---
-        document.getElementById('chat-form').onsubmit = async function(e) {
-            e.preventDefault();
-            const input = document.getElementById('in');
+        async function sendMsg() {
+            const input = document.getElementById('user-in');
             const txt = input.value.trim();
-            if(!txt && !imgBase) return;
+            if (!txt && !imgData) return;
+            if (!currentId) newChat();
 
-            let displayTxt = txt;
-            if(imgBase) displayTxt += `<br><img src="data:image/jpeg;base64,${imgBase}" style="width:100px; border-radius:10px; margin-top:10px;">`;
-            addMsg(displayTxt, 'user');
+            // Ekran Gösterimi
+            let htmlTxt = txt;
+            if(imgData) htmlTxt += `<br><img src="data:image/jpeg;base64,${imgData}" style="width:100px; border-radius:10px; margin-top:10px;">`;
+            addMsgToUI(htmlTxt, 'user');
 
-            let currentMsg = imgBase ? {role:"user", content:[{type:"text", text:txt || "Analiz et"}, {type:"image_url", image_url:{url:`data:image/jpeg;base64,${imgBase}`}}]} : {role:"user", content:txt};
+            // API'ye gidecek yapı
+            let userContent = imgData ? [{type:"text", text:txt || "Görseli analiz et"}, {type:"image_url", image_url:{url:`data:image/jpeg;base64,${imgData}`}}] : txt;
+            sessions[currentId].msgs.push({role: "user", content: userContent});
             
-            sessions[currentId].msgs.push(currentMsg);
             if(sessions[currentId].title === "Yeni Sohbet") sessions[currentId].title = txt ? txt.substring(0,20) : "Görsel Sohbet";
             
-            const tmpImg = imgBase;
-            input.value = ''; imgBase = null; document.getElementById('preview').style.display='none';
+            const tmpImg = imgData;
+            input.value = ''; imgData = null; document.getElementById('preview').style.display = 'none';
 
             try {
-                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
-                    headers: { "Authorization": `Bearer ${KEY}`, "Content-Type": "application/json" },
+                    headers: { "Authorization": `Bearer ${API_KEY}`, "Content-Type": "application/json" },
                     body: JSON.stringify({
                         model: tmpImg ? "llama-3.2-11b-vision-preview" : "llama-3.3-70b-versatile",
                         messages: sessions[currentId].msgs
                     })
                 });
-                const d = await res.json();
-                const rpl = d.choices[0].message.content;
-                addMsg(rpl, 'ai');
-                sessions[currentId].msgs.push({role:"assistant", content:rpl});
-                save();
-            } catch(err) { addMsg("Hata oluştu kral.", 'ai'); }
-        };
 
-        function addMsg(t, c) {
-            const d = document.createElement('div'); d.className = `msg ${c}`; d.innerHTML = t;
-            const cnt = document.getElementById('chat-container'); cnt.appendChild(d);
-            cnt.scrollTop = cnt.scrollHeight;
+                const data = await response.json();
+                if(data.error) throw new Error(data.error.message);
+
+                const reply = data.choices[0].message.content;
+                addMsgToUI(reply, 'ai');
+                sessions[currentId].msgs.push({role: "assistant", content: reply});
+                save();
+            } catch (err) {
+                addMsgToUI("Hata: API Anahtarını kontrol et veya tekrar dene. " + err.message, 'ai');
+            }
         }
 
-        function renderList() {
-            const l = document.getElementById('session-list'); l.innerHTML = '';
+        function addMsgToUI(t, c) {
+            const d = document.createElement('div'); d.className = `msg ${c}`; d.innerHTML = t;
+            const container = document.getElementById('chat-container');
+            container.appendChild(d); container.scrollTop = container.scrollHeight;
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('session-list'); list.innerHTML = '';
             Object.keys(sessions).reverse().forEach(id => {
-                const i = document.createElement('div'); i.className = `session-item ${id===currentId?'active':''}`;
-                i.innerText = sessions[id].title;
-                i.onclick = () => { currentId = id; save(); renderChat(); document.getElementById('sidebar').classList.remove('open'); };
-                l.appendChild(i);
+                const item = document.createElement('div');
+                item.className = `session-item ${id === currentId ? 'active' : ''}`;
+                item.innerText = sessions[id].title;
+                item.onclick = () => { currentId = id; save(); renderMessages(); toggleMenu(); };
+                list.appendChild(item);
             });
         }
 
-        function renderChat() {
-            const cnt = document.getElementById('chat-container'); cnt.innerHTML = '';
+        function renderMessages() {
+            const container = document.getElementById('chat-container'); container.innerHTML = '';
             if(currentId && sessions[currentId]) {
-                sessions[currentId].msgs.forEach(m => { 
-                    if(m.role!=='system') addMsg(typeof m.content === 'string' ? m.content : m.content[0].text, m.role==='user'?'user':'ai'); 
+                sessions[currentId].msgs.forEach(m => {
+                    if(m.role !== 'system') {
+                        let text = typeof m.content === 'string' ? m.content : m.content[0].text;
+                        addMsgToUI(text, m.role === 'user' ? 'user' : 'ai');
+                    }
                 });
             }
         }
 
         function save() { 
-            localStorage.setItem('zx_v40_sessions', JSON.stringify(sessions)); 
-            localStorage.setItem('zx_v40_cid', currentId); 
+            localStorage.setItem('zx_v41_data', JSON.stringify(sessions)); 
+            localStorage.setItem('zx_v41_id', currentId); 
         }
 
-        window.onload = () => { if(currentId) renderChat(); };
+        window.onload = () => { if(currentId) renderMessages(); };
     </script>
 </body>
-                </html>
-                
+</html>
