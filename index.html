@@ -10,7 +10,6 @@
             --user-bg: linear-gradient(135deg, #00ffcc, #00cca3);
         }
         
-        /* 🔥 TAKIM TEMA TANIMLARI */
         body.tema-besiktas { --accent: #ffffff; --user-bg: linear-gradient(135deg, #444, #000); --panel: #111; }
         body.tema-galatasaray { --accent: #febd11; --user-bg: linear-gradient(135deg, #ff0000, #febd11); --panel: #2a0000; }
         body.tema-fenerbahce { --accent: #ffff00; --user-bg: linear-gradient(135deg, #003399, #ffff00); --panel: #001a4d; }
@@ -18,18 +17,16 @@
 
         body { background-color: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; transition: 0.6s ease; }
         
-        /* Giriş Ekranı */
         #theme-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; backdrop-filter: blur(20px); transition: 0.5s; }
         #theme-overlay.hidden { opacity: 0; pointer-events: none; visibility: hidden; }
         
-        .theme-card { width: 85%; max-width: 350px; padding: 22px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; text-align: center; font-weight: bold; font-size: 1.1rem; transition: 0.3s; transform: scale(1); }
-        .theme-card:active { transform: scale(0.95); }
+        .theme-card { width: 85%; max-width: 350px; padding: 22px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; text-align: center; font-weight: bold; font-size: 1.1rem; }
         
         .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--panel); border-bottom: 2px solid rgba(255,255,255,0.05); }
         .logo { color: var(--accent); font-weight: 900; font-size: 1.3rem; text-shadow: 0 0 15px var(--accent); }
         
         #chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        .msg { padding: 15px 20px; border-radius: 22px; max-width: 82%; font-size: 15px; animation: slideIn 0.4s ease; line-height: 1.6; position: relative; }
+        .msg { padding: 15px 20px; border-radius: 22px; max-width: 82%; font-size: 15px; animation: slideIn 0.3s ease; line-height: 1.6; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         .user { align-self: flex-end; background: var(--user-bg); color: #fff; border-bottom-right-radius: 4px; }
@@ -39,9 +36,8 @@
         .input-row { display: flex; gap: 10px; align-items: center; }
         input { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 16px 20px; border-radius: 35px; outline: none; }
         
-        .action-btn { background: #222; color: var(--accent); border: 1px solid #444; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; transition: 0.3s; }
-        .action-btn.active { background: #ff0000; color: white; border-color: #ff0000; animation: pulse 1s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255,0,0,0.7); } 70% { box-shadow: 0 0 0 15px rgba(255,0,0,0); } 100% { box-shadow: 0 0 0 0 rgba(255,0,0,0); } }
+        .action-btn { background: #222; color: var(--accent); border: 1px solid #444; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; font-size: 20px; transition: 0.3s; }
+        .action-btn.active { background: #ff0000; color: white; border-color: #ff0000; box-shadow: 0 0 15px rgba(255,0,0,0.5); }
 
         .send-btn { background: var(--accent); width: 50px; height: 50px; border: none; border-radius: 50%; cursor: pointer; color: #000; font-size: 24px; }
         
@@ -50,10 +46,10 @@
         .ai-img { width: 100%; border-radius: 18px; margin-top: 10px; border: 2px solid var(--accent); }
     </style>
 </head>
-<body class="tema-besiktas">
+<body>
 
     <div id="theme-overlay">
-        <h2 style="color:white; margin-bottom:20px; font-family: sans-serif;">Tarafını Seç Kaptan ⚽</h2>
+        <h2 style="color:white; margin-bottom:20px;">Tarafını Seç Kaptan ⚽</h2>
         <div class="theme-card" style="background:#111; color:#fff;" onclick="setTheme('besiktas')">BEŞİKTAŞ 🦅</div>
         <div class="theme-card" style="background:#ff0000; color:#febd11;" onclick="setTheme('galatasaray')">GALATASARAY 🦁</div>
         <div class="theme-card" style="background:#003399; color:#ffff00;" onclick="setTheme('fenerbahce')">FENERBAHÇE 🐦</div>
@@ -65,14 +61,13 @@
         <div onclick="toggleDrawer()" style="cursor:pointer; color:var(--accent); font-size:32px;">☰</div>
     </div>
 
-    <div id="chat-container">
-        <div class="msg ai">Seni bekliyordum kral, bugün ne yapıyoruz? 🦾</div>
-    </div>
+    <div id="chat-container"></div>
 
     <div id="drawer" class="drawer">
         <h2 style="color:var(--accent)">AYARLAR</h2>
         <button onclick="openThemePicker()" style="width:100%; padding:15px; background:var(--accent); color:#000; border:none; border-radius:12px; font-weight:bold; margin-bottom:20px;">🎨 TEMA DEĞİŞTİR</button>
-        <div id="history-list"></div>
+        <button onclick="resetKey()" style="width:100%; padding:10px; background:transparent; color:#ff4444; border:1px solid #ff4444; border-radius:12px; font-size:12px;">🔑 API ANAHTARINI SIFIRLA</button>
+        <div id="history-list" style="margin-top:20px;"></div>
         <button onclick="startNewChat()" style="width:100%; padding:12px; background:transparent; border:2px solid var(--accent); color:var(--accent); border-radius:12px; font-weight:bold; margin-top:20px;">➕ YENİ SOHBET</button>
     </div>
 
@@ -89,53 +84,88 @@
     </div>
 
     <script>
-        let API_KEY = localStorage.getItem('groq_key_v20');
-        let currentChatId = Date.now().toString();
+        // API Key yönetimi - Hataları önlemek için v21 sürümü
+        let API_KEY = localStorage.getItem('groq_key_v21');
 
         if (!API_KEY) {
-            API_KEY = prompt("Lütfen Groq API Key gir:");
-            if (API_KEY) localStorage.setItem('groq_key_v20', API_KEY.trim());
+            API_KEY = prompt("Zeka-X için Groq API Key gir kral:");
+            if (API_KEY) localStorage.setItem('groq_key_v21', API_KEY.trim());
         }
 
-        // --- SES SİSTEMİ ---
+        function resetKey() { localStorage.removeItem('groq_key_v21'); location.reload(); }
+
         const synth = window.speechSynthesis;
         function speakText(text) {
-            const cleanText = text.replace(/```[\s\S]*?```/g, 'Kod gönderdim.').replace(/[^\w\sğüşıöçĞÜŞİÖÇ.?!]/gi, ' ');
+            const cleanText = text.replace(/```[\s\S]*?```/g, 'Kod gönderildi.').replace(/[^\w\sğüşıöçĞÜŞİÖÇ.?!]/gi, ' ');
             const utter = new SpeechSynthesisUtterance(cleanText);
             utter.lang = 'tr-TR'; synth.cancel(); synth.speak(utter);
         }
         function stopSpeech() { synth.cancel(); }
 
-        // --- TAKIM SEÇİMİ (TAMİR EDİLEN KISIM) ---
         function setTheme(team) {
-            console.log("Seçilen takım:", team);
             document.body.className = 'tema-' + team;
             localStorage.setItem('user_theme', team);
-            
-            // Ekranı gizle
-            const overlay = document.getElementById('theme-overlay');
-            overlay.classList.add('hidden');
-            
-            // Seçim sonrası karşılama
-            const hosgeldin = team.toUpperCase() + " teması hazır kral! Seni dinliyorum.";
-            speakText(hosgeldin);
+            document.getElementById('theme-overlay').classList.add('hidden');
         }
+        
+        const savedTheme = localStorage.getItem('user_theme');
+        if(savedTheme) setTheme(savedTheme);
 
-        // Sayfa yüklendiğinde tema kontrolü
-        window.onload = () => {
-            const savedTheme = localStorage.getItem('user_theme');
-            if(savedTheme) {
-                setTheme(savedTheme);
+        function openThemePicker() { document.getElementById('theme-overlay').classList.remove('hidden'); toggleDrawer(); }
+        function toggleDrawer() { document.getElementById('drawer').classList.toggle('open'); }
+
+        async function handleAction(type) {
+            const input = document.getElementById('userInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            if (type === 'image' || text.toLowerCase().includes("çiz") || text.toLowerCase().includes("oluştur")) {
+                addMsg(text, 'user');
+                input.value = '';
+                const aiMsg = addMsg("🎨 Çiziyorum kaptan...", 'ai');
+                const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(text)}?width=1024&height=1024&nologo=true`;
+                aiMsg.innerHTML = `<img src="${imgUrl}" class="ai-img" onclick="window.open('${imgUrl}')">`;
+                speakText("Görselin hazır kral.");
+                return;
             }
-        };
 
-        function openThemePicker() { 
-            document.getElementById('theme-overlay').classList.remove('hidden'); 
-            toggleDrawer(); 
+            addMsg(text, 'user');
+            input.value = '';
+            const aiMsg = addMsg("⚡ Zeka-X yanıtlıyor...", 'ai');
+            
+            try {
+                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: { 
+                        "Authorization": `Bearer ${API_KEY}`, 
+                        "Content-Type": "application/json" 
+                    },
+                    body: JSON.stringify({ 
+                        model: "llama-3.3-70b-versatile", 
+                        messages: [
+                            {role: "system", content: "Sen Zeka-X'sin. Bedirhan Ayaz geliştirdi. Samimi, kısa ve zeki cevaplar ver."},
+                            {role: "user", content: text}
+                        ]
+                    })
+                });
+
+                if (!response.ok) throw new Error('Bağlantı Hatası');
+
+                const data = await response.json();
+                const reply = data.choices[0].message.content;
+                aiMsg.innerHTML = reply;
+                speakText(reply);
+            } catch (err) { 
+                aiMsg.innerText = "Kral bir hata oluştu. API anahtarını kontrol et veya tekrar dene!"; 
+                console.error(err);
+            }
         }
 
-        // --- DİĞER FONKSİYONLAR ---
-        function toggleDrawer() { document.getElementById('drawer').classList.toggle('open'); if(document.getElementById('drawer').classList.contains('open')) updateHistoryUI(); }
+        function addMsg(t, c) {
+            const d = document.createElement('div'); d.className = `msg ${c}`; d.innerHTML = t;
+            const cont = document.getElementById('chat-container');
+            cont.appendChild(d); cont.scrollTop = cont.scrollHeight; return d;
+        }
 
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         const recognition = SpeechRecognition ? new SpeechRecognition() : null;
@@ -146,59 +176,14 @@
                 document.getElementById('voiceBtn').classList.remove('active');
                 handleAction('chat');
             };
-            recognition.onend = () => document.getElementById('voiceBtn').classList.remove('active');
         }
-
         function toggleVoice() {
             const btn = document.getElementById('voiceBtn');
-            if (btn.classList.contains('active')) { recognition.stop(); }
+            if (btn.classList.contains('active')) { recognition.stop(); btn.classList.remove('active'); }
             else { btn.classList.add('active'); recognition.start(); }
         }
-
-        async function handleAction(type) {
-            const input = document.getElementById('userInput');
-            const text = input.value.trim();
-            if (!text) return;
-            const time = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
-
-            if (type === 'image' || text.toLowerCase().includes("çiz") || text.toLowerCase().includes("oluştur")) {
-                addMsg(text, 'user');
-                input.value = '';
-                const aiMsg = addMsg("🎨 Hemen çiziyorum kaptan...", 'ai');
-                const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(text)}?width=1024&height=1024&nologo=true`;
-                aiMsg.innerHTML = `<img src="${imgUrl}" class="ai-img" onclick="window.open('${imgUrl}')">`;
-                speakText("Görselini hazırladım kral.");
-                return;
-            }
-
-            addMsg(text, 'user');
-            input.value = '';
-            const aiMsg = addMsg("⚡...", 'ai');
-            
-            try {
-                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: "POST",
-                    headers: { "Authorization": "Bearer " + API_KEY, "Content-Type": "application/json" },
-                    body: JSON.stringify({ 
-                        model: "llama-3.3-70b-versatile", 
-                        messages: [{role: "system", content: "Sen Zeka-X'sin. Samimi ve zeki ol."}, {role: "user", content: text}]
-                    })
-                });
-                const data = await res.json();
-                const reply = data.choices[0].message.content;
-                aiMsg.innerHTML = reply;
-                speakText(reply);
-            } catch { aiMsg.innerText = "Hata!"; }
-        }
-
-        function addMsg(t, c) {
-            const d = document.createElement('div'); d.className = `msg ${c}`; d.innerHTML = t;
-            const cont = document.getElementById('chat-container');
-            cont.appendChild(d); cont.scrollTop = cont.scrollHeight; return d;
-        }
-
-        function updateHistoryUI() { /* Geçmişi listeleme kodları buraya */ }
-        function startNewChat() { currentChatId = Date.now().toString(); document.getElementById('chat-container').innerHTML = ''; toggleDrawer(); }
+        function startNewChat() { document.getElementById('chat-container').innerHTML = ''; toggleDrawer(); }
     </script>
 </body>
-</html>
+            </html>
+            
