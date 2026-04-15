@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZEKA-X | Identity Edition</title>
+    <title>ZEKA-X | Royal-Fluid</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;600;800&display=swap" rel="stylesheet">
     <style>
         :root { --accent: #00ffcc; --bg: #030303; --glass: rgba(15, 15, 15, 0.95); }
@@ -14,33 +14,25 @@
         #intro-screen { position: fixed; inset: 0; background: #000; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
         .logo { font-size: 3rem; font-weight: 800; color: var(--accent); text-shadow: 0 0 25px var(--accent); letter-spacing: 12px; margin-bottom: 30px; }
         .selection-box { background: #111; padding: 30px; border-radius: 25px; border: 1px solid #222; }
-        .gender-btn { background: none; border: 2px solid var(--accent); color: var(--accent); padding: 12px 40px; border-radius: 30px; font-weight: 800; cursor: pointer; margin: 10px; transition: 0.3s; width: 150px; }
+        .gender-btn { background: none; border: 2px solid var(--accent); color: var(--accent); padding: 12px 40px; border-radius: 30px; font-weight: 800; cursor: pointer; margin: 10px; transition: 0.3s; width: 160px; }
         .gender-btn:hover { background: var(--accent); color: #000; }
 
-        /* 📱 Header */
         .header { height: 60px; padding: 0 20px; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between; align-items: center; background: #000; z-index: 100; }
-        
-        /* 💬 Chat Area */
         #chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; background: radial-gradient(circle at top, #111 0%, #000 100%); }
         .msg { padding: 14px 18px; border-radius: 20px; max-width: 85%; font-size: 15px; line-height: 1.5; word-wrap: break-word; }
         .user { align-self: flex-end; background: var(--accent); color: #000; font-weight: 600; border-bottom-right-radius: 5px; }
         .ai { align-self: flex-start; background: var(--glass); border: 1px solid #222; border-bottom-left-radius: 5px; }
         .ai-img { width: 100%; border-radius: 12px; margin-top: 12px; border: 1px solid #333; }
+        .v-btn { color: var(--accent); cursor: pointer; font-size: 11px; margin-top: 8px; display: block; font-weight: 800; text-transform: uppercase; }
 
-        /* 🔊 Voice */
-        .v-btn { color: var(--accent); cursor: pointer; font-size: 11px; margin-top: 8px; display: block; font-weight: 800; }
-
-        /* ⌨️ Input Box */
         .input-area { padding: 15px; background: #000; border-top: 1px solid #1a1a1a; }
         .wrapper { display: flex; gap: 10px; background: #111; padding: 5px 15px; border-radius: 30px; align-items: center; border: 1px solid #222; }
         input#in { flex: 1; background: none; border: none; color: #fff; height: 45px; font-size: 16px; outline: none; }
         .send-btn { background: var(--accent); border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        /* ☰ Sidebar */
         #sidebar { position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background: #080808; z-index: 10000; transition: 0.3s; padding: 30px; border-left: 1px solid #222; }
         #sidebar.open { right: 0; }
         .sidebar-btn { width: 100%; padding: 12px; border-radius: 10px; border: none; margin-bottom: 12px; cursor: pointer; font-weight: 600; }
-
         .loader { color: var(--accent); font-size: 12px; margin: 10px; font-style: italic; animation: blink 1s infinite; }
         @keyframes blink { 50% { opacity: 0.4; } }
     </style>
@@ -50,9 +42,9 @@
 <div id="intro-screen">
     <div class="logo">ZEKA-X</div>
     <div class="selection-box">
-        <p style="color:#888; margin-bottom:20px;">Sana nasıl hitap etmemi istersin?</p>
-        <button class="gender-btn" onclick="setIdentity('Erkek')">KRAL</button>
-        <button class="gender-btn" onclick="setIdentity('Kız')">KRALİÇEM</button>
+        <p style="color:#888; margin-bottom:20px;">Hoş Geldiniz. Cinsiyet Seçiniz:</p>
+        <button class="gender-btn" onclick="setIdentity('Erkek')">ERKEK</button>
+        <button class="gender-btn" onclick="setIdentity('Kız')">KIZ</button>
     </div>
 </div>
 
@@ -73,40 +65,40 @@
     <form onsubmit="event.preventDefault(); handle();" class="wrapper">
         <input type="file" id="f" style="display:none" accept="image/*" onchange="imgIn()">
         <button type="button" onclick="document.getElementById('f').click()" style="background:none; border:none; color:var(--accent); font-size:22px;">◩</button>
-        <input type="text" id="in" placeholder="Mesajınızı yazın..." autocomplete="off">
+        <input type="text" id="in" placeholder="Zeka-X seni dinliyor..." autocomplete="off">
         <button type="submit" class="send-btn">🚀</button>
     </form>
 </div>
 
 <script>
     const G_K = "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";
-    let userTitle = localStorage.getItem('zx_title') || "";
+    let genderPref = localStorage.getItem('zx_gender') || "";
 
-    function setIdentity(gender) {
-        userTitle = (gender === 'Kız') ? "Kraliçem" : "Kral";
-        localStorage.setItem('zx_title', userTitle);
+    const hitaplar = {
+        'Erkek': ["Kral", "Beyefendi", "Paşam", "Aslanım", "Kralım"],
+        'Kız': ["Kraliçe", "Hanımefendi", "Güzel Bayan", "Zarif Hanım", "Kraliçem"]
+    };
+
+    function setIdentity(g) {
+        genderPref = g;
+        localStorage.setItem('zx_gender', g);
         document.getElementById('intro-screen').style.display = 'none';
         if(!curId) newChat(); else render();
     }
 
-    let sessions = JSON.parse(localStorage.getItem('zx_v75')) || {};
-    let curId = localStorage.getItem('zx_v75_id');
+    let sessions = JSON.parse(localStorage.getItem('zx_v80')) || {};
+    let curId = localStorage.getItem('zx_v80_id');
     let imgB = null;
 
-    function init() { 
-        if(userTitle) {
-            document.getElementById('intro-screen').style.display = 'none';
-            if(!curId) newChat(); else render();
-        }
-    }
+    function init() { if(genderPref) { document.getElementById('intro-screen').style.display = 'none'; if(!curId) newChat(); else render(); } }
 
     function newChat() { curId='zx_'+Date.now(); sessions[curId]={m:[]}; save(); render(); }
-    function save() { localStorage.setItem('zx_v75', JSON.stringify(sessions)); localStorage.setItem('zx_v75_id', curId); }
+    function save() { localStorage.setItem('zx_v80', JSON.stringify(sessions)); localStorage.setItem('zx_v80_id', curId); }
 
     function imgIn() {
         const file = document.getElementById('f').files[0];
         const reader = new FileReader();
-        reader.onload = (e) => { imgB = e.target.result.split(',')[1]; alert("Görsel yüklendi!"); };
+        reader.onload = (e) => { imgB = e.target.result.split(',')[1]; alert("Görsel başarıyla yüklendi."); };
         reader.readAsDataURL(file);
     }
 
@@ -123,35 +115,33 @@
         if(!txt && !imgB) return;
 
         addUI(txt + (imgB ? "<br>[Görsel]" : ""), 'user');
-        const load = document.createElement('div'); load.className='loader'; load.innerText='Düşünüyorum...';
+        const load = document.createElement('div'); load.className='loader'; load.innerText='Analiz ediliyor...';
         document.getElementById('chat-container').appendChild(load);
         
         const thisImg = imgB; imgB = null;
         input.value = '';
 
         try {
-            // Çizim
             if(txt.toLowerCase().match(/çiz|oluştur/)) {
                 let p = txt.replace(/çiz|oluştur/gi, "").trim();
                 let url = `https://image.pollinations.ai/prompt/${encodeURIComponent(p)}?width=1024&height=1024&nologo=true&seed=${Date.now()}`;
                 load.remove();
-                addUI(`Buyur ${userTitle}, görselin hazır:<br><img src="${url}" class="ai-img">`, 'ai');
+                addUI(`Buyrun, istediğiniz görsel hazır:<br><img src="${url}" class="ai-img">`, 'ai');
                 sessions[curId].m.push({r:"u", c:txt}, {r:"a", c:url});
                 save(); return;
             }
 
-            // Zeka
             const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST",
                 headers: {"Authorization": `Bearer ${G_K}`, "Content-Type": "application/json"},
                 body: JSON.stringify({
                     model: thisImg ? "llama-3.2-11b-vision-preview" : "llama-3.3-70b-versatile",
                     messages: [
-                        {role:"system", content: `Adın Zeka-X. Kullanıcıya '${userTitle}' diye hitap et. Selamlaşmalara kısa ve öz yanıt ver. Asla ansiklopedik açıklama yapma. Her zaman Türkçe konuş.`}, 
+                        {role:"system", content: `Adın Zeka-X. Bedirhan Ayaz tarafından yapıldın. Kullanıcıya şu listeden rastgele bir hitap seçerek seslen: ${hitaplar[genderPref].join(", ")}. Selamlaşmalara sadece samimi ve kısa cevap ver. Teknik soruları öz açıkla. Sadece Türkçe konuş.`}, 
                         ...sessions[curId].m.slice(-4).map(x=>({role:x.r=="u"?"user":"assistant", content:x.c})), 
                         {role:"user", content: thisImg ? [{type:"text", text:txt || "Bunu açıkla."}, {type:"image_url", image_url:{url:`data:image/jpeg;base64,${thisImg}`}}] : txt}
                     ],
-                    max_tokens: 300
+                    max_tokens: 350
                 })
             });
 
@@ -159,12 +149,12 @@
             load.remove();
             const reply = data.choices[0].message.content;
             
-            addUI(reply + `<span class="v-btn" onclick="speak('${reply.replace(/'/g, "\\'")}')">🔊 DİNLE</span>`, 'ai');
-            sessions[curId].m.push({r:"u", c:txt || "Görsel"}, {r:"a", c:reply});
+            addUI(reply + `<span class="v-btn" onclick="speak('${reply.replace(/'/g, "\\'")}')">🔊 SESLİ DİNLE</span>`, 'ai');
+            sessions[curId].m.push({r:"u", c:txt || "Görsel Analizi"}, {r:"a", c:reply});
             save();
         } catch (e) {
             load.remove();
-            addUI(`Üzgünüm ${userTitle}, bir hata oldu.`, 'ai');
+            addUI("⚠️ Küçük bir bağlantı sorunu oluştu, lütfen tekrar deneyin.", 'ai');
         }
     }
 
@@ -186,5 +176,4 @@
     init();
 </script>
 </body>
-            </html>
-    
+</html>
