@@ -3,73 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Healility: Elite Sniper Pro</title>
+    <title>Healility: Sniper Elite v5</title>
     <style>
-        :root { --neon: #00f2ff; --gold: #ffcc00; --danger: #ff0055; --bg: rgba(0, 20, 30, 0.8); }
-        body { margin: 0; overflow: hidden; background: #87CEEB; font-family: 'Segoe UI', sans-serif; touch-action: none; }
+        :root { --neon: #00f2ff; --gold: #ffcc00; --danger: #ff0055; --dark: rgba(0, 10, 20, 0.9); }
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; touch-action: none; }
 
-        /* Ana Arayüz */
-        #hud { position: absolute; inset: 0; pointer-events: none; z-index: 10; display: flex; flex-direction: column; justify-content: space-between; padding: 15px; }
+        /* Gelişmiş HUD */
+        #hud { position: absolute; inset: 0; pointer-events: none; z-index: 10; display: flex; flex-direction: column; justify-content: space-between; padding: 20px; }
+        
+        .glass-panel { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; padding: 10px; color: white; }
 
-        /* Üst Bilgi */
-        .top-stats { display: flex; justify-content: space-between; color: white; text-shadow: 0 2px 5px #000; font-weight: bold; font-size: 14px; }
-
-        /* Dürbün Efekti (Overlay) */
-        #scope-overlay {
-            position: absolute; inset: 0; border: 0px solid black; transition: all 0.3s ease;
-            display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none;
+        /* Eğitim Paneli */
+        #tutorial-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.85); z-index: 100;
+            display: flex; align-items: center; justify-content: center; text-align: center; color: white; padding: 20px;
         }
-        .scope-circle { width: 300px; height: 300px; border: 200vw solid black; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        .scope-cross { position: absolute; width: 100%; height: 2px; background: rgba(255,0,0,0.5); }
-        .scope-v { position: absolute; width: 2px; height: 100%; background: rgba(255,0,0,0.5); }
+        .step-card { border-top: 4px solid var(--neon); padding: 30px; border-radius: 15px; background: var(--dark); max-width: 300px; }
 
-        /* Mobil Butonlar */
-        #controls { position: absolute; bottom: 20px; left: 20px; display: flex; gap: 10px; pointer-events: auto; }
-        .m-btn {
-            width: 50px; height: 50px; background: var(--bg); border: 1px solid var(--neon);
-            border-radius: 10px; color: var(--neon); font-size: 10px; font-weight: bold;
-            display: flex; align-items: center; justify-content: center; text-align: center;
-            box-shadow: 0 0 10px var(--neon); active { transform: scale(0.9); }
+        /* Butonlar */
+        .btn-grid { position: absolute; bottom: 30px; left: 20px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; pointer-events: auto; }
+        .control-btn {
+            width: 70px; height: 70px; background: var(--dark); border: 2px solid var(--neon);
+            border-radius: 50%; color: var(--neon); font-size: 10px; font-weight: bold;
+            display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px var(--neon);
+            transition: 0.2s;
         }
+        .control-btn:active { transform: scale(0.9); background: var(--neon); color: black; }
 
-        /* Mühimmat ve KİBO */
-        .bottom-right { align-self: flex-end; text-align: right; pointer-events: none; }
-        #ammo-display { font-size: 30px; color: var(--gold); font-weight: 900; margin-bottom: 5px; }
-        #kibo-log {
-            background: var(--bg); border-right: 4px solid var(--neon); padding: 10px;
-            border-radius: 10px 0 0 10px; color: #fff; font-size: 11px; max-width: 180px;
+        #scope-view {
+            position: absolute; inset: 0; border: 250px solid black; border-radius: 50%;
+            display: none; pointer-events: none; z-index: 5; transform: scale(2);
         }
 
-        /* Animasyonlar */
-        .reloading { animation: flash 0.5s infinite; }
-        @keyframes flash { 50% { opacity: 0.3; color: red; } }
+        #ammo-v { font-size: 40px; font-weight: 900; color: var(--gold); }
     </style>
 </head>
 <body>
 
-    <div id="scope-overlay">
-        <div class="scope-circle">
-            <div class="scope-cross"></div>
-            <div class="scope-v"></div>
+    <div id="tutorial-overlay">
+        <div class="step-card" id="tutorial-card">
+            <h2 style="color: var(--neon)">HOŞ GELDİN ASKER</h2>
+            <p id="tut-text">Ben KİBO. Healility binasının tepesindesin. Şehri korumak için önce temel eğitimi tamamlamalısın.</p>
+            <button onclick="nextStep()" style="background:var(--neon); border:none; padding:10px 20px; border-radius:5px; font-weight:bold;">ANLAŞILDI</button>
         </div>
     </div>
 
+    <div id="scope-view"></div>
+
     <div id="hud">
-        <div class="top-stats">
-            <div>HEALILITY OS v4.0</div>
-            <div>SKOR: <span id="score">0</span></div>
+        <div style="display: flex; justify-content: space-between;">
+            <div class="glass-panel">🛰️ SİNYAL: GÜÇLÜ <br> RAKIM: 120m</div>
+            <div class="glass-panel">İMHASI: <span id="score">0</span></div>
         </div>
 
-        <div id="controls">
-            <div class="m-btn" onclick="toggleScope()">DÜRBÜN<br>(ZOOM)</div>
-            <div class="m-btn" onclick="manualReload()">ŞARJÖR<br>(RELOAD)</div>
+        <div class="btn-grid">
+            <div class="control-btn" onclick="toggleZoom()">DÜRBÜN</div>
+            <div class="control-btn" onclick="startReload()">MÜHİMMAT</div>
+            <div class="control-btn" onclick="changeWeather()">HAVA DURUMU</div>
+            <div class="control-btn" onclick="toggleKibo()">KİBO GİZLE</div>
         </div>
 
-        <div class="bottom-right">
-            <div id="ammo-display">15/15</div>
-            <div id="kibo-log">
-                <b style="color:var(--neon)">KİBO:</b><br>
-                <span id="kibo-msg">Sistem hazır. Hedefler şehir meydanında tespit edildi.</span>
+        <div style="align-self: flex-end; text-align: right;">
+            <div id="ammo-v">10/10</div>
+            <div class="glass-panel" style="border-right: 5px solid var(--neon)">
+                <b>KİBO STATUS:</b> <span id="kibo-status">Aktif</span>
             </div>
         </div>
     </div>
@@ -77,176 +74,172 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <script>
-        /**
-         * HEALILITY SNIPER ENGINE PRO
-         * Mobilden GitHub İçin En Derin Yapı
-         */
-
-        let scene, camera, renderer, clock, kibo;
-        let ammo = 15, kills = 0, isReloading = false, isZoomed = false;
-        let enemies = [], bullets = [];
-        let viewAngle = new THREE.Vector2(0, -Math.PI/4);
-        let smoothAngle = new THREE.Vector2(0, -Math.PI/4);
+        let scene, camera, renderer, clock, kibo, sniperRifle;
+        let ammo = 10, kills = 0, isZoomed = false, tutStep = 0;
+        let enemies = [], bullets = [], buildings = [];
+        let moveTarget = new THREE.Vector2(), currentMove = new THREE.Vector2();
 
         init();
-        loop();
+        animate();
 
         function init() {
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x87CEEB);
-            scene.fog = new THREE.FogExp2(0x87CEEB, 0.008);
+            scene.fog = new THREE.Fog(0x87CEEB, 50, 250);
 
-            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
-            camera.position.set(0, 60, 20);
+            camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1500);
+            camera.position.set(0, 70, 20);
 
-            renderer = new THREE.WebGLRenderer({ antialias: true, logarithmicDepthBuffer: true });
+            renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            renderer.shadowMap.enabled = true;
+            renderer.setPixelRatio(window.devicePixelRatio);
             document.body.appendChild(renderer.domElement);
 
-            // Gelişmiş Işıklandırma
+            // Güneş
             const sun = new THREE.DirectionalLight(0xffffff, 1.5);
-            sun.position.set(100, 200, 100);
-            sun.castShadow = true;
+            sun.position.set(50, 100, 50);
             scene.add(sun);
-            scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+            scene.add(new THREE.AmbientLight(0xffffff, 0.4));
 
-            // ÇEVRE İNŞASI
-            createEnvironment();
+            // ŞEHİR KURULUMU
+            createCity();
 
-            // KİBO PRO (Gelişmiş Form)
-            const kiboParts = new THREE.Group();
-            const core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.6, 1), new THREE.MeshStandardMaterial({color: 0x00f2ff, wireframe: true}));
-            kiboParts.add(core);
-            kibo = kiboParts;
+            // KİBO
+            kibo = new THREE.Mesh(
+                new THREE.IcosahedronGeometry(0.7, 1),
+                new THREE.MeshStandardMaterial({ color: 0x00f2ff, wireframe: true })
+            );
             scene.add(kibo);
 
-            // MOBİL ETKİLEŞİM
+            // MOBİL KONTROL
             window.addEventListener('touchmove', (e) => {
                 const t = e.touches[0];
-                viewAngle.x = -((t.clientX / window.innerWidth) - 0.5) * 2;
-                viewAngle.y = -Math.PI/3 - ((t.clientY / window.innerHeight) - 0.5) * 1.5;
-            }, { passive: false });
+                moveTarget.x = -((t.clientX / window.innerWidth) - 0.5) * 2.5;
+                moveTarget.y = -Math.PI/3 - ((t.clientY / window.innerHeight) - 0.5) * 1.5;
+            });
 
             window.addEventListener('touchstart', (e) => {
-                if(e.target.className !== 'm-btn') shoot();
+                if(e.target.tagName !== 'BUTTON' && e.target.className !== 'control-btn' && tutStep >= 2) shoot();
             });
 
             clock = new THREE.Clock();
-            spawnManager();
         }
 
-        function createEnvironment() {
-            // Sniper Binası
-            const towerGeo = new THREE.BoxGeometry(25, 150, 25);
-            const towerMat = new THREE.MeshStandardMaterial({ color: 0x2c3e50, roughness: 0.2 });
-            const tower = new THREE.Mesh(towerGeo, towerMat);
-            tower.position.y = -15;
-            scene.add(tower);
+        function createCity() {
+            // Sniper Yuvası (Binamız)
+            const myTower = new THREE.Mesh(
+                new THREE.BoxGeometry(30, 180, 30),
+                new THREE.MeshStandardMaterial({ color: 0x111111 })
+            );
+            myTower.position.y = -20;
+            scene.add(myTower);
 
-            // Şehir Zemini
-            const floor = new THREE.Mesh(new THREE.PlaneGeometry(2000, 2000), new THREE.MeshStandardMaterial({ color: 0x7f8c8d }));
-            floor.rotation.x = -Math.PI / 2;
-            floor.position.y = -60;
-            scene.add(floor);
-
-            // Renkli Binalar
-            for(let i=0; i<60; i++) {
-                const h = 20 + Math.random() * 80;
+            // Şehir Binaları (Detaylı)
+            for(let i=0; i<80; i++) {
+                const h = 20 + Math.random() * 100;
                 const b = new THREE.Mesh(
                     new THREE.BoxGeometry(15, h, 15),
-                    new THREE.MeshStandardMaterial({ color: new THREE.Color(`hsl(${Math.random()*360}, 30%, 40%)`) })
+                    new THREE.MeshStandardMaterial({ color: new THREE.Color(`hsl(${Math.random()*360}, 40%, 30%)`) })
                 );
-                b.position.set((Math.random()-0.5)*500, h/2 - 60, (Math.random()-0.5)*500 - 100);
+                b.position.set((Math.random()-0.5)*600, h/2 - 70, (Math.random()-0.5)*600 - 150);
                 scene.add(b);
+            }
+
+            const floor = new THREE.Mesh(new THREE.PlaneGeometry(2000,2000), new THREE.MeshStandardMaterial({color: 0x333333}));
+            floor.rotation.x = -Math.PI/2; floor.position.y = -70;
+            scene.add(floor);
+        }
+
+        function nextStep() {
+            tutStep++;
+            const text = document.getElementById('tut-text');
+            if(tutStep === 1) {
+                text.innerText = "Ekranı kaydırarak etrafa bakabilirsin. Binanın altındaki hedefleri tespit et.";
+            } else if(tutStep === 2) {
+                text.innerText = "Harika! Şimdi ekrana dokunarak ateş etmeyi dene. Mermin biterse 'MÜHİMMAT' butonunu kullan.";
+                document.getElementById('tutorial-overlay').style.background = "transparent";
+                document.getElementById('tutorial-card').style.marginTop = "20px";
+            } else {
+                document.getElementById('tutorial-overlay').style.display = "none";
+                spawnEnemies();
             }
         }
 
-        // DÜRBÜN FONKSİYONU
-        function toggleScope() {
+        function toggleZoom() {
             isZoomed = !isZoomed;
-            camera.fov = isZoomed ? 15 : 60;
+            camera.fov = isZoomed ? 15 : 65;
             camera.updateProjectionMatrix();
-            document.getElementById('scope-overlay').style.opacity = isZoomed ? "1" : "0";
-            document.getElementById('kibo-msg').innerText = isZoomed ? "Dürbün aktif. Nefes kontrolü yapılıyor." : "Geniş açı tarama moduna geçildi.";
+            document.getElementById('scope-view').style.display = isZoomed ? "block" : "none";
+        }
+
+        function startReload() {
+            document.getElementById('ammo-v').innerText = "WAIT";
+            setTimeout(() => { ammo = 10; updateUI(); }, 1500);
+        }
+
+        function changeWeather() {
+            const colors = [0x87CEEB, 0xffa500, 0x444444];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            scene.background = new THREE.Color(randomColor);
+            scene.fog.color = new THREE.Color(randomColor);
+        }
+
+        function toggleKibo() {
+            kibo.visible = !kibo.visible;
+            document.getElementById('kibo-status').innerText = kibo.visible ? "Aktif" : "Gizli";
         }
 
         function shoot() {
-            if(isReloading || ammo <= 0) return;
+            if(ammo <= 0) return;
             ammo--; updateUI();
-
-            const bullet = new THREE.Mesh(new THREE.SphereGeometry(0.15), new THREE.MeshBasicMaterial({color: 0xffff00}));
-            bullet.position.copy(camera.position);
+            const b = new THREE.Mesh(new THREE.SphereGeometry(0.2), new THREE.MeshBasicMaterial({color: 0xffff00}));
+            b.position.copy(camera.position);
             const dir = new THREE.Vector3(0,0,-1).applyQuaternion(camera.quaternion);
-            bullet.userData.v = dir.multiplyScalar(5);
-            bullets.push(bullet);
-            scene.add(bullet);
+            b.userData.v = dir.multiplyScalar(6);
+            bullets.push(b);
+            scene.add(b);
         }
 
-        function manualReload() {
-            if(isReloading) return;
-            isReloading = true;
-            document.getElementById('ammo-display').classList.add('reloading');
-            setTimeout(() => {
-                ammo = 15; isReloading = false;
-                document.getElementById('ammo-display').classList.remove('reloading');
-                updateUI();
-            }, 2000);
-        }
-
-        function spawnManager() {
-            // İNSAN ŞEKLİNDE HEDEFLER (Basit humanoid yapı)
-            const human = new THREE.Group();
-            const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.4, 1.2, 4, 8), new THREE.MeshStandardMaterial({color: 0xff0044}));
-            const head = new THREE.Mesh(new THREE.SphereGeometry(0.3), new THREE.MeshStandardMaterial({color: 0xff0044}));
-            head.position.y = 1;
-            human.add(body, head);
-
-            human.position.set((Math.random()-0.5)*150, -59, (Math.random()-0.5)*150 - 80);
-            human.userData.speed = 0.05 + Math.random() * 0.1;
-            enemies.push(human);
-            scene.add(human);
-            setTimeout(spawnManager, 1500);
+        function spawnEnemies() {
+            const e = new THREE.Group();
+            const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.5, 1.5), new THREE.MeshStandardMaterial({color: 0xff0000}));
+            e.add(body);
+            e.position.set((Math.random()-0.5)*200, -68, (Math.random()-0.5)*200 - 100);
+            e.userData.vx = (Math.random()-0.5) * 0.2;
+            enemies.push(e);
+            scene.add(e);
+            setTimeout(spawnEnemies, 2000);
         }
 
         function updateUI() {
-            document.getElementById('ammo-display').innerText = `${ammo}/15`;
+            document.getElementById('ammo-v').innerText = ammo + "/10";
             document.getElementById('score').innerText = kills;
         }
 
-        function loop() {
-            requestAnimationFrame(loop);
+        function animate() {
+            requestAnimationFrame(animate);
             const t = clock.getElapsedTime();
 
-            // Kamera Akışı
-            smoothAngle.x += (viewAngle.x - smoothAngle.x) * 0.1;
-            smoothAngle.y += (viewAngle.y - smoothAngle.y) * 0.1;
-            camera.rotation.set(smoothAngle.y, smoothAngle.x, 0);
+            currentMove.x += (moveTarget.x - currentMove.x) * 0.1;
+            currentMove.y += (moveTarget.y - currentMove.y) * 0.1;
+            camera.rotation.set(currentMove.y, currentMove.x, 0);
 
-            // KİBO Hareket
-            kibo.position.set(camera.position.x + 5, camera.position.y + Math.sin(t)*2, camera.position.z - 10);
+            kibo.position.set(camera.position.x + 4, camera.position.y + Math.sin(t)*2, camera.position.z - 8);
             kibo.rotation.y += 0.05;
 
-            // Mermi ve Çarpışma (Hedeflerin aşağıda kalması için kontrol)
-            bullets.forEach((b, bi) => {
+            bullets.forEach((b, i) => {
                 b.position.add(b.userData.v);
-                if(b.position.y < -60) { scene.remove(b); bullets.splice(bi, 1); }
-
+                if(b.position.y < -70) { scene.remove(b); bullets.splice(i,1); }
                 enemies.forEach((e, ei) => {
                     if(b.position.distanceTo(e.position) < 2) {
                         scene.remove(e); enemies.splice(ei, 1);
-                        scene.remove(b); bullets.splice(bi, 1);
+                        scene.remove(b); bullets.splice(i, 1);
                         kills++; updateUI();
                     }
                 });
             });
 
-            // Hedeflerin Yürümesi
-            enemies.forEach(e => {
-                e.position.z += e.userData.speed;
-                if(e.position.z > 100) e.position.z = -150; // Tekrar döngüye girsinler
-            });
+            enemies.forEach(e => { e.position.x += e.userData.vx; });
 
             renderer.render(scene, camera);
         }
