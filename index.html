@@ -2,242 +2,217 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
-    <title>ZEKA-X | Keyboard-Fix</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;600;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Healility Parkur Macerası</title>
     <style>
-        :root { --accent: #00ffcc; --bg: #030303; --glass: rgba(15, 15, 15, 0.98); }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: white; height: 100vh; display: flex; flex-direction: column; overflow: hidden; position: fixed; width: 100%; }
-        
-        /* 🚀 Login Screen Fix */
-        #login-screen { position: fixed; inset: 0; background: #000; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        .logo { font-size: 3.5rem; font-weight: 800; color: var(--accent); text-shadow: 0 0 25px var(--accent); letter-spacing: 12px; margin-bottom: 30px; }
-        .login-box { background: #0a0a0a; padding: 35px; border-radius: 30px; border: 1px solid #1a1a1a; width: 100%; max-width: 400px; text-align: center; position: relative; z-index: 100000; }
-        .login-box input { width: 100%; background: #111; border: 1px solid #222; padding: 18px; border-radius: 15px; color: white; margin-bottom: 20px; text-align: center; font-size: 16px; outline: none; -webkit-appearance: none; }
-        .login-box input:focus { border-color: var(--accent); background: #000; }
-        .gender-flex { display: flex; justify-content: center; gap: 20px; }
-        .g-btn { background: #1a1a1a; border: 1px solid #333; font-size: 45px; padding: 15px; border-radius: 20px; cursor: pointer; flex: 1; transition: 0.3s; }
-        .g-btn:active { transform: scale(0.9); background: var(--accent); }
-
-        /* 📱 Interface */
-        .header { height: 60px; padding: 0 20px; border-bottom: 1px solid #111; display: flex; justify-content: space-between; align-items: center; background: #000; flex-shrink: 0; }
-        #chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; background: radial-gradient(circle at top, #111 0%, #000 100%); }
-        
-        #welcome-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
-        .welcome-title { font-size: 1.8rem; font-weight: 800; color: var(--accent); margin-bottom: 10px; }
-        .suggestion-grid { display: grid; grid-template-columns: 1fr; gap: 10px; width: 100%; max-width: 350px; margin-top: 20px; }
-        .sugg-card { background: #0a0a0a; border: 1px solid #1a1a1a; padding: 12px; border-radius: 15px; cursor: pointer; font-size: 14px; color: #888; text-align: left; }
-
-        .msg { padding: 14px 18px; border-radius: 20px; max-width: 85%; font-size: 15px; line-height: 1.5; word-wrap: break-word; }
-        .user { align-self: flex-end; background: var(--accent); color: #000; font-weight: 600; border-bottom-right-radius: 4px; }
-        .ai { align-self: flex-start; background: #161616; border: 1px solid #222; border-bottom-left-radius: 4px; }
-        
-        /* ⌨️ Keyboard Fix Area */
-        .input-area { padding: 12px; background: #000; border-top: 1px solid #111; flex-shrink: 0; }
-        .wrapper { display: flex; gap: 10px; background: #0f0f0f; padding: 5px 15px; border-radius: 30px; border: 1px solid #1a1a1a; align-items: center; }
-        input#in { flex: 1; background: none; border: none; color: #fff; height: 45px; font-size: 16px; outline: none; -webkit-appearance: none; }
-        .send-btn { background: var(--accent); border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; flex-shrink: 0; }
-
-        #sidebar { position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background: #080808; z-index: 10000; transition: 0.3s; padding: 25px; border-left: 1px solid #111; }
-        #sidebar.open { right: 0; }
-        .close-sidebar { position: absolute; top: 15px; left: -35px; width: 35px; height: 35px; background: #080808; border-radius: 8px 0 0 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--accent); border: 1px solid #111; border-right: none; }
-
-        .loader { color: var(--accent); font-size: 12px; margin-left: 10px; font-style: italic; }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0f0f1b;
+            color: #00ffcc;
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            touch-action: manipulation; /* Mobilde çift tıklama zoomunu engeller */
+        }
+        #gameCanvas {
+            background-color: #1a1a2e;
+            border-bottom: 4px solid #e94560;
+            box-shadow: 0 0 20px #e94560;
+            margin-top: 20px;
+        }
+        #storyPanel {
+            width: 90%;
+            max-width: 400px;
+            height: 100px;
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #00ffcc;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        #scoreBoard {
+            margin-top: 10px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .instruction {
+            margin-top: 5px;
+            font-size: 12px;
+            color: #888;
+        }
     </style>
 </head>
 <body>
 
-<div id="login-screen">
-    <div class="logo">ZEKA-X</div>
-    <div class="login-box">
-        <p style="color:var(--accent); font-size:12px; margin-bottom:10px; font-weight:800;">KİMLİĞİNİ OLUŞTUR</p>
-        <input type="text" id="user-name" placeholder="Adını Buraya Yaz..." autocomplete="off" spellcheck="false">
-        <div class="gender-flex">
-            <button class="g-btn" onclick="syncUser('Erkek')">♂️</button>
-            <button class="g-btn" onclick="syncUser('Kız')">♀️</button>
-        </div>
-        <p id="error-msg" style="color: #ff4444; font-size: 11px; margin-top: 15px; display: none; font-weight: 600;">LÜTFEN ADINI YAZMADAN GEÇME!</p>
+    <div id="scoreBoard">Mesafe: <span id="score">0</span>m</div>
+    
+    <canvas id="gameCanvas" width="320" height="400"></canvas>
+    
+    <div id="storyPanel">
+        Bağlantı kuruldu... Ekibin diğer iki üyesi hattan izliyor. Görevin Healility sunucusuna ulaşmak. Koşmaya başla!
     </div>
-</div>
+    
+    <div class="instruction">Zıplamak için ekrana dokun!</div>
 
-<div id="sidebar">
-    <div class="close-sidebar" onclick="toggleSidebar()">➜</div>
-    <h3 style="color:var(--accent); margin-bottom:5px;">PROFİL</h3>
-    <p id="side-name" style="font-size: 16px; font-weight: 800; color: #fff; margin-bottom: 25px;"></p>
-    <button style="background:var(--accent); width:100%; padding:14px; border-radius:12px; border:none; font-weight:800; cursor:pointer;" onclick="newChat()">+ YENİ SOHBET</button>
-    <button style="background:#1a1a1a; color:#888; width:100%; padding:14px; border-radius:12px; border:none; margin-top:10px; cursor:pointer; font-size:12px;" onclick="localStorage.clear(); location.reload();">VERİLERİ TEMİZLE</button>
-</div>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const scoreElement = document.getElementById("score");
+        const storyPanel = document.getElementById("storyPanel");
 
-<div class="header">
-    <div style="font-weight:800; color:var(--accent); font-size:1.4rem;">ZEKA-X</div>
-    <div onclick="toggleSidebar()" style="cursor:pointer; font-size:24px; color:var(--accent);">☰</div>
-</div>
+        // Karakterimiz (Ana Kahraman)
+        let player = {
+            x: 50,
+            y: 300,
+            width: 30,
+            height: 30,
+            dy: 0,
+            jumpPower: -12,
+            gravity: 0.6,
+            grounded: false,
+            color: "#00ffcc"
+        };
 
-<div id="chat-container">
-    <div id="welcome-area">
-        <div class="welcome-title" id="welcome-text">Hoş Geldin!</div>
-        <p style="color: #555; font-size: 14px;">Zeka-X senin için hazır.</p>
-        <div class="suggestion-grid">
-            <div class="sugg-card" onclick="setQuick('Gelecek hakkında ne düşünüyorsun?')">🔮 Gelecek hakkında sohbet et</div>
-            <div class="sugg-card" onclick="setQuick('Bana harika bir duvar kağıdı çizer misin?')">🎨 Duvar kağıdı oluştur</div>
-            <div class="sugg-card" onclick="setQuick('Bir fıkra anlatır mısın?')">😄 Biraz eğlenelim</div>
-        </div>
-    </div>
-</div>
+        // Engeller (Güvenlik Dronları / Çatı Boşlukları)
+        let obstacles = [];
+        let frame = 0;
+        let score = 0;
+        let gameActive = true;
 
-<div class="input-area">
-    <form onsubmit="event.preventDefault(); handle();" class="wrapper">
-        <input type="file" id="f" style="display:none" accept="image/*" onchange="imgIn()">
-        <button type="button" onclick="document.getElementById('f').click()" style="background:none; border:none; color:var(--accent); font-size:24px; cursor:pointer;">◩</button>
-        <input type="text" id="in" placeholder="Mesajını yaz..." autocomplete="off" spellcheck="false">
-        <button type="submit" class="send-btn">🚀</button>
-    </form>
-</div>
+        // Ekrana dokunma/tıklama ile zıplama
+        canvas.addEventListener("mousedown", jump);
+        canvas.addEventListener("touchstart", jump);
 
-<script>
-    const G_K = "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";
-    let userData = JSON.parse(localStorage.getItem('zx_v14_user')) || null;
-    let sessions = JSON.parse(localStorage.getItem('zx_v14_sessions')) || {};
-    let curId = localStorage.getItem('zx_v14_cid');
-    let imgB = null;
-
-    const hitaplar = {
-        'Erkek': ["Kral", "Şampiyon", "Dostum", "Adamım"],
-        'Kız': ["Kraliçem", "Canım", "Zarif Arkadaşım", "Tatlım"]
-    };
-
-    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
-
-    function syncUser(gender) {
-        const nameInput = document.getElementById('user-name').value.trim();
-        if(!nameInput) {
-            document.getElementById('error-msg').style.display = 'block';
-            document.getElementById('user-name').style.borderColor = '#ff4444';
-            return;
+        function jump() {
+            if (player.grounded && gameActive) {
+                player.dy = player.jumpPower;
+                player.grounded = false;
+            } else if (!gameActive) {
+                resetGame();
+            }
         }
-        userData = { name: nameInput, gender: gender };
-        localStorage.setItem('zx_v14_user', JSON.stringify(userData));
-        startApp();
-    }
 
-    function startApp() {
-        if(!userData) {
-            // Klavye odağını otomatik başlat
-            setTimeout(() => document.getElementById('user-name').focus(), 500);
-            return;
+        function resetGame() {
+            player.y = 300;
+            player.dy = 0;
+            obstacles = [];
+            score = 0;
+            frame = 0;
+            gameActive = true;
+            updateStory(0);
+            gameLoop();
         }
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('welcome-text').innerText = `Hoş Geldin, ${userData.name}!`;
-        document.getElementById('side-name').innerText = userData.name;
-        if(!curId) newChat(); else render();
-    }
 
-    function setQuick(v) { document.getElementById('in').value = v; handle(); }
+        function updateStory(currentScore) {
+            if (currentScore === 0) {
+                storyPanel.innerText = "Bağlantı kuruldu... Ekibin hattan izliyor. Görevin Healility sunucusuna ulaşmak. Koşmaya başla!";
+            } else if (currentScore === 200) {
+                storyPanel.innerText = "Radyo: 'Güzel atlayış! Birinci güvenlik duvarını geçtin. Lazerli dronlara dikkat et!'";
+            } else if (currentScore === 500) {
+                storyPanel.innerText = "Radyo: 'Çok hızlandın! Healility dış çeperine ulaştın. Sistemler seni fark etti, dayan!'";
+            } else if (currentScore === 1000) {
+                storyPanel.innerText = "Radyo: 'İnanılmazsın! Ana sunucu kapısı göründü. Ekip olarak arkandayız, son bir gayret!'";
+            }
+        }
 
-    function newChat() {
-        curId = 'zx_' + Date.now();
-        sessions[curId] = { m: [] };
-        save();
-        render();
-        if(document.getElementById('sidebar').classList.contains('open')) toggleSidebar();
-    }
+        function drawPlayer() {
+            ctx.fillStyle = player.color;
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = player.color;
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            ctx.shadowBlur = 0; // Diğer çizimleri etkilemesin
+        }
 
-    function save() {
-        localStorage.setItem('zx_v14_sessions', JSON.stringify(sessions));
-        localStorage.setItem('zx_v14_cid', curId);
-    }
+        function drawObstacles() {
+            ctx.fillStyle = "#e94560"; // Neon kırmızı engeller
+            obstacles.forEach(obs => {
+                ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+            });
+        }
 
-    function imgIn() {
-        const file = document.getElementById('f').files[0];
-        const reader = new FileReader();
-        reader.onload = (e) => { imgB = e.target.result.split(',')[1]; alert("Görsel yakalandı!"); };
-        reader.readAsDataURL(file);
-    }
+        function updatePhysics() {
+            // Yerçekimi
+            player.dy += player.gravity;
+            player.y += player.dy;
 
-    function speak(t) {
-        window.speechSynthesis.cancel();
-        const s = new SpeechSynthesisUtterance(t);
-        s.lang = 'tr-TR';
-        s.pitch = userData.gender === 'Kız' ? 1.0 : 0.1;
-        s.rate = userData.gender === 'Kız' ? 1.0 : 0.9;
-        window.speechSynthesis.speak(s);
-    }
-
-    async function handle() {
-        const input = document.getElementById('in');
-        const txt = input.value.trim();
-        if(!txt && !imgB) return;
-
-        document.getElementById('welcome-area').style.display = 'none';
-        addUI(txt + (imgB ? "<br><small style='color:var(--accent)'>[Görsel Taranıyor]</small>" : ""), 'user');
-        
-        const load = document.createElement('div'); load.className='loader'; load.innerText='...';
-        document.getElementById('chat-container').appendChild(load);
-        
-        const thisImg = imgB; imgB = null;
-        input.value = '';
-        input.focus(); // Yazdıktan sonra klavyeyi açık tut
-
-        try {
-            if(txt.toLowerCase().match(/çiz|oluştur/)) {
-                let p = txt.replace(/çiz|oluştur/gi, "").trim();
-                let q = `${p}, 8k, cinematic, detailed`;
-                let url = `https://image.pollinations.ai/prompt/${encodeURIComponent(q)}?width=1024&height=1024&nologo=true&seed=${Date.now()}`;
-                load.remove();
-                addUI(`Senin için hazırladım ${userData.name}:<br><img src="${url}" class="ai-img">`, 'ai');
-                sessions[curId].m.push({r:"u", c:txt}, {r:"a", c:url});
-                save(); return;
+            // Zemin çarpışması
+            if (player.y + player.height > canvas.height - 10) {
+                player.y = canvas.height - player.height - 10;
+                player.dy = 0;
+                player.grounded = true;
             }
 
-            const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST",
-                headers: {"Authorization": `Bearer ${G_K}`, "Content-Type": "application/json"},
-                body: JSON.stringify({
-                    model: thisImg ? "llama-3.2-11b-vision-preview" : "llama-3.3-70b-versatile",
-                    messages: [
-                        {role:"system", content: `Adın Zeka-X. Bedirhan Ayaz yaptı. Kullanıcı: ${userData.name}. Hitaplar: ${hitaplar[userData.gender].join(", ")}. Çok samimi, kanka gibi, doğal konuş. Her mesajda ismini kullanma ama aralarda belirt.`}, 
-                        ...sessions[curId].m.slice(-6).map(x=>({role:x.r=="u"?"user":"assistant", content:x.c})), 
-                        {role:"user", content: thisImg ? [{type:"text", text:txt || "Bu nedir?"}, {type:"image_url", image_url:{url:`data:image/jpeg;base64,${thisImg}`}}] : txt}
-                    ]
-                })
-            });
+            // Engel üretimi (Parkur zorluğu zamanla artar)
+            if (frame % Math.max(70 - Math.floor(score/50), 30) === 0) {
+                let obsHeight = 20 + Math.random() * 30;
+                obstacles.push({
+                    x: canvas.width,
+                    y: canvas.height - obsHeight - 10,
+                    width: 20,
+                    height: obsHeight
+                });
+            }
 
-            const data = await res.json();
-            load.remove();
-            const reply = data.choices[0].message.content;
+            // Engelleri hareket ettir
+            for (let i = 0; i < obstacles.length; i++) {
+                let obs = obstacles[i];
+                obs.x -= (4 + score / 300); // Gittikçe hızlanan parkur
+
+                // Çarpışma algılama
+                if (
+                    player.x < obs.x + obs.width &&
+                    player.x + player.width > obs.x &&
+                    player.y < obs.y + obs.height &&
+                    player.y + player.height > obs.y
+                ) {
+                    gameActive = false; // Oyun Bitti
+                }
+
+                // Ekrandan çıkan engeli sil
+                if (obs.x + obs.width < 0) {
+                    obstacles.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+
+        function gameLoop() {
+            if (!gameActive) {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "white";
+                ctx.font = "20px Arial";
+                ctx.textAlign = "center";
+                ctx.fillText("Sistem Çöktü!", canvas.width / 2, canvas.height / 2);
+                ctx.font = "14px Arial";
+                ctx.fillText("Yeniden başlamak için dokun", canvas.width / 2, canvas.height / 2 + 30);
+                return;
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            addUI(reply + `<br><small style="color:var(--accent);cursor:pointer" onclick="speak('${reply.replace(/'/g, "\\'")}')">🔊 SESLİ DİNLE</small>`, 'ai');
-            sessions[curId].m.push({r:"u", c:txt || "Görsel"}, {r:"a", c:reply});
-            save();
-        } catch (e) {
-            load.remove();
-            addUI("Bağlantıda ufak bir kopukluk oldu kanka, tekrar yollar mısın?", 'ai');
-        }
-    }
+            updatePhysics();
+            drawPlayer();
+            drawObstacles();
 
-    function addUI(t, c) {
-        const d = document.createElement('div'); d.className = `msg ${c}`; d.innerHTML = t;
-        const cont = document.getElementById('chat-container');
-        cont.appendChild(d);
-        cont.scrollTop = cont.scrollHeight;
-    }
-
-    function render() {
-        const container = document.getElementById('chat-container');
-        container.innerHTML = '';
-        if(sessions[curId] && sessions[curId].m.length > 0) {
-            document.getElementById('welcome-area').style.display = 'none';
-            sessions[curId].m.forEach(x => {
-                addUI(x.c.startsWith("http") ? `<img src="${x.c}" class="ai-img">` : x.c, x.r=="u"?"user":"ai");
-            });
-        } else {
-            container.appendChild(document.getElementById('welcome-area'));
-            document.getElementById('welcome-area').style.display = 'flex';
+            score++;
+            if (score % 10 === 0) {
+                scoreElement.innerText = score / 10;
+                updateStory(score / 10);
+            }
+            
+            frame++;
+            requestAnimationFrame(gameLoop);
         }
-    }
-    window.onload = startApp;
-</script>
+
+        // Oyunu başlat
+        gameLoop();
+    </script>
 </body>
-    </html>
-    
+</html>
