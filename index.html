@@ -3,84 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Healility: Sınır Operasyonu</title>
+    <title>Healility: Gökdelen Savunması</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; }
-        #crosshair { position: absolute; top: 50%; left: 50%; width: 24px; height: 24px; border: 2px solid #00f2ff; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; }
-        #crosshair::after { content: ''; position: absolute; top: 50%; left: 50%; width: 4px; height: 4px; background: #ff0055; transform: translate(-50%, -50%); }
-        #hud { position: absolute; bottom: 30px; left: 30px; color: #00f2ff; font-weight: bold; letter-spacing: 2px; pointer-events: none; }
-        #story-box { position: absolute; top: 30px; right: 30px; width: 250px; background: rgba(0, 242, 255, 0.1); border-left: 4px solid #00f2ff; padding: 15px; color: #fff; font-size: 13px; backdrop-filter: blur(5px); pointer-events: none; }
-        #kibo-tag { color: #00f2ff; font-size: 10px; margin-bottom: 5px; display: block; }
+        body { margin: 0; overflow: hidden; background: #87CEEB; font-family: 'Arial', sans-serif; touch-action: none; }
+        #ui { position: absolute; top: 20px; left: 20px; color: #fff; text-shadow: 2px 2px 4px #000; pointer-events: none; }
+        #ammo-box { font-size: 24px; color: #ffcc00; font-weight: bold; }
+        #crosshair { position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; border: 2px solid red; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; }
+        #story { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 70%; background: rgba(255,255,255,0.9); border-bottom: 5px solid #ffcc00; padding: 15px; border-radius: 5px; color: #333; text-align: center; }
+        #kibo-name { color: #0088ff; font-weight: bold; display: block; }
     </style>
 </head>
 <body>
 
-    <div id="crosshair"></div>
-    <div id="hud">
-        SAĞLIK: <span id="hp">100</span>% <br>
-        VERİ İMHASI: <span id="kills">0</span>
+    <div id="ui">
+        BİNA YÜKSEKLİĞİ: 150m <br>
+        AVLANAN DÜŞMAN: <span id="kills">0</span> <br>
+        <div id="ammo-box">CEPHANE: <span id="ammo">20</span></div>
     </div>
-    <div id="story-box">
-        <span id="kibo-tag">▼ KİBO ANALİZ</span>
-        <div id="kibo-text">Healility ağına sızan botlar temizleniyor. Ateş serbest!</div>
+    
+    <div id="crosshair"></div>
+    
+    <div id="story">
+        <span id="kibo-name">🤖 KİBO</span>
+        <div id="kibo-msg">Güneşli bir gün, Healility binasının tepesindeyiz. Aşağıdaki sızmaları durdur!</div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <script>
-        let scene, camera, renderer, clock, kibo, weapon;
-        let bullets = [], enemies = [], health = 100, kills = 0;
+        let scene, camera, renderer, kibo, clock;
+        let bullets = [], enemies = [];
+        let ammo = 20, kills = 0, isReloading = false;
 
         init();
         animate();
 
         function init() {
             scene = new THREE.Scene();
-            scene.fog = new THREE.FogExp2(0x020205, 0.08);
+            scene.background = new THREE.Color(0x87CEEB); // Gökyüzü mavisi (Güneşli)
 
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 1.6, 0);
+            // Binanın tepesinden aşağı bakış açısı
+            camera.position.set(0, 40, 10);
+            camera.rotation.x = -Math.PI / 3; 
 
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(window.devicePixelRatio);
             document.body.appendChild(renderer.domElement);
 
-            // ZEMİN: Blok yerine sonsuz siber ızgara
-            const grid = new THREE.GridHelper(200, 100, 0x00f2ff, 0x050515);
-            scene.add(grid);
+            // GÜNEŞ (Işıklandırma)
+            const sun = new THREE.DirectionalLight(0xffffff, 1.2);
+            sun.position.set(10, 50, 20);
+            scene.add(sun);
+            scene.add(new THREE.AmbientLight(0xffffff, 0.4));
 
-            // SİLAH (Görsel olarak elinde duran 3D obje)
-            const wGeo = new THREE.BoxGeometry(0.2, 0.2, 1);
-            const wMat = new THREE.MeshPhongMaterial({ color: 0x111111, emissive: 0x00f2ff, emissiveIntensity: 0.5 });
-            weapon = new THREE.Mesh(wGeo, wMat);
-            weapon.position.set(0.5, -0.4, -0.8); // Sağ alt köşe
-            camera.add(weapon);
-            scene.add(camera);
+            // BİNA (Üzerinde durduğumuz yer)
+            const bGeo = new THREE.BoxGeometry(20, 40, 20);
+            const bMat = new THREE.MeshPhongMaterial({ color: 0x555555 });
+            const building = new THREE.Mesh(bGeo, bMat);
+            building.position.y = 20; // Yerin yarısı aşağıda, yarısı yukarıda
+            scene.add(building);
 
-            // KİBO (Seni takip eden gelişmiş dron)
-            const kiboGroup = new THREE.Group();
-            const coreGeo = new THREE.IcosahedronGeometry(0.2, 1);
-            const coreMat = new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0x00f2ff, wireframe: true });
-            const core = new THREE.Mesh(coreGeo, coreMat);
-            kiboGroup.add(core);
+            // ŞEHİR ZEMİNİ
+            const floorGeo = new THREE.PlaneGeometry(200, 200);
+            const floorMat = new THREE.MeshPhongMaterial({ color: 0x999999 });
+            const floor = new THREE.Mesh(floorGeo, floorMat);
+            floor.rotation.x = -Math.PI / 2;
+            scene.add(floor);
 
-            // Kibo'nun yan ışıkları
-            const eyeGeo = new THREE.SphereGeometry(0.05, 8, 8);
-            const eyeMat = new THREE.MeshBasicMaterial({ color: 0xff0055 });
-            const eye = new THREE.Mesh(eyeGeo, eyeMat);
-            eye.position.set(0, 0, 0.2);
-            kiboGroup.add(eye);
-            
-            kibo = kiboGroup;
+            // KİBO (Parlak ve Renkli)
+            const kiboGeo = new THREE.SphereGeometry(0.5, 16, 16);
+            const kiboMat = new THREE.MeshPhongMaterial({ color: 0x0088ff, emissive: 0x0044aa });
+            kibo = new THREE.Mesh(kiboGeo, kiboMat);
             scene.add(kibo);
 
-            // IŞIKLAR
-            const light = new THREE.PointLight(0x00f2ff, 1, 100);
-            light.position.set(0, 10, 0);
-            scene.add(light);
-
-            // KONTROLLER
+            // ATEŞ ETME
             window.addEventListener('mousedown', shoot);
             window.addEventListener('touchstart', shoot);
 
@@ -89,96 +86,89 @@
         }
 
         function shoot() {
-            // Mermi (Lazer atışı)
-            const bGeo = new THREE.CylinderGeometry(0.02, 0.02, 1);
-            const bMat = new THREE.MeshBasicMaterial({ color: 0x00f2ff });
+            if (ammo <= 0) {
+                document.getElementById('kibo-msg').innerText = "Mermin bitti! Yenileniyor...";
+                reload();
+                return;
+            }
+            if (isReloading) return;
+
+            ammo--;
+            document.getElementById('ammo').innerText = ammo;
+
+            const bGeo = new THREE.SphereGeometry(0.2, 8, 8);
+            const bMat = new THREE.MeshBasicMaterial({ color: 0xffcc00 });
             const bullet = new THREE.Mesh(bGeo, bMat);
             
             bullet.position.copy(camera.position);
-            bullet.position.y -= 0.3;
-            bullet.rotation.copy(camera.rotation);
-            bullet.rotateX(Math.PI / 2);
             
-            const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
-            bullet.userData.velocity = dir.multiplyScalar(1.2);
+            // Kamera açısına göre aşağıya doğru fırlat
+            const direction = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+            bullet.userData.velocity = direction.multiplyScalar(1.5);
             
             bullets.push(bullet);
             scene.add(bullet);
+        }
 
-            // Geri tepme efekti
-            weapon.position.z += 0.2;
-            setTimeout(() => weapon.position.z -= 0.2, 50);
+        function reload() {
+            isReloading = true;
+            setTimeout(() => {
+                ammo = 20;
+                document.getElementById('ammo').innerText = ammo;
+                document.getElementById('kibo-msg').innerText = "Cephane dolu! Ateşe devam.";
+                isReloading = false;
+            }, 2000);
         }
 
         function spawnEnemy() {
-            // DÜŞMAN: Artık blok değil, siber bir form
-            const eGeo = new THREE.OctahedronGeometry(0.8, 0);
-            const eMat = new THREE.MeshPhongMaterial({ color: 0x000000, emissive: 0xff0055, wireframe: true });
+            // İNSANLAR (Aşağıda yürüyen küçük figürler)
+            const eGeo = new THREE.CylinderGeometry(0.4, 0.4, 1.2);
+            const eMat = new THREE.MeshPhongMaterial({ color: Math.random() * 0xff0000 });
             const enemy = new THREE.Mesh(eGeo, eMat);
             
-            const angle = Math.random() * Math.PI * 2;
-            const dist = 20 + Math.random() * 10;
-            enemy.position.set(Math.cos(angle) * dist, 1, Math.sin(angle) * dist);
-            
+            // Binanın uzağında rastgele yerlerde başlasınlar
+            enemy.position.set((Math.random() - 0.5) * 40, 0.6, (Math.random() - 0.5) * 40 - 20);
             enemies.push(enemy);
             scene.add(enemy);
-            setTimeout(spawnEnemy, Math.max(500, 2000 - kills * 100));
+
+            setTimeout(spawnEnemy, 1500);
         }
 
         function animate() {
             requestAnimationFrame(animate);
             const time = clock.getElapsedTime();
 
-            // KİBO TAKİP (Yumuşak süzülme)
-            kibo.position.x = camera.position.x + Math.sin(time) * 1.5 + 1.2;
-            kibo.position.y = camera.position.y + Math.cos(time * 2) * 0.2 + 0.5;
-            kibo.position.z = camera.position.z - 2;
-            kibo.rotation.y += 0.02;
+            // KİBO TAKİP (Kamera yanında uçsun)
+            kibo.position.x = camera.position.x + 2;
+            kibo.position.y = camera.position.y + Math.sin(time * 2) * 0.5;
+            kibo.position.z = camera.position.z - 3;
 
-            // MERMİLER
+            // MERMİ HAREKETİ
             bullets.forEach((b, i) => {
                 b.position.add(b.userData.velocity);
-                if (b.position.distanceTo(camera.position) > 60) {
+                if (b.position.y < 0) {
                     scene.remove(b);
                     bullets.splice(i, 1);
                 }
             });
 
-            // DÜŞMANLAR
+            // DÜŞMAN HAREKETİ VE VURULMA
             enemies.forEach((e, ei) => {
-                const toPlayer = new THREE.Vector3().subVectors(camera.position, e.position).normalize();
-                e.position.add(toPlayer.multiplyScalar(0.08));
-                e.rotation.x += 0.05;
-
-                // Vurulma Kontrolü
+                e.position.x += Math.sin(time + ei) * 0.05; // Rastgele yürüme efekti
+                
                 bullets.forEach((b, bi) => {
-                    if (e.position.distanceTo(b.position) < 1.2) {
+                    if (e.position.distanceTo(b.position) < 1.5) {
                         scene.remove(e);
                         enemies.splice(ei, 1);
                         scene.remove(b);
                         bullets.splice(bi, 1);
                         kills++;
                         document.getElementById('kills').innerText = kills;
-                        updateKiboDialogue();
                     }
                 });
-
-                // Hasar Kontrolü
-                if (e.position.distanceTo(camera.position) < 1.5) {
-                    health -= 0.2;
-                    document.getElementById('hp').innerText = Math.max(0, Math.floor(health));
-                    if(health <= 0) location.reload();
-                }
             });
 
             renderer.render(scene, camera);
-        }
-
-        function updateKiboDialogue() {
-            const dialogue = document.getElementById('kibo-text');
-            if(kills === 5) dialogue.innerText = "Sinyal güçleniyor! Healility katmanını savunmaya devam et.";
-            if(kills === 15) dialogue.innerText = "Uyarı! Düşman frekansı artıyor. Hareketli kal!";
-            if(kills === 30) dialogue.innerText = "Harika gidiyorsun. Ekip seninle gurur duyuyor!";
         }
     </script>
 </body>
