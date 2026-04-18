@@ -3,216 +3,287 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Healility Parkur Macerası</title>
+    <title>Healility 3D: KİBO Prototip</title>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #0f0f1b;
-            color: #00ffcc;
-            font-family: 'Courier New', Courier, monospace;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            touch-action: manipulation; /* Mobilde çift tıklama zoomunu engeller */
+        body { margin: 0; padding: 0; overflow: hidden; background-color: #050510; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; touch-action: none; user-select: none; }
+        canvas { display: block; }
+
+        /* Hikaye ve Diyalog Paneli */
+        #uiPanel {
+            position: absolute; bottom: 30px; left: 50%;
+            transform: translateX(-50%);
+            width: 85%; max-width: 500px;
+            background: rgba(10, 10, 26, 0.85);
+            border: 2px solid #00f2ff;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.5);
+            pointer-events: none; /* Oyuna dokunmayı engellemesin */
         }
-        #gameCanvas {
-            background-color: #1a1a2e;
-            border-bottom: 4px solid #e94560;
-            box-shadow: 0 0 20px #e94560;
-            margin-top: 20px;
-        }
-        #storyPanel {
-            width: 90%;
-            max-width: 400px;
-            height: 100px;
-            margin-top: 15px;
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.7);
-            border: 1px solid #00ffcc;
-            border-radius: 8px;
-            text-align: center;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-        #scoreBoard {
-            margin-top: 10px;
-            font-size: 20px;
-            font-weight: bold;
-        }
-        .instruction {
-            margin-top: 5px;
-            font-size: 12px;
-            color: #888;
-        }
+        #kiboName { color: #00f2ff; font-weight: bold; margin-bottom: 5px; font-size: 16px; }
+        #kiboDialogue { color: #ccfaff; font-size: 14px; line-height: 1.4; }
+
+        /* Skor ve Durum */
+        #hud { position: absolute; top: 20px; left: 20px; font-size: 18px; color: #fff; text-shadow: 0 0 5px #00f2ff; }
+        #score { font-weight: bold; }
+        #instruction { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: rgba(255,255,255,0.6); display: none; }
     </style>
 </head>
 <body>
 
-    <div id="scoreBoard">Mesafe: <span id="score">0</span>m</div>
+    <canvas id="gameCanvas"></canvas>
     
-    <canvas id="gameCanvas" width="320" height="400"></canvas>
+    <div id="hud">Derinlik: <span id="score">0</span>.Kat</div>
     
-    <div id="storyPanel">
-        Bağlantı kuruldu... Ekibin diğer iki üyesi hattan izliyor. Görevin Healility sunucusuna ulaşmak. Koşmaya başla!
+    <div id="instruction">Başlamak İçin Dokun!</div>
+
+    <div id="uiPanel">
+        <div id="kiboName">🤖 KİBO</div>
+        <div id="kiboDialogue">Healility'den kaçış rotasını hesaplıyorum... Hazır mısın?</div>
     </div>
-    
-    <div class="instruction">Zıplamak için ekrana dokun!</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <script>
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
-        const scoreElement = document.getElementById("score");
-        const storyPanel = document.getElementById("storyPanel");
+        // --- TEMEL AYARLAR ---
+        let scene, camera, renderer, clock;
+        let gameActive = false;
+        let score = 0;
+        let nextLevelTrigger = 300; // Sonraki hikaye bölümü için mesafe
 
-        // Karakterimiz (Ana Kahraman)
-        let player = {
-            x: 50,
-            y: 300,
-            width: 30,
-            height: 30,
-            dy: 0,
-            jumpPower: -12,
-            gravity: 0.6,
-            grounded: false,
-            color: "#00ffcc"
+        // --- HİKAYE VERİSİ ---
+        const stories = {
+            0: "Tamam, sinyal stabil. Derin Ağ'ın bu katmanından çıkmamız gerek. Sadece zıpla!",
+            300: "Lazer bariyerleri önceden fark etmelisin! Zamanlaman harika.",
+            800: "Yaklaştık! Bu katman Healility'nin dış çeperi. Parkur daha dar!",
+            1500: "İnanılmaz! Hiçbir 'blok' seni durduramadı. Çıkış kapısı göründü, son bir gayret!"
         };
 
-        // Engeller (Güvenlik Dronları / Çatı Boşlukları)
-        let obstacles = [];
-        let frame = 0;
-        let score = 0;
-        let gameActive = true;
+        // --- OBJELER ---
+        let player, kibo, groundPlatforms = [];
+        let playerVelocityY = 0;
+        const gravity = -0.15; // 3D uzaya göre yerçekimi
+        const jumpHeight = 4.5;
+        const moveSpeed = 0.5; // Sürekli ileri gitme hızı
+        let isGrounded = false;
 
-        // Ekrana dokunma/tıklama ile zıplama
-        canvas.addEventListener("mousedown", jump);
-        canvas.addEventListener("touchstart", jump);
+        // --- DOM ELEMENTLERİ ---
+        const scoreElement = document.getElementById("score");
+        const dialogueElement = document.getElementById("kiboDialogue");
+        const instructionElement = document.getElementById("instruction");
 
-        function jump() {
-            if (player.grounded && gameActive) {
-                player.dy = player.jumpPower;
-                player.grounded = false;
-            } else if (!gameActive) {
+        init();
+        animate();
+
+        function init() {
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x050510, 0.03); // Atmosferik derinlik sisi
+
+            // Kamera
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 5, 10); // Oyuncuyu arkadan-yukarıdan gören açı
+            camera.lookAt(0, 0, 0);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById("gameCanvas"), antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+
+            // Işıklandırma
+            const ambientLight = new THREE.AmbientLight(0x202050, 0.5);
+            scene.add(ambientLight);
+            
+            const pointLight = new THREE.PointLight(0x00f2ff, 1.5, 50);
+            pointLight.position.set(0, 5, 0);
+            scene.add(pointLight);
+
+            // --- OYUNCU (3D Kapsül/Avatar) ---
+            const playerGeometry = new THREE.CapsuleGeometry(0.5, 1, 16, 16);
+            const playerMaterial = new THREE.MeshPhongMaterial({ color: 0x00ffcc, emissive: 0x006655, specular: 0xffffff });
+            player = new THREE.Mesh(playerGeometry, playerMaterial);
+            player.position.y = 1; // Zemin üstünde başlat
+            scene.add(player);
+
+            // --- KİBO (Seni Takip Eden Yardımcı Dron) ---
+            const kiboGeometry = new THREE.SphereGeometry(0.3, 16, 16);
+            const kiboMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0x00f2ff, shininess: 100 });
+            kibo = new THREE.Mesh(kiboGeometry, kiboMaterial);
+            scene.add(kibo);
+            
+            // Kibo için ekstra küçük bir ışık (onun parlamasını sağlar)
+            const kiboLight = new THREE.PointLight(0x00f2ff, 0.8, 5);
+            kibo.add(kiboLight);
+
+            // --- BAŞLANGIÇ PLATFORMU ---
+            createInitialGround();
+
+            // Kontroller (Dokunma/Tıklama)
+            window.addEventListener('mousedown', onInput);
+            window.addEventListener('touchstart', onInput);
+            window.addEventListener('resize', onWindowResize, false);
+
+            clock = new THREE.Clock();
+            instructionElement.style.display = "block";
+        }
+
+        // --- PARKUR ÜRETİMİ (Sonsuz) ---
+        function createInitialGround() {
+            let zPos = 0;
+            for(let i = 0; i < 20; i++) {
+                addPlatformChunk(zPos);
+                zPos -= 10; // İleriye doğru ekle
+            }
+        }
+
+        function addPlatformChunk(z) {
+            // Şekil: Yassı kutular
+            const width = 3 + Math.random() * 4;
+            const length = 8 + Math.random() * 4;
+            const depth = 0.5;
+
+            const geometry = new THREE.BoxGeometry(width, depth, length);
+            const material = new THREE.MeshPhongMaterial({ 
+                color: 0x111133, 
+                emissive: 0x0a0a20,
+                specular: 0x333333,
+                side: THREE.DoubleSide
+            });
+            const platform = new THREE.Mesh(geometry, material);
+            
+            // Konum
+            platform.position.x = (Math.random() - 0.5) * 2; // Rastgele yatay kayma
+            platform.position.y = - (depth/2); // Zemin yüzeyi 0 seviyesinde kalsın
+            platform.position.z = z;
+            
+            scene.add(platform);
+            groundPlatforms.push(platform);
+            
+            // Eğer zıplama mesafesinden uzun bir boşluk varsa, araya 'blok' ekleyebiliriz (Geliştirme için)
+        }
+
+        function onInput() {
+            if (!gameActive) {
                 resetGame();
+                return;
+            }
+            if (isGrounded) {
+                playerVelocityY = jumpHeight;
+                isGrounded = false;
             }
         }
 
         function resetGame() {
-            player.y = 300;
-            player.dy = 0;
-            obstacles = [];
-            score = 0;
-            frame = 0;
             gameActive = true;
-            updateStory(0);
-            gameLoop();
+            score = 0;
+            player.position.set(0, 1, 0);
+            playerVelocityY = 0;
+            nextLevelTrigger = 300;
+            updateDialogue(0);
+            instructionElement.style.display = "none";
         }
 
-        function updateStory(currentScore) {
-            if (currentScore === 0) {
-                storyPanel.innerText = "Bağlantı kuruldu... Ekibin hattan izliyor. Görevin Healility sunucusuna ulaşmak. Koşmaya başla!";
-            } else if (currentScore === 200) {
-                storyPanel.innerText = "Radyo: 'Güzel atlayış! Birinci güvenlik duvarını geçtin. Lazerli dronlara dikkat et!'";
-            } else if (currentScore === 500) {
-                storyPanel.innerText = "Radyo: 'Çok hızlandın! Healility dış çeperine ulaştın. Sistemler seni fark etti, dayan!'";
-            } else if (currentScore === 1000) {
-                storyPanel.innerText = "Radyo: 'İnanılmazsın! Ana sunucu kapısı göründü. Ekip olarak arkandayız, son bir gayret!'";
+        function updateDialogue(currentScore) {
+            if (stories[currentScore]) {
+                dialogueElement.innerText = stories[currentScore];
+                // Kibo'nun rengini hikaye anlarında kısa süreliğine değiştir
+                kibo.material.emissive.setHex(0xffffff);
+                setTimeout(() => kibo.material.emissive.setHex(0x00f2ff), 200);
             }
         }
 
-        function drawPlayer() {
-            ctx.fillStyle = player.color;
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = player.color;
-            ctx.fillRect(player.x, player.y, player.width, player.height);
-            ctx.shadowBlur = 0; // Diğer çizimleri etkilemesin
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
         }
 
-        function drawObstacles() {
-            ctx.fillStyle = "#e94560"; // Neon kırmızı engeller
-            obstacles.forEach(obs => {
-                ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-            });
-        }
+        // --- ANA OYUN DÖNGÜSÜ ---
+        function animate() {
+            requestAnimationFrame(animate);
 
-        function updatePhysics() {
-            // Yerçekimi
-            player.dy += player.gravity;
-            player.y += player.dy;
+            if (gameActive) {
+                const delta = clock.getDelta();
 
-            // Zemin çarpışması
-            if (player.y + player.height > canvas.height - 10) {
-                player.y = canvas.height - player.height - 10;
-                player.dy = 0;
-                player.grounded = true;
-            }
+                // 1. Oyuncu İleri Hareketi
+                player.position.z -= moveSpeed;
+                
+                // 2. Oyuncu Fiziği (Yerçekimi ve Zıplama)
+                playerVelocityY += gravity;
+                player.position.y += (playerVelocityY * delta * 10); // Delta ile çarpıp hızı sabitle
 
-            // Engel üretimi (Parkur zorluğu zamanla artar)
-            if (frame % Math.max(70 - Math.floor(score/50), 30) === 0) {
-                let obsHeight = 20 + Math.random() * 30;
-                obstacles.push({
-                    x: canvas.width,
-                    y: canvas.height - obsHeight - 10,
-                    width: 20,
-                    height: obsHeight
-                });
-            }
+                // Zemin Çarpışma Kontrolü (Basit Height Check)
+                isGrounded = false;
+                if (player.position.y < 0.7) { // Kapsülün altı zemine değdiyse
+                    // O anda altında bir platform var mı kontrol et (Daha karmaşık çarpışma yerine basit)
+                    let onPlatform = false;
+                    groundPlatforms.forEach(p => {
+                        // Basit kutu çarpışması (Box Collision)
+                        if( Math.abs(player.position.x - p.position.x) < p.geometry.parameters.width/2 + 0.3 &&
+                            Math.abs(player.position.z - p.position.z) < p.geometry.parameters.length/2 + 0.3
+                        ) {
+                            onPlatform = true;
+                        }
+                    });
 
-            // Engelleri hareket ettir
-            for (let i = 0; i < obstacles.length; i++) {
-                let obs = obstacles[i];
-                obs.x -= (4 + score / 300); // Gittikçe hızlanan parkur
-
-                // Çarpışma algılama
-                if (
-                    player.x < obs.x + obs.width &&
-                    player.x + player.width > obs.x &&
-                    player.y < obs.y + obs.height &&
-                    player.y + player.height > obs.y
-                ) {
-                    gameActive = false; // Oyun Bitti
+                    if (onPlatform) {
+                        player.position.y = 0.7; // Yüzeyde tut
+                        playerVelocityY = 0;
+                        isGrounded = true;
+                    }
                 }
 
-                // Ekrandan çıkan engeli sil
-                if (obs.x + obs.width < 0) {
-                    obstacles.splice(i, 1);
-                    i--;
+                // 3. KİBO Takip Mantığı
+                // Oyuncunun biraz arkasında, yukarısında ve sağında uçsun (Lerp ile yumuşak takip)
+                const targetKiboPos = new THREE.Vector3(
+                    player.position.x + 1.2, 
+                    player.position.y + 1.5, 
+                    player.position.z + 2
+                );
+                kibo.position.lerp(targetKiboPos, 0.1); // 0.1 takip hızı
+
+                // 4. Kamera Takibi
+                // Oyuncunun hemen arkasından takip etsin (Geliştirilmiş FPS/TPS hissi)
+                const targetCameraPos = new THREE.Vector3(
+                    player.position.x,
+                    player.position.y + 3.5,
+                    player.position.z + 8
+                );
+                camera.position.lerp(targetCameraPos, 0.1);
+                camera.lookAt(player.position);
+
+                // 5. Sonsuz Parkur ve Skor
+                score++;
+                if (score % 50 === 0) {
+                    scoreElement.innerText = Math.floor(score/10);
+                    const currentMeters = Math.floor(score/10);
+                    
+                    // Hikaye Tetikleme
+                    if (currentMeters >= nextLevelTrigger) {
+                        updateDialogue(nextLevelTrigger);
+                        nextLevelTrigger += 500; // Sonraki tetikleyici
+                    }
+
+                    // Yeni platform ekle, arkada kalanı sil
+                    addPlatformChunk(groundPlatforms[groundPlatforms.length - 1].position.z - 10);
+                    if(groundPlatforms.length > 30) {
+                        const oldPlatform = groundPlatforms.shift();
+                        scene.remove(oldPlatform);
+                        oldPlatform.geometry.dispose();
+                        oldPlatform.material.dispose();
+                    }
+                }
+
+                // 6. Oyun Bitti Kontrolü (Aşağı düşme)
+                if (player.position.y < -5) {
+                    gameActive = false;
+                    instructionElement.innerText = "Healility'den Kaçamadın! Tekrar Dokun.";
+                    instructionElement.style.display = "block";
                 }
             }
+
+            renderer.render(scene, camera);
         }
 
-        function gameLoop() {
-            if (!gameActive) {
-                ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = "white";
-                ctx.font = "20px Arial";
-                ctx.textAlign = "center";
-                ctx.fillText("Sistem Çöktü!", canvas.width / 2, canvas.height / 2);
-                ctx.font = "14px Arial";
-                ctx.fillText("Yeniden başlamak için dokun", canvas.width / 2, canvas.height / 2 + 30);
-                return;
-            }
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            updatePhysics();
-            drawPlayer();
-            drawObstacles();
-
-            score++;
-            if (score % 10 === 0) {
-                scoreElement.innerText = score / 10;
-                updateStory(score / 10);
-            }
-            
-            frame++;
-            requestAnimationFrame(gameLoop);
-        }
-
-        // Oyunu başlat
-        gameLoop();
     </script>
 </body>
 </html>
