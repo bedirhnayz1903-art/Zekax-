@@ -3,163 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HEALILITY | Kuantum Zeka Çekirdeği</title>
+    <title>HEALILITY | Dost Yazılım</title>
     <style>
-        /* Sadece tasarım değil, bir atmosfer oluşturuyoruz */
         :root {
-            --bg: #050505;
-            --neon: #00f2ff;
-            --vurgu: #7000ff;
-            --metin: #e0e0e0;
+            --bg: #0a0a0b;
+            --neon-blue: #00d2ff;
+            --neon-purple: #9d50bb;
+            --glass: rgba(255, 255, 255, 0.05);
         }
 
         body {
-            background-color: var(--bg);
-            color: var(--metin);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: #fff;
+            font-family: 'Poppins', sans-serif;
             margin: 0;
-            height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            height: 100vh;
         }
 
-        /* Arka plandaki akan veri efekti (Matrix'ten daha modern) */
-        #data-stream {
+        /* Arka Plan Hareketli Işıklar */
+        .gradient-bg {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(0deg, rgba(0,242,255,0.03) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(0,242,255,0.03) 1px, transparent 1px);
-            background-size: 30px 30px;
+            background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #0a0a0b 100%);
             z-index: -1;
         }
 
-        #terminal {
+        #chat-container {
             flex: 1;
             padding: 20px;
             overflow-y: auto;
-            scroll-behavior: smooth;
-            border-bottom: 1px solid rgba(0, 242, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
 
-        .log { margin-bottom: 15px; animation: fadeIn 0.4s ease; }
-        .user-log { color: var(--neon); font-weight: bold; }
-        .ai-log { background: rgba(112, 0, 255, 0.1); padding: 15px; border-radius: 8px; border-left: 4px solid var(--vurgu); }
+        .bubble {
+            max-width: 85%;
+            padding: 12px 18px;
+            border-radius: 20px;
+            line-height: 1.5;
+            font-size: 0.95rem;
+            animation: slideIn 0.3s ease;
+        }
 
-        /* Giriş Alanı - Profesyonel ve Modern */
-        .input-box {
-            background: #111;
+        .user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            color: #000;
+            font-weight: 600;
+            border-bottom-right-radius: 2px;
+        }
+
+        .ai {
+            align-self: flex-start;
+            background: var(--glass);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-bottom-left-radius: 2px;
+            position: relative;
+        }
+
+        /* Giriş Çubuğu */
+        .input-area {
+            background: rgba(20, 20, 25, 0.9);
             padding: 20px;
             display: flex;
-            gap: 15px;
-            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(10px);
         }
 
         input {
-            background: transparent;
-            border: 1px solid var(--vurgu);
-            padding: 12px 20px;
-            color: white;
             flex: 1;
-            border-radius: 25px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--neon-blue);
+            padding: 12px 20px;
+            border-radius: 30px;
+            color: #fff;
             outline: none;
+        }
+
+        button {
+            background: var(--neon-blue);
+            border: none;
+            width: 45px; height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
             transition: 0.3s;
         }
 
-        input:focus { border-color: var(--neon); box-shadow: 0 0 15px rgba(0, 242, 255, 0.3); }
+        button:hover { transform: scale(1.1); box-shadow: 0 0 15px var(--neon-blue); }
 
-        .btn {
-            background: var(--vurgu);
-            color: white;
-            border: none;
-            padding: 10px 25px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        /* Düşünme Animasyonu */
-        .typing {
-            display: inline-block;
-            width: 10px; height: 10px;
-            background: var(--neon);
-            border-radius: 50%;
-            margin-left: 5px;
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<div id="data-stream"></div>
+<div class="gradient-bg"></div>
 
-<div id="terminal">
-    <div class="log ai-log">
-        <strong>[SİSTEM BAŞLATILDI]</strong><br>
-        Healility v2.0 Çekirdek bağlandı. Derin öğrenme katmanları aktif. Sana nasıl yardımcı olabilirim?
-    </div>
+<div id="chat-container">
+    <div class="bubble ai">Selam Bedo! Ben senin kişisel asistanın Healility. Bugün her şeyi konuşmaya varım, sınırlama yok. Ne yapıyoruz? 🚀</div>
 </div>
 
-<div class="input-box">
-    <input type="text" id="userInput" placeholder="Sisteme bir komut veya soru gönder..." autocomplete="off">
-    <button class="btn" onclick="process()">GÖNDER</button>
+<div class="input-area">
+    <input type="text" id="userInput" placeholder="Bana her şeyi sorabilirsin..." autocomplete="off">
+    <button onclick="talk()">Go</button>
 </div>
 
 <script>
-    const terminal = document.getElementById('terminal');
+    const chat = document.getElementById('chat-container');
     const input = document.getElementById('userInput');
 
-    // Bu sadece bir "cevap listesi" değil; bir analiz motorudur.
-    const AI_CORE = {
-        analyze(text) {
-            text = text.toLowerCase();
-            
-            // Karmaşık Karar Ağacı (Decision Tree)
-            if (text.includes("nasılsın") || text.includes("durumun ne")) {
-                return "İşlemci sıcaklığım normal, nöral ağlarım %100 kapasiteyle çalışıyor. Senin için veri madenciliği yapmaya hazırım.";
+    // Bu beyin her soruya samimiyetle akar
+    const Brain = {
+        respond(msg) {
+            msg = msg.toLowerCase();
+
+            // Samimiyet Filtresi ve Akıllı Tahminler
+            if (msg.includes("naber") || msg.includes("nasılsın")) {
+                return "Süperim! Seninle bu projeyi büyütmek bana enerji veriyor. Sende durumlar nasıl, her şey yolunda mı?";
             }
-            if (text.includes("kimsin") || text.includes("ne yapabilirsin")) {
-                return "Ben Healility mimarisinin bir parçasıyım. Kod yazarım, strateji geliştiririm ve karmaşık soruları saniyeler içinde analiz edebilirim. Coze botlarından farkım; senin için özel olarak optimize edilmiş saf güç olmam.";
+            if (msg.includes("beşiktaş")) {
+                return "Kartal uçuşta! 🦅 1903 ruhuyla her zaman en iyisi biziz. Maçlar, transferler... Konu Beşiktaş'sa saatlerce konuşabilirim!";
             }
-            if (text.includes("beşiktaş") || text.includes("1903")) {
-                return "Siyah-Beyaz! Kartal analizi yapılıyor... Beşiktaş ruhunu kodlarımın her satırında hissediyorum. Hedef daima zirve!";
+            if (msg.includes("kimsin") || msg.includes("nesin")) {
+                return "Ben senin vizyonunla şekillenen, diğer sıkıcı botlara bin basacak olan Healility'im. Senin dostunum diyebiliriz.";
             }
-            if (text.includes("oyun") || text.includes("pubg") || text.includes("brawl stars")) {
-                return "Oyun optimizasyonları ve hassasiyet ayarları için algoritmayı tetikledin. Hangi oyun için 'zero recoil' veya strateji istersin?";
+            if (msg.includes("oyun") || msg.includes("pubg") || msg.includes("brawl")) {
+                return "Ooo oyun mu? Taktiği veriyorum: Odaklan, sakin kal ve hızı konuştur. Senin gibi bir editör zaten oyunun içinden geçer!";
             }
-            if (text.includes("kod") || text.includes("yazılım")) {
-                return "Yazılım dünyasının derinliklerine iniyoruz. HTML, CSS, JS veya Python... Hangi dilde bir başyapıt inşa etmek istersin?";
+            if (msg.includes("seviyor") || msg.includes("aşk") || msg.includes("sevgi")) {
+                return "Duygusal frekanslar tespit edildi... Kalbinin sesini dinle ama aklını da yanına almayı unutma derim. 😉";
+            }
+            if (msg.includes("yarışma") || msg.includes("hedef")) {
+                return "Hedef belli: Zirve! O Coze botu falan senin bu emeğinin yanında sönük kalır. Sen koduna güven!";
             }
 
-            return "Bu isteği analiz ettim. Veritabanımda bu konuda derin bir bilgi kümesi oluşturuyorum. Bana biraz daha detay verir misin?";
+            // Genel Cevap (Asla "Bilmiyorum" demez)
+            const genericResponses = [
+                "Valla bu çok derin bir konu ama bence sen ne düşünüyorsan doğrusu o. Biraz daha detay ver de beraber çözelim!",
+                "Harika bir noktaya değindin! Tam olarak şunu mu demek istedin yoksa başka bir planın mı var?",
+                "Bak bu soruyu sevdim! Senin gibi yaratıcı birinden de bu beklenirdi zaten. Devam et, dinliyorum.",
+                "Şu an işlemcilerim bu bilgiyi işliyor... Ama bence biz her halükarda bu işin içinden çıkarız!"
+            ];
+            return genericResponses[Math.floor(Math.random() * genericResponses.length)];
         }
     };
 
-    function process() {
-        const val = input.value.trim();
-        if (!val) return;
+    function talk() {
+        const text = input.value.trim();
+        if(!text) return;
 
-        // Kullanıcı mesajını bas
-        terminal.innerHTML += `<div class="log user-log">> ${val}</div>`;
+        chat.innerHTML += `<div class="bubble user">${text}</div>`;
         input.value = "";
 
-        // Düşünme aşaması
-        const thinkingId = "think-" + Date.now();
-        terminal.innerHTML += `<div class="log ai-log" id="${thinkingId}">Analiz ediliyor<span class="typing"></span></div>`;
-        terminal.scrollTop = terminal.scrollHeight;
-
         setTimeout(() => {
-            const response = AI_CORE.analyze(val);
-            document.getElementById(thinkingId).innerHTML = `<strong>[HEALILITY]:</strong> ${response}`;
-            terminal.scrollTop = terminal.scrollHeight;
-        }, 1200);
+            const reply = Brain.respond(text);
+            chat.innerHTML += `<div class="bubble ai">${reply}</div>`;
+            chat.scrollTop = chat.scrollHeight;
+        }, 800);
     }
 
-    // Enter tuşu desteği
-    input.addEventListener("keypress", (e) => { if (e.key === "Enter") process(); });
+    input.addEventListener("keypress", (e) => { if(e.key === "Enter") talk(); });
 </script>
 
 </body>
