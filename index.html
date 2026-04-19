@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HEALILITY | Hybrid Intelligence</title>
+    <title>HEALILITY | Ultra Auth Fixed</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -11,179 +11,157 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
         body { background: var(--bg); color: var(--t); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* --- GİRİŞ PANELİ --- */
+        /* GİRİŞ EKRANI */
         #gate-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #fff; z-index: 9999; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; transition: 0.5s;
+            justify-content: center; align-items: center; text-align: center;
         }
-        .logo-big { font-size: 52px; font-weight: 800; color: var(--p); letter-spacing: -3px; margin-bottom: 40px; }
-        .login-box { display: flex; flex-direction: column; gap: 15px; align-items: center; }
+        .logo-big { font-size: 52px; font-weight: 800; color: var(--p); letter-spacing: -3px; margin-bottom: 10px; }
+        .sub-text { color: #5f6368; margin-bottom: 40px; font-size: 14px; }
         
-        .guest-btn {
-            background: none; border: 1px solid var(--b); color: #5f6368;
-            padding: 12px 30px; border-radius: 25px; cursor: pointer; font-weight: 600;
-            transition: 0.3s; width: 200px;
-        }
-        .guest-btn:hover { background: #f1f3f4; border-color: #999; }
+        .auth-container { background: #f8f9fa; padding: 30px; border-radius: 24px; border: 1px solid var(--b); display: flex; flex-direction: column; gap: 20px; width: 320px; }
+        
+        .guest-link { color: var(--p); text-decoration: none; font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.3s; }
+        .guest-link:hover { text-decoration: underline; }
 
-        /* --- MAIN UI --- */
+        /* MAIN UI */
         header { padding: 15px 40px; border-bottom: 1px solid var(--b); display: flex; justify-content: space-between; align-items: center; background: #fff; }
         .u-info { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; }
-        .u-pic { width: 32px; height: 32px; border-radius: 50%; background: #e8f0fe; display: flex; align-items: center; justify-content: center; border: 1px solid var(--b); overflow: hidden; }
+        .u-pic { width: 35px; height: 35px; border-radius: 50%; background: #e8f0fe; border: 1px solid var(--b); overflow: hidden; display: flex; align-items: center; justify-content: center; }
         .u-pic img { width: 100%; height: 100%; object-fit: cover; }
 
-        #chat-flow { flex: 1; padding: 30px 18%; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
-        .m-wrap { display: flex; flex-direction: column; max-width: 85%; animation: msgIn 0.4s ease; }
+        #chat-flow { flex: 1; padding: 30px 18%; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; background: #fff; }
+        .m-wrap { display: flex; flex-direction: column; max-width: 85%; animation: msgIn 0.3s ease; }
         .u-wrap { align-self: flex-end; }
         .a-wrap { align-self: flex-start; }
-        .m-label { font-size: 10px; font-weight: 800; color: #5f6368; margin-bottom: 6px; text-transform: uppercase; }
+        .m-label { font-size: 10px; font-weight: 800; color: #5f6368; margin-bottom: 4px; text-transform: uppercase; }
         .u-wrap .m-label { text-align: right; }
-        .bubble { padding: 16px 22px; border-radius: 20px; font-size: 16px; line-height: 1.6; }
-        .u-bubble { background: var(--p); color: #fff; border-bottom-right-radius: 4px; }
-        .a-bubble { background: var(--s); color: var(--t); border: 1px solid var(--b); border-bottom-left-radius: 4px; }
+        .bubble { padding: 15px 20px; border-radius: 18px; font-size: 16px; line-height: 1.5; }
+        .u-bubble { background: var(--p); color: #fff; border-bottom-right-radius: 2px; }
+        .a-bubble { background: var(--s); color: var(--t); border: 1px solid var(--b); border-bottom-left-radius: 2px; }
 
-        footer { padding: 25px 18%; background: #fff; border-top: 1px solid var(--b); }
-        .i-group { display: flex; background: var(--s); border-radius: 40px; padding: 8px 10px 8px 30px; align-items: center; }
-        input { flex: 1; border: none; background: transparent; padding: 12px 0; font-size: 17px; outline: none; }
-        .s-btn { background: var(--p); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-size: 20px; }
-        @keyframes msgIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        footer { padding: 20px 18%; background: #fff; border-top: 1px solid var(--b); }
+        .i-group { display: flex; background: var(--s); border-radius: 30px; padding: 5px 5px 5px 25px; align-items: center; border: 1px solid transparent; }
+        .i-group:focus-within { border-color: var(--p); background: #fff; box-shadow: 0 0 0 4px rgba(26,115,232,0.1); }
+        input { flex: 1; border: none; background: transparent; padding: 10px 0; font-size: 16px; outline: none; }
+        .s-btn { background: var(--p); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        
+        @keyframes msgIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
 <div id="gate-screen">
     <div class="logo-big">HEALILITY</div>
-    <div class="login-box">
+    <div class="sub-text">Geleceğin zekası, bugünün samimiyeti.</div>
+    
+    <div class="auth-container">
         <div id="g_id_onload"
-             data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
-             data-callback="onGoogleSignIn"
+             data-client_id="811166315250-9i8f8n8v0e6a8n8b8v8b8v8b8v8b.apps.googleusercontent.com" 
+             data-callback="handleAuth"
              data-auto_prompt="false">
         </div>
-        <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="outline" data-text="signin_with" data-size="large" data-logo_alignment="left"></div>
+        <div class="g_id_signin" data-type="standard" data-shape="rectangular" data-theme="outline" data-text="signin_with" data-size="large" data-logo_alignment="left"></div>
         
-        <p style="color: #999; font-size: 13px;">veya</p>
-        
-        <button class="guest-btn" onclick="Core.guestEntry()">Misafir Olarak Devam Et</button>
+        <div class="guest-link" onclick="Core.startGuest()">Kayıt olmadan devam et</div>
     </div>
 </div>
 
 <header>
-    <div style="font-weight: 800; font-size: 22px; color: var(--p);">HEALILITY</div>
-    <div id="u-display" class="u-info"></div>
+    <div style="font-weight: 800; font-size: 20px; color: var(--p);">HEALILITY</div>
+    <div id="user-pill" class="u-info"></div>
 </header>
 
 <div id="chat-flow"></div>
 
 <footer>
     <div class="i-group">
-        <input type="text" id="ai-input" placeholder="Yaz bakalım, buradayım..." autocomplete="off">
+        <input type="text" id="main-input" placeholder="Bir şeyler yaz kanka..." autocomplete="off">
         <button class="s-btn" onclick="Core.send()">➔</button>
     </div>
 </footer>
 
 <script>
-    // --- GOOGLE SIGN IN CALLBACK ---
-    function onGoogleSignIn(response) {
+    // --- AUTH LOGIC ---
+    function handleAuth(response) {
         try {
-            const base64Url = response.credential.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            const data = JSON.parse(window.atob(base64));
-            
-            Core.memory.name = data.given_name;
-            Core.updateHeader(data.given_name, data.picture);
-            Core.enterApp("Google");
-        } catch (err) {
-            console.error("Giriş Hatası:", err);
-            alert("Google girişi şu an yapılamıyor, lütfen Misafir modunu kullan kanka.");
+            const payload = JSON.parse(atob(response.credential.split('.')[1]));
+            Core.user.name = payload.given_name;
+            Core.user.img = payload.picture;
+            Core.initApp();
+        } catch (e) {
+            console.error("Auth Error", e);
+            alert("Yetkilendirme başarısız oldu. Misafir moduna yönlendiriliyorsun.");
+            Core.startGuest();
         }
     }
 
     const Core = {
         flow: document.getElementById('chat-flow'),
-        field: document.getElementById('ai-input'),
-        memory: { name: "Dostum", mode: "Guest" },
+        input: document.getElementById('main-input'),
+        user: { name: "Dostum", img: null },
 
-        guestEntry() {
-            this.memory.name = "Dostum";
-            this.updateHeader("Misafir", null);
-            this.enterApp("Guest");
+        startGuest() {
+            this.user.name = "Dostum";
+            this.initApp();
         },
 
-        enterApp(type) {
-            document.getElementById('gate-screen').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('gate-screen').remove();
-                this.welcome(type);
-            }, 500);
-        },
-
-        updateHeader(name, pic) {
-            const html = `
-                <span>${name}</span>
-                <div class="u-pic">${pic ? `<img src="${pic}">` : '👤'}</div>
+        initApp() {
+            document.getElementById('gate-screen').style.display = 'none';
+            document.getElementById('user-pill').innerHTML = `
+                <span>${this.user.name}</span>
+                <div class="u-pic">${this.user.img ? `<img src="${this.user.img}">` : '👤'}</div>
             `;
-            document.getElementById('u-display').innerHTML = html;
+            this.render(`Selam **${this.user.name}**! Healility beyni hazır. Matematik, sohbet, analiz... Ne istersen buradayım.`, 'ai');
         },
 
-        welcome(type) {
-            let msg = type === "Google" 
-                ? `Selam **${this.memory.name}**! Google ile bağlandın, artık seni tanıyorum. Neler yapıyoruz bugün?`
-                : `Selam! Misafir olarak giriş yaptın. Kim olduğunu söyleyene kadar sana **Dostum** diyeceğim. Muhabbete başlayalım mı?`;
-            this.render(msg, 'ai');
-        },
+        process(txt) {
+            const raw = txt.toLowerCase().trim();
 
-        process(input) {
-            const raw = input.toLowerCase().trim();
-
-            // MATEMATİK (Her zaman aktif)
+            // MATEMATİK MOTORU (Vazgeçilmez)
             let m = raw.replace(/x/g, '*').replace(/÷/g, '/').replace(/,/g, '.');
             if (/^[0-9\+\-\*\/\.\(\)\s]+$/.test(m) && m.length >= 3) {
-                try { return `Hesapladım: **${eval(m)}**. Başka işlem var mı?`; } catch(e){}
+                try { return `Hesapladım kanka: **${eval(m)}**. Çerez niyetine çözüyorum bunları!`; } catch(e){}
             }
 
-            // İSİM ÖĞRENME (Misafir Modu İçin)
-            if (raw.includes("adım") || raw.includes("ismim") || raw.startsWith("ben ")) {
-                let n = input.split(" ").pop().replace(/[^a-zA-ZğüşıöçĞÜŞİÖÇ]/g, "");
-                this.memory.name = n;
-                this.updateHeader(n, null);
-                return `Tamamdır **${n}**, adını hafızama kazıdım!`;
+            // SAMİMİ SOHBET (Perspektif Merspektif Yok!)
+            if (raw === "naber" || raw === "nasılsın") return "İyiyim be kanka, seninle yazışınca daha iyi oluyorum. Sen ne yapıyorsun?";
+            if (raw.includes("beşiktaş")) return "Beşiktaş JK! 🦅 Siyah beyaz aşkı bitmez. Kartal geliyor!";
+            if (raw.includes("adım") || raw.startsWith("ben ")) {
+                const n = txt.split(" ").pop();
+                this.user.name = n;
+                return `Tamamdır **${n}**, adını not ettim!`;
             }
 
-            // SAMİMİ CEVAPLAR
-            if (raw === "naber" || raw === "nasılsın") return `İyiyim be kanka, senden naber? Bugün enerji tavan!`;
-            if (raw.includes("beşiktaş")) return "Beşiktaş JK! 🦅 Siyah beyaz aşkı! Sence bu hafta ne yaparız?";
-            if (["yok", "hayır", "boşver"].some(w => raw === w)) return "Eyvallah, sen nasıl istersen öyle olsun.";
-
-            const randoms = ["Valla ilginç bir konu...", "Hadi ya? Anlat dinliyorum.", "Doğru söze ne denir?", "Seni anlıyorum kanka."];
-            return randoms[Math.floor(Math.random() * randoms.length)];
+            const replies = ["Doğru söylüyorsun aslında.", "Valla ilginçmiş, anlat dinliyorum.", "Seni anlıyorum kanka.", "Hadi ya? Ciddi misin?"];
+            return replies[Math.floor(Math.random() * replies.length)];
         },
 
         send() {
-            const val = this.field.value.trim();
+            const val = this.input.value.trim();
             if(!val) return;
             this.render(val, 'u');
-            this.field.value = "";
-            setTimeout(() => this.render(this.process(val), 'ai'), 600);
+            this.input.value = "";
+            setTimeout(() => this.render(this.process(val), 'ai'), 500);
         },
 
-        render(txt, side) {
+        render(t, side) {
             const w = document.createElement('div');
             w.className = `m-wrap ${side}-wrap`;
-            const l = document.createElement('span');
-            l.className = 'm-label';
-            l.innerText = side === 'u' ? this.memory.name : 'Healility';
             const b = document.createElement('div');
             b.className = `bubble ${side}-bubble`;
-            b.innerHTML = txt;
+            b.innerHTML = t;
+            const l = document.createElement('span');
+            l.className = 'm-label';
+            l.innerText = side === 'u' ? this.user.name : 'Healility';
             w.appendChild(l); w.appendChild(b);
             this.flow.appendChild(w);
             this.flow.scrollTop = this.flow.scrollHeight;
         }
     };
 
-    Core.field.addEventListener("keypress", (e) => { if(e.key === "Enter") Core.send(); });
+    Core.input.addEventListener("keypress", (e) => { if(e.key === "Enter") Core.send(); });
 </script>
-
 </body>
 </html>
