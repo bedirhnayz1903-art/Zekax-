@@ -3,151 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HEALILITY | Neural Nexus v22</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <title>HEALILITY | Final Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        :root { --p: #007aff; --bg: #ffffff; --t: #1d1d1f; --s: #f5f5f7; --b: #d2d2d7; --nana: #ff3b30; }
+        :root { --p: #007aff; --bg: #ffffff; --t: #1d1d1f; --s: #f5f5f7; --b: #d2d2d7; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
         body { background: var(--bg); color: var(--t); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* GİRİŞ EKRANI - TÜRKÇE */
-        #entry-portal { position: fixed; inset: 0; background: #fff; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-        .nana-badge { background: var(--nana); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; margin-bottom: 10px; }
-        .logo-text { font-size: 52px; font-weight: 800; color: var(--p); letter-spacing: -3px; }
-        .init-btn { background: var(--t); color: #fff; border: none; padding: 16px 45px; border-radius: 30px; font-weight: 600; cursor: pointer; margin-top: 30px; transition: 0.3s; }
+        /* GİRİŞ VE İSİM KAYIT EKRANI */
+        #gate-keeper { 
+            position: fixed; inset: 0; background: #ffffff; z-index: 10000; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .gate-content { width: 320px; text-align: center; animation: fadeIn 0.8s ease; }
+        .logo-main { font-size: 50px; font-weight: 800; color: var(--p); letter-spacing: -3px; margin-bottom: 10px; }
+        .gate-sub { color: #86868b; font-size: 14px; margin-bottom: 30px; }
+        
+        .name-input { 
+            width: 100%; padding: 15px 20px; border-radius: 15px; border: 2px solid var(--s);
+            background: var(--s); font-size: 16px; outline: none; margin-bottom: 15px; transition: 0.3s;
+        }
+        .name-input:focus { border-color: var(--p); background: #fff; }
+        .entry-btn { 
+            width: 100%; padding: 15px; border-radius: 15px; border: none;
+            background: var(--p); color: #fff; font-weight: 700; cursor: pointer; transition: 0.3s;
+        }
+        .entry-btn:hover { transform: scale(1.02); opacity: 0.9; }
 
         /* HEADER */
-        header { padding: 15px 40px; border-bottom: 1px solid var(--b); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.9); backdrop-filter: blur(20px); z-index: 100; }
-        .status { font-family: 'JetBrains Mono'; font-size: 12px; color: #34a853; display: flex; align-items: center; gap: 6px; }
-        .dot { width: 8px; height: 8px; background: #34a853; border-radius: 50%; animation: pulse 1.5s infinite; }
+        header { 
+            padding: 15px 40px; border-bottom: 1px solid var(--b); background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(20px); display: flex; justify-content: space-between; align-items: center;
+        }
+        .nav-id { font-weight: 700; color: var(--p); display: flex; align-items: center; gap: 8px; }
 
-        /* CHAT */
+        /* CHAT ALANI */
         #chat-nexus { flex: 1; padding: 30px 20%; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
-        .msg { display: flex; flex-direction: column; max-width: 85%; animation: slideIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
-        .u-msg { align-self: flex-end; } .a-msg { align-self: flex-start; }
-        .sender { font-size: 11px; font-weight: 700; color: #86868b; margin-bottom: 4px; text-transform: uppercase; }
-        .u-msg .sender { text-align: right; }
-        .bubble { padding: 15px 22px; border-radius: 22px; font-size: 16px; line-height: 1.6; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .u-bubble { background: var(--p); color: #fff; border-bottom-right-radius: 4px; }
-        .a-bubble { background: var(--s); color: var(--t); border-bottom-left-radius: 4px; border: 1px solid var(--b); }
+        .msg-row { display: flex; flex-direction: column; max-width: 85%; animation: slideUp 0.4s ease; }
+        .u-row { align-self: flex-end; } .a-row { align-self: flex-start; }
+        .label { font-size: 11px; font-weight: 700; color: #86868b; margin-bottom: 5px; }
+        .u-row .label { text-align: right; }
+        .bubble { padding: 15px 22px; border-radius: 20px; font-size: 16px; line-height: 1.6; font-family: 'Inter', sans-serif; }
+        .u-bubble { background: var(--p); color: #fff; border-bottom-right-radius: 2px; }
+        .a-bubble { background: var(--s); color: var(--t); border-bottom-left-radius: 2px; border: 1px solid var(--b); }
 
-        /* ÖRNEK SORULAR */
-        .edu-chip { background: #fff; border: 1.5px solid var(--p); color: var(--p); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-block; margin: 5px; transition: 0.2s; }
-        .edu-chip:hover { background: var(--p); color: #fff; }
-
+        /* FOOTER */
         footer { padding: 25px 20%; background: #fff; }
-        .input-box { display: flex; background: var(--s); border-radius: 30px; padding: 6px 6px 6px 25px; align-items: center; }
-        input { flex: 1; border: none; background: transparent; padding: 12px 0; font-size: 16px; outline: none; }
-        .send-x { background: var(--p); color: #fff; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; font-size: 20px; font-weight: bold; }
+        .input-wrap { display: flex; background: var(--s); border-radius: 30px; padding: 6px 6px 6px 25px; align-items: center; }
+        input#main-field { flex: 1; border: none; background: transparent; padding: 10px 0; font-size: 16px; outline: none; }
+        .send-icon { background: var(--p); color: #fff; border: none; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 20px; }
 
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<div id="entry-portal">
-    <div class="nana-badge">NANA BANANA 2 POWERED</div>
-    <div class="logo-text">HEALILITY</div>
-    <div style="color: #86868b; margin-top: 10px;">Gelişmiş Bilgi ve Analiz Sistemi</div>
-    <button class="init-btn" onclick="Core.startup()">Sistemi Yetkilendir</button>
+<div id="gate-keeper">
+    <div class="gate-content">
+        <div class="logo-main">HEALILITY</div>
+        <div class="gate-sub">Sisteme erişmek için bir kimlik belirleyin.</div>
+        <input type="text" id="user-name-input" class="name-input" placeholder="İsminiz nedir?" autocomplete="off">
+        <button class="entry-btn" onclick="Core.access()">SİSTEME GİRİŞ YAP</button>
+    </div>
 </div>
 
 <header>
-    <div style="font-weight: 800; font-size: 22px; color: var(--p);">Healility <span style="font-size: 12px; opacity: 0.5;">v22</span></div>
-    <div class="status"><div class="dot"></div> NANA PRO CLOUD CONNECTED</div>
+    <div style="font-weight: 800; font-size: 22px; color: var(--p);">Healility</div>
+    <div class="nav-id" id="header-user">---</div>
 </header>
 
 <div id="chat-nexus"></div>
 
 <footer>
-    <div class="input-box">
-        <input type="text" id="user-q" placeholder="Bir analiz başlatın veya Nana Banana'yı çağırın..." autocomplete="off">
-        <button class="send-x" onclick="Core.send()">➔</button>
+    <div class="input-wrap">
+        <input type="text" id="main-field" placeholder="Bir soru sorun veya analiz isteyin..." autocomplete="off">
+        <button class="send-icon" onclick="Core.send()">➔</button>
     </div>
 </footer>
 
 <script>
     const Core = {
-        alias: "Navigator",
+        userName: "",
 
-        startup() {
-            document.getElementById('entry-portal').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('entry-portal').remove();
-                this.welcome();
-            }, 500);
+        access() {
+            const input = document.getElementById('user-name-input');
+            if(input.value.trim().length < 2) {
+                alert("Lütfen geçerli bir isim girin.");
+                return;
+            }
+            this.userName = input.value.trim();
+            document.getElementById('header-user').innerText = this.userName;
+            document.getElementById('gate-keeper').style.display = 'none';
+            this.welcome();
         },
 
         welcome() {
-            let m = `**Neural Nexus** bağlantısı kuruldu. Ben Healility, Nana Banana 2 mimarisi üzerine kurulu bir asistanım. <br><br>Sizin için matematiksel analizler yapabilir, **M3** mimarisini tartışabilir veya tarafsız futbol analizleri sunabilirim. İşte başlangıç için bazı yeteneklerim:`;
-            this.render(m, 'ai');
-            this.renderChips();
+            this.render(`Merhaba **${this.userName}**! Nana Banana 2 motoruyla güçlendirilmiş Healility sistemine hoş geldin. <br><br>Artık her türlü matematiksel işlemi yapabilir, futbol analizlerini tarafsızca konuşabiliriz. Bugün sana nasıl yardımcı olabilirim?`, 'ai');
         },
 
-        renderChips() {
-            const container = document.getElementById('chat-nexus');
-            const chipBox = document.createElement('div');
-            chipBox.innerHTML = `
-                <div class="edu-chip" onclick="Core.quick('756 / 4 işlemini çöz')">🧮 Matematik Motoru</div>
-                <div class="edu-chip" onclick="Core.quick('Beşiktaş ve Galatasaray rekabetini analiz et')">🦅 Tarafsız Futbol</div>
-                <div class="edu-chip" onclick="Core.quick('Nana Banana 2 nedir?')">🍌 Nana Banana 2</div>
-            `;
-            container.appendChild(chipBox);
-        },
-
-        process(input) {
-            const raw = input.toLowerCase();
+        process(txt) {
+            const raw = txt.toLowerCase();
             
-            // 1. GERÇEK MATEMATİK ANALİZİ (Bilmiyor hatası giderildi)
-            let mathStr = raw.replace(/x/g, '*').replace(/÷/g, '/').replace(/,/g, '.');
-            let cleanMath = mathStr.match(/[0-9\+\-\*\/\.\(\)\s]+/);
-            if (cleanMath && cleanMath[0].length >= 3) {
+            // 1. KESİN MATEMATİK ÇÖZÜCÜ
+            let mathPattern = raw.replace(/x/g, '*').replace(/÷/g, '/');
+            if (/[0-9]/.test(raw) && /[\+\-\*\/\(\)]/.test(mathPattern)) {
                 try {
-                    const result = eval(cleanMath[0]);
-                    return `**Analiz Sonucu:** Yapılan matematiksel hesaplama neticesinde değer **${result}** olarak saptanmıştır. Başka bir veri seti işlemek ister misiniz?`;
+                    const cleanExpr = mathPattern.match(/[0-9\+\-\*\/\.\(\)\s]+/)[0];
+                    const result = eval(cleanExpr);
+                    return `**Analiz Sonucu:** ${this.userName}, sorduğun işlemin sonucu tam olarak **${result}**. Nana Banana 2 verileri hatasız işledi.`;
                 } catch(e) {}
             }
 
-            // 2. TARAFIZ FUTBOL (G.Saray & BJK)
-            if (raw.includes("beşiktaş") || raw.includes("galatasaray") || raw.includes("futbol")) {
-                return "Futbol analizi moduna geçildi. Beşiktaş'ın köklü tarihi ve taktiksel disiplini ile Galatasaray'ın Avrupa başarıları ve dinamik yapısı Türk futbolunun temel taşlarıdır. Tarafsız bir gözle bakıldığında, her iki camianın rekabeti kaliteyi artırıyor. Sizin odaklanmak istediğiniz özel bir maç veya istatistik var mı?";
+            // 2. TARAFSIZ FUTBOL ANALİZİ
+            if (raw.includes("beşiktaş") || raw.includes("galatasaray") || raw.includes("fenerbahçe")) {
+                return `Futbol dünyasındaki bu büyük rekabeti analiz etmek harika. Beşiktaş, Galatasaray veya diğer takımlar arasındaki mücadele Türk futbolunun kalbidir. Bir asistan olarak hepsine saygı duyuyor ve sahadaki başarıyı önemsiyorum. Senin için güncel bir istatistik çıkarmamı ister misin?`;
             }
 
-            // 3. NANA BANANA 2 & PRO ENTEGRASYONU
-            if (raw.includes("nana banana")) {
-                return "Nana Banana 2, şu an kullandığım görsel ve mantıksal motorun adıdır. Bu teknoloji, görüntü oluşturma (Nana Banana Pro) ve yüksek seviyeli veri analizi yeteneklerimi besler. Şu an doğrudan bu buluta bağlıyız.";
+            // 3. NANA BANANA 2 & M3 ÖZEL CEVAPLARI
+            if (raw.includes("nana banana") || raw.includes("m3")) {
+                return `**Sistem Bilgisi:** Nana Banana 2 ve M3 teknolojileri, şu an seninle kurduğum bu iletişimin temelini oluşturuyor. Yüksek işlem gücü ve akıllı veri sentezi sayesinde sana en doğru cevapları vermeye odaklıyım.`;
             }
 
-            // 4. M3 & TEKNOLOJİ
-            if (raw.includes("m3")) {
-                return "M3 mimarisi, hem silikon teknolojisinde (Apple Silicon) hem de performans segmentinde (BMW M) zirveyi temsil eder. Verimlilik ve saf güç arasındaki o ince çizgiyi en iyi yansıtan konseptlerden biridir.";
+            // 4. SAMİMİ DİYALOG
+            if (raw.includes("naber") || raw.includes("nasılsın")) {
+                return `Seni sormalı **${this.userName}**? Ben sistemlerimi senin için optimize etmekle meşgulüm, gayet iyiyim!`;
             }
 
-            return "Girdi başarıyla alındı ve nöral ağlarımda işlendi. Bu konuyu daha spesifik verilerle (sayılar, isimler veya tarihler) detaylandırırsanız analizi derinleştirebilirim.";
+            return `Anlaşıldı **${this.userName}**. Bu konuyu derinlemesine analiz ettim. Söylediklerin veritabanıma işlendi. Başka bir detay veya soru varsa hemen yanıtlayabilirim.`;
         },
 
         send() {
-            const f = document.getElementById('user-q');
-            const v = f.value.trim();
-            if(!v) return;
-            this.render(v, 'u');
-            f.value = "";
-            setTimeout(() => this.render(this.process(v), 'ai'), 600);
+            const field = document.getElementById('main-field');
+            const val = field.value.trim();
+            if(!val) return;
+            this.render(val, 'u');
+            field.value = "";
+            setTimeout(() => this.render(this.process(val), 'ai'), 500);
         },
 
-        quick(t) { document.getElementById('user-q').value = t; this.send(); },
-
         render(t, side) {
-            const c = document.getElementById('chat-nexus');
-            const w = document.createElement('div');
-            w.className = `msg ${side}-msg`;
-            w.innerHTML = `<span class="sender">${side === 'u' ? this.alias : 'HEALILITY AI'}</span><div class="bubble ${side}-bubble">${t}</div>`;
-            c.appendChild(w);
-            c.scrollTop = c.scrollHeight;
+            const container = document.getElementById('chat-nexus');
+            const div = document.createElement('div');
+            div.className = `msg-row ${side}-row`;
+            div.innerHTML = `<span class="label">${side === 'u' ? this.userName : 'HEALILITY AI'}</span><div class="bubble ${side}-bubble">${t}</div>`;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
         }
     };
-    document.getElementById('user-q').addEventListener("keypress", (e) => { if(e.key === "Enter") Core.send(); });
+
+    document.getElementById('main-field').addEventListener("keypress", (e) => { if(e.key === "Enter") Core.send(); });
+    document.getElementById('user-name-input').addEventListener("keypress", (e) => { if(e.key === "Enter") Core.access(); });
 </script>
 </body>
 </html>
