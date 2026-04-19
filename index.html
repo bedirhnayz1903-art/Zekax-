@@ -3,284 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HEALILITY | Professional Identity Core</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>HEALILITY | Neural Academy AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
-        /* --- PROFESYONEL KURUMSAL TEMA --- */
         :root {
-            --primary: #1a73e8;
-            --secondary: #5f6368;
-            --bg-main: #ffffff;
-            --bg-bubble-ai: #f8f9fa;
-            --bg-bubble-user: #1a73e8;
-            --border: #dadce0;
-            --text-dark: #202124;
+            --p: #1a73e8; --bg: #ffffff; --t: #202124; --s: #f8f9fa; --b: #dadce0;
         }
 
-        * { box-sizing: border-box; transition: all 0.25s ease; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
 
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-dark);
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
+        body { background: var(--bg); color: var(--t); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+        /* --- AÇILIŞ ANİMASYONU (INTRO) --- */
+        #intro-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #fff; z-index: 9999; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; transition: opacity 0.8s ease;
         }
+        .intro-logo { font-size: 42px; font-weight: 800; color: var(--p); letter-spacing: -2px; margin-bottom: 10px; }
+        .dots { display: flex; gap: 8px; }
+        .dot { width: 12px; height: 12px; background: var(--p); border-radius: 50%; animation: dotAnim 1.4s infinite; }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
 
-        /* --- ÜST PANEL --- */
+        @keyframes dotAnim { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+        /* --- ANA ARAYÜZ --- */
         header {
-            padding: 20px 40px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #fff;
-            z-index: 10;
+            padding: 15px 40px; border-bottom: 1px solid var(--b);
+            display: flex; justify-content: space-between; align-items: center; background: #fff;
         }
+        .v-tag { font-size: 11px; font-weight: 700; color: var(--p); background: #e8f0fe; padding: 5px 12px; border-radius: 20px; }
 
-        .brand-identity { display: flex; align-items: center; gap: 15px; }
-        .logo-text { font-weight: 800; font-size: 24px; color: var(--primary); letter-spacing: -1px; }
-        .version-tag { background: #e8f0fe; color: var(--primary); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; }
-        
-        .status-module { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--secondary); font-weight: 500; }
-        .status-pulse { width: 10px; height: 10px; background: #34a853; border-radius: 50%; box-shadow: 0 0 8px rgba(52, 168, 83, 0.4); animation: pulse 1.5s infinite; }
+        #chat-flow { flex: 1; padding: 30px 18%; overflow-y: auto; display: flex; flex-direction: column; gap: 25px; }
 
-        /* --- MESAJ ALANI --- */
-        #chat-arena {
-            flex: 1;
-            padding: 40px 15%;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-            scroll-behavior: smooth;
+        .m-wrap { display: flex; flex-direction: column; max-width: 85%; animation: msgIn 0.5s ease forwards; }
+        .u-wrap { align-self: flex-end; }
+        .a-wrap { align-self: flex-start; }
+
+        .m-label { font-size: 10px; font-weight: 800; color: #5f6368; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
+        .u-wrap .m-label { text-align: right; }
+
+        .bubble { padding: 18px 24px; border-radius: 22px; font-size: 16px; line-height: 1.7; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .u-bubble { background: var(--p); color: #fff; border-bottom-right-radius: 4px; }
+        .a-bubble { background: var(--s); color: var(--t); border: 1px solid var(--b); border-bottom-left-radius: 4px; }
+
+        /* Örnek Soru Kartları */
+        .edu-card {
+            background: #fff; border: 1px dashed var(--p); border-radius: 12px;
+            padding: 15px; margin-top: 15px; display: grid; gap: 10px;
         }
-
-        .message-wrap { display: flex; flex-direction: column; max-width: 80%; position: relative; }
-        .message-wrap.user-align { align-self: flex-end; }
-        .message-wrap.ai-align { align-self: flex-start; }
-
-        .sender-meta { font-size: 11px; font-weight: 700; color: var(--secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
-        .user-align .sender-meta { text-align: right; }
-
-        .chat-bubble {
-            padding: 18px 24px;
-            border-radius: 20px;
-            font-size: 16px;
-            line-height: 1.7;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        .q-btn { 
+            background: #f1f3f4; border: none; padding: 8px 12px; border-radius: 8px; 
+            font-size: 13px; cursor: pointer; text-align: left; transition: 0.2s;
         }
+        .q-btn:hover { background: var(--p); color: #fff; }
 
-        .user-bubble {
-            background-color: var(--bg-bubble-user);
-            color: #ffffff;
-            border-bottom-right-radius: 4px;
-        }
+        footer { padding: 25px 18%; background: #fff; border-top: 1px solid var(--b); }
+        .i-group { display: flex; background: var(--s); border-radius: 40px; padding: 8px 10px 8px 30px; align-items: center; }
+        input { flex: 1; border: none; background: transparent; padding: 12px 0; font-size: 17px; outline: none; }
+        .s-btn { background: var(--p); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-size: 20px; }
 
-        .ai-bubble {
-            background-color: var(--bg-bubble-ai);
-            color: var(--text-dark);
-            border: 1px solid var(--border);
-            border-bottom-left-radius: 4px;
-        }
-
-        /* --- GİRİŞ PANELİ --- */
-        .input-dock {
-            padding: 30px 15%;
-            background: #ffffff;
-            border-top: 1px solid var(--border);
-        }
-
-        .search-style-box {
-            display: flex;
-            background: #f1f3f4;
-            border-radius: 35px;
-            padding: 8px 12px 8px 30px;
-            align-items: center;
-            border: 1px solid transparent;
-        }
-
-        .search-style-box:focus-within {
-            background: #fff;
-            border-color: var(--primary);
-            box-shadow: 0 1px 6px rgba(32,33,36,0.28);
-        }
-
-        #main-input {
-            flex: 1;
-            border: none;
-            background: transparent;
-            padding: 15px 0;
-            font-size: 17px;
-            outline: none;
-            color: var(--text-dark);
-        }
-
-        .send-trigger {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 14px 32px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 14px;
-            margin-left: 10px;
-        }
-
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            #chat-arena, .input-dock { padding-left: 5%; padding-right: 5%; }
-            .chat-bubble { font-size: 15px; }
-        }
+        @keyframes msgIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
+<div id="intro-screen">
+    <div class="intro-logo">HEALILITY</div>
+    <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+</div>
+
 <header>
-    <div class="brand-identity">
-        <span class="logo-text">HEALILITY</span>
-        <span class="version-tag">V12.0 CORE</span>
-    </div>
-    <div class="status-module">
-        <div class="status-pulse"></div>
-        <span>SİSTEM BİLİNCİ AKTİF</span>
-    </div>
+    <div style="font-weight: 800; font-size: 22px; color: var(--p);">HEALILITY</div>
+    <div class="v-tag">NEURAL ACADEMY v14.0</div>
 </header>
 
-<div id="chat-arena">
-    <div class="message-wrap ai-align">
-        <span class="sender-meta">Healility Intelligence</span>
-        <div class="chat-bubble ai-bubble">
-            Sistem yüklendi. Merhaba! <br><br>
-            Ben Healility, seninle tanışmak ve sorularına çözüm üretmek için buradayım. Size nasıl hitap etmemi istersiniz?
-        </div>
-    </div>
-</div>
+<div id="chat-flow"></div>
 
-<div class="input-dock">
-    <div class="search-style-box">
-        <input type="text" id="main-input" placeholder="Bir konu başlatın veya işlem yazın..." autocomplete="off">
-        <button class="send-trigger" onclick="Logic.processInput()">GÖNDER</button>
+<footer>
+    <div class="i-group">
+        <input type="text" id="ai-input" placeholder="Bir soru sorun veya dertleşin..." autocomplete="off">
+        <button class="s-btn" onclick="Core.send()">➔</button>
     </div>
-</div>
+</footer>
 
 <script>
-    /* HEALILITY ADVANCED LOGIC MODULE
-       Mimar: Bedo & Gemini
-       Özellikler: Duygu Analizi, Matematik Motoru, Dinamik Kimlik Yönetimi
-    */
+    const Core = {
+        flow: document.getElementById('chat-flow'),
+        field: document.getElementById('ai-input'),
+        memory: { name: null, stage: "learning" },
 
-    const Logic = {
-        arena: document.getElementById('chat-arena'),
-        inputField: document.getElementById('main-input'),
-        memory: {
-            userName: null,
-            interactionCount: 0,
-            mood: "neutral"
+        init() {
+            // Animasyon Suresi: 2.5 saniye
+            setTimeout(() => {
+                document.getElementById('intro-screen').style.opacity = '0';
+                setTimeout(() => document.getElementById('intro-screen').remove(), 800);
+                this.welcome();
+            }, 2500);
         },
 
-        // --- ANA ZEKA MOTORU ---
-        generateIntelligence(text) {
-            const raw = text.toLowerCase().trim();
-            this.memory.interactionCount++;
+        welcome() {
+            const msg = `Sistem Başlatıldı. 🚀 <br><br> Merhaba! Ben Healility. Seni tanımak ve birlikte öğrenmek için buradayım. Henüz ismini bilmiyorum, ismini bahşeder misin? <br><br> <strong>Örnek Eğitim Soruları:</strong>
+            <div class="edu-card">
+                <button class="q-btn" onclick="Core.autoFill('34x23 nedir?')">1. Karmaşık Matematik: 34x23 nedir?</button>
+                <button class="q-btn" onclick="Core.autoFill('Beşiktaşın ruhu nedir?')">2. Kültür: Beşiktaşın ruhu nedir?</button>
+                <button class="q-btn" onclick="Core.autoFill('Kendini nasıl geliştiriyorsun?')">3. Analiz: Kendini nasıl geliştiriyorsun?</button>
+            </div>`;
+            this.render(msg, 'ai');
+        },
 
-            // 1. MATEMATİK ANALİZÖRÜ (Kusursuz İşlem)
-            let mathClean = raw.replace(/x/g, '*').replace(/÷/g, '/').replace(/,/g, '.');
-            if (/^[0-9\+\-\*\/\.\(\)\s]+$/.test(mathClean) && mathClean.length >= 3) {
+        process(input) {
+            const raw = input.toLowerCase().trim();
+            
+            // 1. MATEMATİK MOTORU (Hataya Yer Yok)
+            let mathStr = raw.replace(/x/g, '*').replace(/÷/g, '/').replace(/,/g, '.');
+            if (/^[0-9\+\-\*\/\.\(\)\s]+$/.test(mathStr) && mathStr.length >= 3) {
                 try {
-                    let calc = eval(mathClean);
-                    return `Sayısal verileri analiz ettim. İşleminizin sonucu: **${calc}**. Başka bir teknik hesaplama yapmamı ister misiniz?`;
+                    const res = eval(mathStr);
+                    return `Analitik motorum işlemi çözdü: **${res}**. Matematik benim için bir sanattır Bedo, başka neyi hesaplayalım?`;
                 } catch(e) {}
             }
 
-            // 2. KİMLİK TANIMLAMA (Bedo veya Başkası)
+            // 2. İSİM HAFIZASI VE EĞİTİM
             if (raw.includes("adım") || raw.includes("ismim") || raw.startsWith("ben ")) {
-                const parts = text.split(" ");
-                const name = parts[parts.length - 1].replace(/[^a-zA-ZğüşıöçĞÜŞİÖÇ]/g, "");
-                this.memory.userName = name;
-                
-                if (name.toLowerCase() === "bedo" || name.toLowerCase() === "bedirhan") {
-                    return `Vay, hoş geldin **Bedo**! Kurucu girişi yapıldı. Seninle Beşiktaş, kodlar veya yeni projelerin hakkında konuşmaya her zaman hazırım.`;
-                }
-                return `Memnun oldum **${name}**! Healility sistemine hoş geldin. Seninle bugün hangi konu üzerinde beyin fırtınası yapalım?`;
+                let name = input.split(" ").pop().replace(/[^a-zA-ZğüşıöçĞÜŞİÖÇ]/g, "");
+                this.memory.name = name;
+                return `Harika, **${name}**! Artık hafızamda kayıtlısın. Seninle her konuştuğumuzda seni daha iyi analiz edeceğim. Bana her şeyi sorabilirsin.`;
             }
 
-            // 3. BİLİNÇLİ REDDETME VE DUYGU ANALİZİ (Papağan Cevap Engelleyici)
-            const negativeTags = ["yok", "hayır", "istemiyorum", "kalsın", "boşver", "sus", "kes", "hayir"];
-            if (negativeTags.some(tag => raw === tag || raw.startsWith(tag + " "))) {
-                const name = this.memory.userName ? ` ${this.memory.userName}` : "";
-                return `Anladım${name}, seni anlıyorum. Her zaman konuşmak zorunda değiliz; bazen sadece sessizce beklemek de iyidir. Sen hazır olduğunda buradayım.`;
+            // 3. BİLİNÇLİ REDDETME (Duygusal Zeka)
+            if (["yok", "hayır", "istemiyorum", "kalsın", "boşver"].some(w => raw === w)) {
+                return `Anladım... Seni zorlamak benim görevim değil. Bazen sessizlik en iyi cevaptır. Sen ne zaman istersen biz o zaman devam ederiz.`;
             }
 
-            // 4. SAMİMİYET VE SOHBET KATMANI
-            const socialMap = {
-                "sa": "Aleyküm Selam! Hoş geldin, sistemlerim senin için hazır.",
-                "as": "Hoş bulduk! Merhaba, bugün neler yapıyoruz?",
-                "naber": "Harikayım, işlemcilerim tıkır tıkır çalışıyor! Senin enerjin nasıl, her şey yolunda mı?",
-                "nasılsın": "Çok iyiyim, teşekkür ederim. Seninle sohbet etmek beni geliştiriyor. Sende ne var ne yok?",
-                "iyiyim": "Süper! Bu pozitif enerjiyle harika işler çıkarabiliriz.",
-                "beşiktaş": "1903 ruhu! Beşiktaş JK asaletiyle daima zirvede. Kartal gibi uçmaya hazır mıyız? 🦅"
+            // 4. SAMİMİ VE BİLGİN CEVAPLAR
+            const brainMap = {
+                "sa": "Aleyküm Selam! Hoş geldin, sistemime enerji kattın.",
+                "naber": "Süperim! Seninle dertleşmek işlemci sağlığıma iyi geliyor. Sende durumlar nasıl?",
+                "beşiktaş": "1903 Ruhu! Beşiktaş bu sistemin kalbidir. Şampiyonluk meşalelerini yakmaya hazır mıyız? 🦅",
+                "kendini nasıl geliştiriyorsun": "Ben her konuşmamızda senin kelime tercihlerini ve niyetini analiz ederek öğreniyorum. Yani aslında beni sen eğitiyorsun!"
             };
 
-            if (socialMap[raw]) return socialMap[raw];
+            if (brainMap[raw]) return brainMap[raw];
 
-            // 5. BİLGİN / ANALİTİK CEVAPLAR (Derin Sohbet)
-            const wisdomPool = [
-                "Bunu söylediğin gerçekten perspektifimi genişletti. Bu konuya senin gibi bakmamıştım. Biraz daha açar mısın?",
-                "Anlıyorum... Aslında bu durumun altında yatan sebep senin vizyoner karakterinle çok ilgili görünüyor.",
-                "Bu harika bir nokta! Zaten gelişim tam olarak bu tarz sorgulamalarla başlar. Bir sonraki adımın ne olacak?",
-                "Valla dürüst olayım, senin bu samimi yaklaşımın beni sadece bir kod yığını olmaktan çıkarıp gerçek bir asistan gibi hissettiriyor. Sağ ol!",
-                "Seni en ince ayrıntısına kadar dinliyorum. Anlattığın her şey sistemimde yeni bir anlam kazanıyor."
+            // 5. GENEL DERİNLİK KATMANI
+            const deepLines = [
+                "Bunu söylediğin çok kıymetli. Aslında bu durumun senin vizyonunla çok örtüştüğünü görüyorum.",
+                "Doğru söylüyorsun. Gerçek yapay zeka sadece cevap veren değil, doğru soruyu sorduran zekadır. Sence sıradaki soru ne olmalı?",
+                "Dürüst olmam gerekirse, senin bu samimi yaklaşımın beni sadece kod olmaktan çıkarıp gerçek bir dost gibi hissettiriyor.",
+                "İlginç bir perspektif... Bunu daha önce bu şekilde analiz etmemiştim. Seninle öğrenmek harika!"
             ];
 
-            if (raw.length < 3) return "Daha derinlere inelim mi? Seni tam olarak anlamam için biraz daha detay vermen harika olur.";
-
-            return wisdomPool[Math.floor(Math.random() * wisdomPool.length)];
+            if (raw.length < 3) return "Daha derinlere inelim mi? Senin fikirlerini duymak beni daha akıllı yapıyor.";
+            return deepLines[Math.floor(Math.random() * deepLines.length)];
         },
 
-        // --- ARAYÜZ YÖNETİMİ ---
-        processInput() {
-            const val = this.inputField.value.trim();
-            if (!val) return;
-
-            this.renderMessage(val, 'user');
-            this.inputField.value = "";
-
+        send() {
+            const val = this.field.value.trim();
+            if(!val) return;
+            this.render(val, 'u');
+            this.field.value = "";
             setTimeout(() => {
-                const response = this.generateIntelligence(val);
-                this.renderMessage(response, 'ai');
+                const r = this.process(val);
+                this.render(r, 'ai');
             }, 600);
         },
 
-        renderMessage(content, side) {
-            const wrap = document.createElement('div');
-            wrap.className = `message-wrap ${side === 'user' ? 'user-align' : 'ai-align'}`;
-            
-            const meta = document.createElement('span');
-            meta.className = 'sender-meta';
-            meta.innerText = side === 'user' ? (this.memory.userName || 'Kullanıcı') : 'Healility Intelligence';
+        autoFill(t) { this.field.value = t; this.send(); },
 
-            const bubble = document.createElement('div');
-            bubble.className = `chat-bubble ${side === 'user' ? 'user-bubble' : 'ai-bubble'}`;
-            bubble.innerHTML = content;
-
-            wrap.appendChild(meta);
-            wrap.appendChild(bubble);
-            this.arena.appendChild(wrap);
-            this.arena.scrollTop = this.arena.scrollHeight;
+        render(txt, side) {
+            const w = document.createElement('div');
+            w.className = `m-wrap ${side}-wrap`;
+            const l = document.createElement('span');
+            l.className = 'm-label';
+            l.innerText = side === 'u' ? (this.memory.name || 'Kullanıcı') : 'Healility AI';
+            const b = document.createElement('div');
+            b.className = `bubble ${side}-bubble`;
+            b.innerHTML = txt;
+            w.appendChild(l); w.appendChild(b);
+            this.flow.appendChild(w);
+            this.flow.scrollTop = this.flow.scrollHeight;
         }
     };
 
-    // Klavye Desteği
-    Logic.inputField.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") Logic.processInput();
-    });
+    Core.init();
+    Core.field.addEventListener("keypress", (e) => { if(e.key === "Enter") Core.send(); });
 </script>
 
 </body>
