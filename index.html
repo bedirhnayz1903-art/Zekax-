@@ -2,215 +2,142 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Healility: Mission Protocol</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmniMind AI Core | En Derin Bilgi</title>
     <style>
-        :root { --neon: #00f2ff; --gold: #ffcc00; --red: #ff4d4d; }
-        body { margin: 0; overflow: hidden; background: #000a12; font-family: 'Segoe UI', sans-serif; touch-action: none; }
-
-        /* Gelişmiş Arayüz */
-        #ui { position: absolute; inset: 0; pointer-events: none; z-index: 100; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; }
-        
-        .panel { background: rgba(0, 20, 30, 0.85); border: 1px solid var(--neon); padding: 10px; border-radius: 8px; color: white; box-shadow: 0 0 10px rgba(0, 242, 255, 0.2); }
-        
-        /* Modern Butonlar */
-        .btn-container { pointer-events: auto; display: flex; gap: 10px; margin-bottom: 10px; }
-        .game-btn {
-            background: rgba(0,0,0,0.8); border: 2px solid var(--neon); color: var(--neon);
-            padding: 12px; border-radius: 12px; font-weight: bold; font-size: 11px;
-            text-transform: uppercase; transition: 0.2s; box-shadow: 0 4px 0 var(--neon);
-        }
-        .game-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--neon); background: var(--neon); color: black; }
-
-        #level-up {
-            position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 40px; color: var(--gold); font-weight: 900; display: none; text-shadow: 0 0 20px black;
+        :root {
+            --neon-blue: #00d2ff;
+            --deep-space: #050a14;
+            --matrix-green: #00ff41;
+            --text-silver: #e0e0e0;
         }
 
-        #crosshair { position: absolute; top: 50%; left: 50%; width: 40px; height: 40px; border: 1px solid var(--neon); border-radius: 50%; transform: translate(-50%, -50%); opacity: 0.6; }
+        body {
+            background: var(--deep-space);
+            color: var(--text-silver);
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #terminal {
+            width: 90%;
+            max-width: 900px;
+            height: 80vh;
+            background: rgba(10, 20, 35, 0.95);
+            border: 2px solid var(--neon-blue);
+            box-shadow: 0 0 30px rgba(0, 210, 255, 0.2);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Scanline Efekti - Gerçekçi Ekran Hissi */
+        #terminal::before {
+            content: " ";
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
+        }
+
+        #output {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-bottom: 10px;
+            scrollbar-width: thin;
+        }
+
+        .input-area {
+            display: flex;
+            border-top: 1px solid var(--neon-blue);
+            padding-top: 15px;
+        }
+
+        #user-input {
+            background: transparent;
+            border: none;
+            color: var(--matrix-green);
+            flex-grow: 1;
+            font-size: 1.1rem;
+            outline: none;
+        }
+
+        .prefix { color: var(--neon-blue); margin-right: 10px; }
+        .ai-response { color: var(--text-silver); margin-bottom: 15px; border-left: 3px solid var(--neon-blue); padding-left: 10px; }
+        .thought { color: #888; font-style: italic; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
-    <div id="level-up">BÖLÜM GEÇİLDİ!</div>
-    <div id="crosshair"></div>
-
-    <div id="ui">
-        <div style="display: flex; justify-content: space-between;">
-            <div class="panel">BÖLÜM: <span id="lvl">1</span></div>
-            <div class="panel">HEDEF: <span id="score">0</span></div>
-        </div>
-
-        <div>
-            <div class="btn-container">
-                <button class="game-btn" onclick="toggleZoom()">DÜRBÜN</button>
-                <button class="game-btn" onclick="reload()">ŞARJÖR</button>
-                <button class="game-btn" onclick="nextLevel()">SONRAKİ BÖLÜM</button>
-            </div>
-            <div class="panel" style="display: flex; justify-content: space-between; align-items: center;">
-                <span id="mag" style="font-size: 24px; color: var(--gold); font-weight: 900;">12/12</span>
-                <span id="kibo" style="font-size: 10px; color: var(--neon);">KİBO: Tarama yapılıyor...</span>
-            </div>
-        </div>
+<div id="terminal">
+    <div id="output">
+        <div class="ai-response">Sistem çevrimiçi. Veritabanı %100 kapasite ile çalışıyor. Ne sormak istersin?</div>
     </div>
+    <div class="input-area">
+        <span class="prefix">BEDO_X@ROOT:~$</span>
+        <input type="text" id="user-input" autofocus autocomplete="off">
+    </div>
+</div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+    const inputField = document.getElementById('user-input');
+    const outputArea = document.getElementById('output');
 
-    <script>
-        let scene, camera, renderer, clock;
-        let ammo = 12, kills = 0, level = 1, isZoom = false;
-        let enemies = [], bullets = [], obstacles = [];
-        let viewX = 0, viewY = -0.5;
+    // Bu "Zeka" katmanıdır. Gelen soruları analiz eder.
+    const brain = {
+        "merhaba": "Selam! Bilgi yarışmasında her zaman yanındayım. Ne öğrenmek istersin?",
+        "kimsin": "Ben senin dijital yansımayım; her türlü veriyi işleyebilen yüksek performanslı bir asistanım.",
+        "futbol": "Beşiktaş JK'nın son transfer haberlerini mi merak ediyorsun, yoksa bir taktik analiz mi yapalım?",
+        "kodlama": "HTML, CSS ve JavaScript kullanarak dünyaları inşa edebiliriz. Hangi projeye başlıyoruz?",
+        "saat kaç": () => new Date().toLocaleTimeString('tr-TR'),
+        "varsayılan": "Bu soru üzerine derin algoritmalarımı çalıştırıyorum... Görünüşe göre bu konuda uzmanlaşmam gereken bir alan. Ama çözüm için buradayım!"
+    };
 
-        init();
-        animate();
-
-        function init() {
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x000a12);
-            scene.fog = new THREE.Fog(0x000a12, 10, 600);
-
-            camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1500);
-            camera.position.set(0, 85, 30);
-
-            renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(window.devicePixelRatio);
-            document.body.appendChild(renderer.domElement);
-
-            const sun = new THREE.DirectionalLight(0xffffff, 1.2);
-            sun.position.set(100, 200, 100);
-            scene.add(sun);
-            scene.add(new THREE.AmbientLight(0x404040, 1));
-
-            buildEnvironment();
-
-            window.addEventListener('touchmove', (e) => {
-                const t = e.touches[0];
-                viewX = -((t.clientX / window.innerWidth) - 0.5) * 3.5;
-                viewY = -0.5 - ((t.clientY / window.innerHeight) - 0.5) * 2;
-            }, { passive: false });
-
-            window.addEventListener('touchstart', (e) => {
-                if(e.target.tagName !== 'BUTTON') shoot();
-            });
-
-            clock = new THREE.Clock();
-            spawnSystem();
+    inputField.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            const val = inputField.value.toLowerCase().trim();
+            handleQuery(val);
+            inputField.value = '';
         }
+    });
 
-        function buildEnvironment() {
-            // ANA KULE
-            const tower = new THREE.Mesh(
-                new THREE.BoxGeometry(40, 180, 40),
-                new THREE.MeshStandardMaterial({ color: 0x111111 })
-            );
-            tower.position.y = 0;
-            scene.add(tower);
+    async function handleQuery(query) {
+        if (!query) return;
 
-            // ZEMİN
-            const ground = new THREE.Mesh(
-                new THREE.PlaneGeometry(2000, 2000),
-                new THREE.MeshStandardMaterial({ color: 0x050505 })
-            );
-            ground.rotation.x = -Math.PI / 2;
-            ground.position.y = -90;
-            scene.add(ground);
+        // Kullanıcı yazısını ekrana bas
+        outputArea.innerHTML += `<div><span style="color:var(--neon-blue)">></span> ${query}</div>`;
+        
+        // "Düşünme" simülasyonu (Zekice bir dokunuş)
+        const thinking = document.createElement('div');
+        thinking.className = 'thought';
+        thinking.innerText = "Sistem analiz ediyor...";
+        outputArea.appendChild(thinking);
+        
+        await new Promise(r => setTimeout(r, 800)); // 0.8 saniye bekleme
+        thinking.remove();
 
-            // BİNALAR VE ENGELLER (360 Derece)
-            for(let i=0; i<150; i++) {
-                const h = 40 + Math.random() * 100;
-                const b = new THREE.Mesh(
-                    new THREE.BoxGeometry(20, h, 20),
-                    new THREE.MeshStandardMaterial({ color: new THREE.Color(`hsl(${Math.random()*360}, 20%, 30%)`) })
-                );
-                const angle = Math.random() * Math.PI * 2;
-                const dist = 120 + Math.random() * 400;
-                b.position.set(Math.cos(angle)*dist, h/2 - 90, Math.sin(angle)*dist);
-                scene.add(b);
-            }
+        // Cevabı belirle
+        let response = brain[query] || brain["varsayılan"];
+        if (typeof response === 'function') response = response();
 
-            // SOKAKTAKİ ENGELLER (Hedeflerin önünü kapatan duvarlar)
-            for(let i=0; i<30; i++) {
-                const obs = new THREE.Mesh(
-                    new THREE.BoxGeometry(10, 15, 2),
-                    new THREE.MeshStandardMaterial({color: 0x444444})
-                );
-                obs.position.set((Math.random()-0.5)*200, -82, -100 + (Math.random()*100));
-                scene.add(obs);
-            }
-        }
+        // Yapay Zeka cevabını ekrana bas
+        const resDiv = document.createElement('div');
+        resDiv.className = 'ai-response';
+        resDiv.innerText = response;
+        outputArea.appendChild(resDiv);
 
-        function toggleZoom() {
-            isZoom = !isZoom;
-            camera.fov = isZoom ? 15 : 65;
-            camera.updateProjectionMatrix();
-        }
+        // Otomatik kaydır
+        outputArea.scrollTop = outputArea.scrollHeight;
+    }
+</script>
 
-        function reload() {
-            ammo = 12;
-            document.getElementById('mag').innerText = "12/12";
-            document.getElementById('kibo').innerText = "KİBO: Silah optimize edildi.";
-        }
-
-        function shoot() {
-            if(ammo <= 0) return;
-            ammo--;
-            document.getElementById('mag').innerText = ammo + "/12";
-            
-            const b = new THREE.Mesh(new THREE.SphereGeometry(0.3), new THREE.MeshBasicMaterial({color: 0x00f2ff}));
-            b.position.copy(camera.position);
-            const dir = new THREE.Vector3(0,0,-1).applyQuaternion(camera.quaternion);
-            b.userData.v = dir.multiplyScalar(12);
-            bullets.push(b);
-            scene.add(b);
-        }
-
-        function spawnSystem() {
-            const e = new THREE.Group();
-            const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.8, 2), new THREE.MeshStandardMaterial({color: 0xff0044}));
-            e.add(body);
-            
-            e.position.set((Math.random()-0.5)*180, -88, -150);
-            e.userData.speed = 0.2 + (level * 0.1); // Bölüm arttıkça hızlanır
-            enemies.push(e);
-            scene.add(e);
-            
-            setTimeout(spawnSystem, Math.max(800, 3000 - (level * 200)));
-        }
-
-        function nextLevel() {
-            level++;
-            document.getElementById('lvl').innerText = level;
-            const msg = document.getElementById('level-up');
-            msg.style.display = "block";
-            setTimeout(() => msg.style.display = "none", 1500);
-        }
-
-        function animate() {
-            requestAnimationFrame(animate);
-            camera.rotation.set(viewY, viewX, 0);
-
-            bullets.forEach((b, bi) => {
-                b.position.add(b.userData.v);
-                enemies.forEach((e, ei) => {
-                    if(b.position.distanceTo(e.position) < 4) {
-                        scene.remove(e); enemies.splice(ei, 1);
-                        scene.remove(b); bullets.splice(bi, 1);
-                        kills++; 
-                        document.getElementById('score').innerText = kills;
-                        if(kills % 5 === 0) nextLevel(); // Her 5 vuruşta bir bölüm atla
-                    }
-                });
-            });
-
-            enemies.forEach(e => {
-                e.position.z += e.userData.speed;
-                if(e.position.z > 50) e.position.z = -200; // Sonsuz döngü
-            });
-
-            renderer.render(scene, camera);
-        }
-    </script>
 </body>
 </html>
