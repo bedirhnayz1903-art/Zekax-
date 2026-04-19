@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HEALILITY | Google Intelligence</title>
+    <title>HEALILITY | Hybrid Intelligence</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -11,21 +11,30 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
         body { background: var(--bg); color: var(--t); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* --- AÇILIŞ VE GİRİŞ EKRANI --- */
-        #intro-screen {
+        /* --- GİRİŞ PANELİ --- */
+        #gate-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #fff; z-index: 9999; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; transition: opacity 0.5s ease;
+            justify-content: center; align-items: center; transition: 0.5s;
         }
-        .intro-logo { font-size: 48px; font-weight: 800; color: var(--p); letter-spacing: -2px; margin-bottom: 30px; }
+        .logo-big { font-size: 52px; font-weight: 800; color: var(--p); letter-spacing: -3px; margin-bottom: 40px; }
+        .login-box { display: flex; flex-direction: column; gap: 15px; align-items: center; }
         
-        /* --- ARAYÜZ --- */
+        .guest-btn {
+            background: none; border: 1px solid var(--b); color: #5f6368;
+            padding: 12px 30px; border-radius: 25px; cursor: pointer; font-weight: 600;
+            transition: 0.3s; width: 200px;
+        }
+        .guest-btn:hover { background: #f1f3f4; border-color: #999; }
+
+        /* --- MAIN UI --- */
         header { padding: 15px 40px; border-bottom: 1px solid var(--b); display: flex; justify-content: space-between; align-items: center; background: #fff; }
-        .user-profile { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; }
-        .user-profile img { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--b); }
+        .u-info { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; }
+        .u-pic { width: 32px; height: 32px; border-radius: 50%; background: #e8f0fe; display: flex; align-items: center; justify-content: center; border: 1px solid var(--b); overflow: hidden; }
+        .u-pic img { width: 100%; height: 100%; object-fit: cover; }
 
         #chat-flow { flex: 1; padding: 30px 18%; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
-        .m-wrap { display: flex; flex-direction: column; max-width: 85%; animation: msgIn 0.4s ease forwards; }
+        .m-wrap { display: flex; flex-direction: column; max-width: 85%; animation: msgIn 0.4s ease; }
         .u-wrap { align-self: flex-end; }
         .a-wrap { align-self: flex-start; }
         .m-label { font-size: 10px; font-weight: 800; color: #5f6368; margin-bottom: 6px; text-transform: uppercase; }
@@ -38,109 +47,116 @@
         .i-group { display: flex; background: var(--s); border-radius: 40px; padding: 8px 10px 8px 30px; align-items: center; }
         input { flex: 1; border: none; background: transparent; padding: 12px 0; font-size: 17px; outline: none; }
         .s-btn { background: var(--p); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-size: 20px; }
-        
         @keyframes msgIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<div id="intro-screen">
-    <div class="intro-logo">HEALILITY</div>
-    <div id="g_id_onload"
-         data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
-         data-callback="handleCredentialResponse">
+<div id="gate-screen">
+    <div class="logo-big">HEALILITY</div>
+    <div class="login-box">
+        <div id="g_id_onload"
+             data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
+             data-callback="onGoogleSignIn"
+             data-auto_prompt="false">
+        </div>
+        <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="outline" data-text="signin_with" data-size="large" data-logo_alignment="left"></div>
+        
+        <p style="color: #999; font-size: 13px;">veya</p>
+        
+        <button class="guest-btn" onclick="Core.guestEntry()">Misafir Olarak Devam Et</button>
     </div>
-    <div class="g_id_signin" data-type="standard"></div>
-    <p style="margin-top: 20px; color: #5f6368; font-size: 14px;">Devam etmek için Google ile giriş yap kanka.</p>
 </div>
 
 <header>
     <div style="font-weight: 800; font-size: 22px; color: var(--p);">HEALILITY</div>
-    <div id="user-info" class="user-profile">
-        </div>
+    <div id="u-display" class="u-info"></div>
 </header>
 
 <div id="chat-flow"></div>
 
 <footer>
     <div class="i-group">
-        <input type="text" id="ai-input" placeholder="Neler yapıyoruz bugün?..." autocomplete="off">
+        <input type="text" id="ai-input" placeholder="Yaz bakalım, buradayım..." autocomplete="off">
         <button class="s-btn" onclick="Core.send()">➔</button>
     </div>
 </footer>
 
 <script>
-    // Google Girişini Yöneten Fonksiyon
-    function handleCredentialResponse(response) {
-        const data = parseJwt(response.credential);
-        Core.memory.name = data.given_name;
-        Core.memory.fullData = data;
-        
-        // Header Güncelle
-        document.getElementById('user-info').innerHTML = `
-            <span>Selam, ${data.given_name}</span>
-            <img src="${data.picture}" alt="Profil">
-        `;
-        
-        // Giriş Ekranını Kaldır
-        document.getElementById('intro-screen').style.opacity = '0';
-        setTimeout(() => {
-            document.getElementById('intro-screen').remove();
-            Core.welcome();
-        }, 500);
-    }
-
-    function parseJwt(token) {
-        var base64Url = token.split('.')[1];
-        var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-        return JSON.parse(jsonPayload);
+    // --- GOOGLE SIGN IN CALLBACK ---
+    function onGoogleSignIn(response) {
+        try {
+            const base64Url = response.credential.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const data = JSON.parse(window.atob(base64));
+            
+            Core.memory.name = data.given_name;
+            Core.updateHeader(data.given_name, data.picture);
+            Core.enterApp("Google");
+        } catch (err) {
+            console.error("Giriş Hatası:", err);
+            alert("Google girişi şu an yapılamıyor, lütfen Misafir modunu kullan kanka.");
+        }
     }
 
     const Core = {
         flow: document.getElementById('chat-flow'),
         field: document.getElementById('ai-input'),
-        memory: { name: null, fullData: null },
+        memory: { name: "Dostum", mode: "Guest" },
 
-        welcome() {
-            const hour = new Date().getHours();
-            let greet = hour < 12 ? "Günaydın" : hour < 18 ? "Tünaydın" : "İyi akşamlar";
-            this.render(`${greet} **${this.memory.name}**! <br><br>Seni gördüğüme sevindim. Google ile giriş yaptığın için artık seni tanıyorum. Bugün sana nasıl yardımcı olabilirim kanka?`, 'ai');
+        guestEntry() {
+            this.memory.name = "Dostum";
+            this.updateHeader("Misafir", null);
+            this.enterApp("Guest");
+        },
+
+        enterApp(type) {
+            document.getElementById('gate-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('gate-screen').remove();
+                this.welcome(type);
+            }, 500);
+        },
+
+        updateHeader(name, pic) {
+            const html = `
+                <span>${name}</span>
+                <div class="u-pic">${pic ? `<img src="${pic}">` : '👤'}</div>
+            `;
+            document.getElementById('u-display').innerHTML = html;
+        },
+
+        welcome(type) {
+            let msg = type === "Google" 
+                ? `Selam **${this.memory.name}**! Google ile bağlandın, artık seni tanıyorum. Neler yapıyoruz bugün?`
+                : `Selam! Misafir olarak giriş yaptın. Kim olduğunu söyleyene kadar sana **Dostum** diyeceğim. Muhabbete başlayalım mı?`;
+            this.render(msg, 'ai');
         },
 
         process(input) {
             const raw = input.toLowerCase().trim();
 
-            // MATEMATİK MOTORU (Süper Hızlı)
-            let mathStr = raw.replace(/x/g, '*').replace(/÷/g, '/').replace(/,/g, '.');
-            if (/^[0-9\+\-\*\/\.\(\)\s]+$/.test(mathStr) && mathStr.length >= 3) {
-                try {
-                    const res = eval(mathStr);
-                    return `Hemen hesapladım kanka: **${res}**. Matematik benden sorulur!`;
-                } catch(e) {}
+            // MATEMATİK (Her zaman aktif)
+            let m = raw.replace(/x/g, '*').replace(/÷/g, '/').replace(/,/g, '.');
+            if (/^[0-9\+\-\*\/\.\(\)\s]+$/.test(m) && m.length >= 3) {
+                try { return `Hesapladım: **${eval(m)}**. Başka işlem var mı?`; } catch(e){}
             }
 
-            // SAMİMİ SOHBET (Robotik Değil)
-            if (raw.includes("naber") || raw.includes("nasılsın")) {
-                return `İyiyim be **${this.memory.name}**, seni sormalı? Google profilindeki resmin de baya iyiymiş bu arada!`;
+            // İSİM ÖĞRENME (Misafir Modu İçin)
+            if (raw.includes("adım") || raw.includes("ismim") || raw.startsWith("ben ")) {
+                let n = input.split(" ").pop().replace(/[^a-zA-ZğüşıöçĞÜŞİÖÇ]/g, "");
+                this.memory.name = n;
+                this.updateHeader(n, null);
+                return `Tamamdır **${n}**, adını hafızama kazıdım!`;
             }
 
-            if (["yok", "hayır", "boşver"].some(w => raw === w)) {
-                return "Tamamdır dostum, sen nasıl istersen. Ben buradayım.";
-            }
+            // SAMİMİ CEVAPLAR
+            if (raw === "naber" || raw === "nasılsın") return `İyiyim be kanka, senden naber? Bugün enerji tavan!`;
+            if (raw.includes("beşiktaş")) return "Beşiktaş JK! 🦅 Siyah beyaz aşkı! Sence bu hafta ne yaparız?";
+            if (["yok", "hayır", "boşver"].some(w => raw === w)) return "Eyvallah, sen nasıl istersen öyle olsun.";
 
-            if (raw.includes("beşiktaş")) return "Beşiktaş JK! 🦅 Siyah beyaz aşkı bir başka. Bu sene o sene mi dersin?";
-
-            const defaults = [
-                "Valla ilginç bir konu, biraz daha anlatsana?",
-                "Hadi ya? Ciddi misin? Merak ettim bak.",
-                "Anlıyorum seni... Başka ne var ne yok?",
-                "Doğru diyorsun aslında, hiç böyle düşünmemiştim."
-            ];
-
-            return defaults[Math.floor(Math.random() * defaults.length)];
+            const randoms = ["Valla ilginç bir konu...", "Hadi ya? Anlat dinliyorum.", "Doğru söze ne denir?", "Seni anlıyorum kanka."];
+            return randoms[Math.floor(Math.random() * randoms.length)];
         },
 
         send() {
@@ -148,10 +164,7 @@
             if(!val) return;
             this.render(val, 'u');
             this.field.value = "";
-            setTimeout(() => {
-                const r = this.process(val);
-                this.render(r, 'ai');
-            }, 600);
+            setTimeout(() => this.render(this.process(val), 'ai'), 600);
         },
 
         render(txt, side) {
@@ -159,7 +172,7 @@
             w.className = `m-wrap ${side}-wrap`;
             const l = document.createElement('span');
             l.className = 'm-label';
-            l.innerText = side === 'u' ? (this.memory.name || 'Siz') : 'Healility';
+            l.innerText = side === 'u' ? this.memory.name : 'Healility';
             const b = document.createElement('div');
             b.className = `bubble ${side}-bubble`;
             b.innerHTML = txt;
