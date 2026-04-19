@@ -3,50 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HEALILITY | Ultra Auth Fixed</title>
+    <title>HEALILITY | Evolution</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
         :root { --p: #1a73e8; --bg: #ffffff; --t: #202124; --s: #f8f9fa; --b: #dadce0; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
         body { background: var(--bg); color: var(--t); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
         /* GİRİŞ EKRANI */
-        #gate-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #fff; z-index: 9999; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; text-align: center;
-        }
-        .logo-big { font-size: 52px; font-weight: 800; color: var(--p); letter-spacing: -3px; margin-bottom: 10px; }
-        .sub-text { color: #5f6368; margin-bottom: 40px; font-size: 14px; }
-        
-        .auth-container { background: #f8f9fa; padding: 30px; border-radius: 24px; border: 1px solid var(--b); display: flex; flex-direction: column; gap: 20px; width: 320px; }
-        
-        .guest-link { color: var(--p); text-decoration: none; font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.3s; }
-        .guest-link:hover { text-decoration: underline; }
+        #gate-screen { position: fixed; inset: 0; background: #fff; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .logo-big { font-size: 52px; font-weight: 800; color: var(--p); letter-spacing: -3px; }
+        .auth-card { background: #f8f9fa; padding: 30px; border-radius: 24px; border: 1px solid var(--b); display: flex; flex-direction: column; gap: 15px; width: 320px; margin-top: 20px; }
+        .guest-link { color: var(--p); font-weight: 600; font-size: 14px; cursor: pointer; text-align: center; }
 
-        /* MAIN UI */
-        header { padding: 15px 40px; border-bottom: 1px solid var(--b); display: flex; justify-content: space-between; align-items: center; background: #fff; }
-        .u-info { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; }
-        .u-pic { width: 35px; height: 35px; border-radius: 50%; background: #e8f0fe; border: 1px solid var(--b); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        /* HEADER & PROFIL */
+        header { padding: 15px 40px; border-bottom: 1px solid var(--b); display: flex; justify-content: space-between; align-items: center; background: #fff; z-index: 100; }
+        .u-info { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 5px 15px; border-radius: 30px; transition: 0.2s; }
+        .u-info:hover { background: #f1f3f4; }
+        .u-pic { width: 35px; height: 35px; border-radius: 50%; background: var(--p); color: #fff; display: flex; align-items: center; justify-content: center; overflow: hidden; font-weight: bold; }
         .u-pic img { width: 100%; height: 100%; object-fit: cover; }
 
-        #chat-flow { flex: 1; padding: 30px 18%; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; background: #fff; }
+        /* PROFIL PANELI (PUROLUK) */
+        #profile-panel {
+            position: fixed; top: 70px; right: 20px; width: 280px; background: #fff; border: 1px solid var(--b);
+            border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: none; padding: 20px; z-index: 1000;
+        }
+        .stats { margin-top: 15px; font-size: 13px; color: #5f6368; }
+        .stat-item { display: flex; justify-content: space-between; margin-bottom: 8px; }
+
+        /* CHAT AREA */
+        #chat-flow { flex: 1; padding: 20px 18%; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background: #fff; }
         .m-wrap { display: flex; flex-direction: column; max-width: 85%; animation: msgIn 0.3s ease; }
-        .u-wrap { align-self: flex-end; }
-        .a-wrap { align-self: flex-start; }
+        .u-wrap { align-self: flex-end; } .a-wrap { align-self: flex-start; }
         .m-label { font-size: 10px; font-weight: 800; color: #5f6368; margin-bottom: 4px; text-transform: uppercase; }
         .u-wrap .m-label { text-align: right; }
-        .bubble { padding: 15px 20px; border-radius: 18px; font-size: 16px; line-height: 1.5; }
+        .bubble { padding: 14px 18px; border-radius: 18px; font-size: 15px; line-height: 1.5; }
         .u-bubble { background: var(--p); color: #fff; border-bottom-right-radius: 2px; }
         .a-bubble { background: var(--s); color: var(--t); border: 1px solid var(--b); border-bottom-left-radius: 2px; }
 
+        /* EĞİTİM MODU BUTONLARI */
+        .edu-btn { background: #e8f0fe; color: var(--p); border: none; padding: 10px 15px; border-radius: 12px; cursor: pointer; font-size: 13px; font-weight: 600; margin-top: 10px; width: 100%; text-align: left; transition: 0.2s; }
+        .edu-btn:hover { background: var(--p); color: #fff; }
+
         footer { padding: 20px 18%; background: #fff; border-top: 1px solid var(--b); }
-        .i-group { display: flex; background: var(--s); border-radius: 30px; padding: 5px 5px 5px 25px; align-items: center; border: 1px solid transparent; }
-        .i-group:focus-within { border-color: var(--p); background: #fff; box-shadow: 0 0 0 4px rgba(26,115,232,0.1); }
-        input { flex: 1; border: none; background: transparent; padding: 10px 0; font-size: 16px; outline: none; }
-        .s-btn { background: var(--p); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-        
+        .i-group { display: flex; background: var(--s); border-radius: 30px; padding: 5px 5px 5px 25px; align-items: center; }
+        input { flex: 1; border: none; background: transparent; padding: 10px 0; outline: none; }
+        .s-btn { background: var(--p); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; font-size: 18px; }
+
         @keyframes msgIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -54,114 +58,148 @@
 
 <div id="gate-screen">
     <div class="logo-big">HEALILITY</div>
-    <div class="sub-text">Geleceğin zekası, bugünün samimiyeti.</div>
-    
-    <div class="auth-container">
-        <div id="g_id_onload"
-             data-client_id="811166315250-9i8f8n8v0e6a8n8b8v8b8v8b8v8b.apps.googleusercontent.com" 
-             data-callback="handleAuth"
-             data-auto_prompt="false">
-        </div>
-        <div class="g_id_signin" data-type="standard" data-shape="rectangular" data-theme="outline" data-text="signin_with" data-size="large" data-logo_alignment="left"></div>
-        
-        <div class="guest-link" onclick="Core.startGuest()">Kayıt olmadan devam et</div>
+    <div class="auth-card">
+        <div id="g_id_onload" data-client_id="YOUR_ID" data-callback="handleAuth"></div>
+        <div class="g_id_signin" data-type="standard"></div>
+        <div class="guest-link" onclick="Core.initApp('Misafir')">Misafir olarak devam et</div>
     </div>
 </div>
 
 <header>
     <div style="font-weight: 800; font-size: 20px; color: var(--p);">HEALILITY</div>
-    <div id="user-pill" class="u-info"></div>
+    <div class="u-info" onclick="UI.toggleProfile()">
+        <span id="header-name">Yükleniyor...</span>
+        <div id="header-pic" class="u-pic">?</div>
+    </div>
 </header>
+
+<div id="profile-panel">
+    <h3 id="panel-name" style="margin-bottom: 5px;">Kullanıcı</h3>
+    <span id="user-rank" style="color: var(--p); font-size: 12px; font-weight: 700;">BRONZ ÜYE</span>
+    <hr style="margin: 15px 0; border: 0; border-top: 1px solid var(--b);">
+    <div class="stats">
+        <div class="stat-item"><span>Mesaj Sayısı:</span> <b id="stat-count">0</b></div>
+        <div class="stat-item"><span>Hafıza Durumu:</span> <b style="color: #34a853;">AKTİF</b></div>
+    </div>
+    <button onclick="Core.clearHistory()" style="margin-top: 15px; width: 100%; border: none; color: #d93025; background: none; font-size: 12px; cursor: pointer;">Geçmişi Temizle</button>
+</div>
 
 <div id="chat-flow"></div>
 
 <footer>
     <div class="i-group">
-        <input type="text" id="main-input" placeholder="Bir şeyler yaz kanka..." autocomplete="off">
+        <input type="text" id="main-input" placeholder="Bir şeyler sor veya geçmişe bak..." autocomplete="off">
         <button class="s-btn" onclick="Core.send()">➔</button>
     </div>
 </footer>
 
 <script>
-    // --- AUTH LOGIC ---
-    function handleAuth(response) {
-        try {
-            const payload = JSON.parse(atob(response.credential.split('.')[1]));
-            Core.user.name = payload.given_name;
-            Core.user.img = payload.picture;
-            Core.initApp();
-        } catch (e) {
-            console.error("Auth Error", e);
-            alert("Yetkilendirme başarısız oldu. Misafir moduna yönlendiriliyorsun.");
-            Core.startGuest();
-        }
+    function handleAuth(r) {
+        const p = JSON.parse(atob(r.credential.split('.')[1]));
+        Core.initApp(p.given_name, p.picture);
     }
 
-    const Core = {
-        flow: document.getElementById('chat-flow'),
-        input: document.getElementById('main-input'),
-        user: { name: "Dostum", img: null },
+    const UI = {
+        toggleProfile: () => {
+            const p = document.getElementById('profile-panel');
+            p.style.display = p.style.display === 'block' ? 'none' : 'block';
+        }
+    };
 
-        startGuest() {
-            this.user.name = "Dostum";
-            this.initApp();
+    const Core = {
+        user: { name: "Dostum", pic: null, msgCount: 0 },
+        
+        initApp(name, pic) {
+            this.user.name = name;
+            this.user.pic = pic;
+            document.getElementById('gate-screen').style.display = 'none';
+            document.getElementById('header-name').innerText = name;
+            document.getElementById('panel-name').innerText = name;
+            if(pic) document.getElementById('header-pic').innerHTML = `<img src="${pic}">`;
+            else document.getElementById('header-pic').innerText = name[0].toUpperCase();
+            
+            this.loadHistory();
+            this.welcome();
         },
 
-        initApp() {
-            document.getElementById('gate-screen').style.display = 'none';
-            document.getElementById('user-pill').innerHTML = `
-                <span>${this.user.name}</span>
-                <div class="u-pic">${this.user.img ? `<img src="${this.user.img}">` : '👤'}</div>
-            `;
-            this.render(`Selam **${this.user.name}**! Healility beyni hazır. Matematik, sohbet, analiz... Ne istersen buradayım.`, 'ai');
+        welcome() {
+            const hasHistory = localStorage.getItem('h_history');
+            let m = `Selam **${this.user.name}**! Healility beyni hazır. <br><br>`;
+            if(hasHistory) m += `💡 **Geçmişin bende saklı.** Aşağıdan eğitimli konulara bakabilir veya kaldığın yerden devam edebilirsin.`;
+            else m += `İlk defa mı buradasın? İşte sana eğitimli birkaç konu:`;
+            
+            m += `<div>
+                <button class="edu-btn" onclick="Core.fill('34x23 sonucu nedir?')">📊 Matematik Analizi</button>
+                <button class="edu-btn" onclick="Core.fill('Beşiktaş kadrosu hakkında ne düşünüyorsun?')">🦅 Beşiktaş & Kültür</button>
+            </div>`;
+            this.render(m, 'ai');
         },
 
         process(txt) {
-            const raw = txt.toLowerCase().trim();
+            const raw = txt.toLowerCase();
+            this.user.msgCount++;
+            document.getElementById('stat-count').innerText = this.user.msgCount;
 
-            // MATEMATİK MOTORU (Vazgeçilmez)
-            let m = raw.replace(/x/g, '*').replace(/÷/g, '/').replace(/,/g, '.');
+            // MATEMATİK
+            let m = raw.replace(/x/g, '*').replace(/÷/g, '/');
             if (/^[0-9\+\-\*\/\.\(\)\s]+$/.test(m) && m.length >= 3) {
-                try { return `Hesapladım kanka: **${eval(m)}**. Çerez niyetine çözüyorum bunları!`; } catch(e){}
+                try { return `Hesapladım kanka: **${eval(m)}**. Başka neyi çözelim?`; } catch(e){}
             }
 
-            // SAMİMİ SOHBET (Perspektif Merspektif Yok!)
-            if (raw === "naber" || raw === "nasılsın") return "İyiyim be kanka, seninle yazışınca daha iyi oluyorum. Sen ne yapıyorsun?";
-            if (raw.includes("beşiktaş")) return "Beşiktaş JK! 🦅 Siyah beyaz aşkı bitmez. Kartal geliyor!";
-            if (raw.includes("adım") || raw.startsWith("ben ")) {
-                const n = txt.split(" ").pop();
-                this.user.name = n;
-                return `Tamamdır **${n}**, adını not ettim!`;
-            }
-
-            const replies = ["Doğru söylüyorsun aslında.", "Valla ilginçmiş, anlat dinliyorum.", "Seni anlıyorum kanka.", "Hadi ya? Ciddi misin?"];
-            return replies[Math.floor(Math.random() * replies.length)];
+            if (raw.includes("naber")) return "İyiyim be kanka, geçmişe baktım da her geçen gün daha iyi sorular soruyorsun!";
+            if (raw.includes("beşiktaş")) return "Beşiktaş JK! 🦅 Siyah beyaz aşkı! Kartal her zaman zirveye uçar.";
+            
+            return "Valla ilginç bir konu, ama benim hafızamda Beşiktaş ve Matematik her zaman bir numara! Başka nelerden konuşalım?";
         },
 
         send() {
-            const val = this.input.value.trim();
+            const val = document.getElementById('main-input').value.trim();
             if(!val) return;
             this.render(val, 'u');
-            this.input.value = "";
-            setTimeout(() => this.render(this.process(val), 'ai'), 500);
+            document.getElementById('main-input').value = "";
+            this.saveMessage(val, 'u');
+            
+            setTimeout(() => {
+                const r = this.process(val);
+                this.render(r, 'ai');
+                this.saveMessage(r, 'ai');
+            }, 600);
         },
 
         render(t, side) {
             const w = document.createElement('div');
             w.className = `m-wrap ${side}-wrap`;
-            const b = document.createElement('div');
-            b.className = `bubble ${side}-bubble`;
-            b.innerHTML = t;
-            const l = document.createElement('span');
-            l.className = 'm-label';
-            l.innerText = side === 'u' ? this.user.name : 'Healility';
-            w.appendChild(l); w.appendChild(b);
-            this.flow.appendChild(w);
-            this.flow.scrollTop = this.flow.scrollHeight;
+            w.innerHTML = `<span class="m-label">${side === 'u' ? this.user.name : 'Healility'}</span><div class="bubble ${side}-bubble">${t}</div>`;
+            document.getElementById('chat-flow').appendChild(w);
+            document.getElementById('chat-flow').scrollTop = document.getElementById('chat-flow').scrollHeight;
+        },
+
+        fill(t) { document.getElementById('main-input').value = t; this.send(); },
+
+        saveMessage(text, side) {
+            let h = JSON.parse(localStorage.getItem('h_history') || "[]");
+            h.push({ text, side });
+            localStorage.setItem('h_history', JSON.stringify(h));
+        },
+
+        loadHistory() {
+            let h = JSON.parse(localStorage.getItem('h_history') || "[]");
+            this.user.msgCount = h.filter(m => m.side === 'u').length;
+            document.getElementById('stat-count').innerText = this.user.msgCount;
+            if(h.length > 0) {
+                this.render("--- Geçmiş Mesajlar Yüklendi ---", "ai");
+                h.forEach(m => this.render(m.text, m.side));
+            }
+        },
+
+        clearHistory() {
+            if(confirm("Bütün geçmişin silinecek, emin misin?")) {
+                localStorage.removeItem('h_history');
+                location.reload();
+            }
         }
     };
-
-    Core.input.addEventListener("keypress", (e) => { if(e.key === "Enter") Core.send(); });
+    document.getElementById('main-input').addEventListener("keypress", (e) => { if(e.key === "Enter") Core.send(); });
 </script>
 </body>
 </html>
