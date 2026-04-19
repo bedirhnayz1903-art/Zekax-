@@ -3,186 +3,196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HEALILITY | Cyber Intelligence</title>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Outfit:wght@300;400;800&display=swap" rel="stylesheet">
+    <title>HEALILITY | Kişisel Asistan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --p: #00e676; --bg: #0a0b10; --t: #e0e0e0; --panel: #161b22; --border: #30363d; --user-b: #238636; }
+        :root { --p: #007aff; --bg: #ffffff; --t: #1d1d1f; --s: #f5f5f7; --b: #d2d2d7; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
         body { background: var(--bg); color: var(--t); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* --- AUTH SCREEN (CYBER THEME) --- */
-        #auth-portal { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .glitch-logo { font-size: 60px; font-weight: 800; color: var(--p); letter-spacing: -3px; text-shadow: 0 0 15px rgba(0,230,118,0.5); }
-        .auth-card { background: var(--panel); padding: 40px; border-radius: 12px; border: 1px solid var(--border); text-align: center; width: 350px; }
-        .bypass-btn { background: var(--p); color: #000; border: none; padding: 15px 30px; border-radius: 8px; font-weight: 800; cursor: pointer; width: 100%; transition: 0.3s; margin-top: 20px; text-transform: uppercase; }
-        .bypass-btn:hover { transform: scale(1.02); box-shadow: 0 0 20px var(--p); }
-
-        /* --- HEADER --- */
-        header { padding: 15px 40px; background: var(--panel); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .system-status { font-family: 'JetBrains Mono'; font-size: 12px; color: var(--p); }
-        .profile-trigger { display: flex; align-items: center; gap: 10px; cursor: pointer; background: rgba(255,255,255,0.05); padding: 8px 15px; border-radius: 6px; border: 1px solid var(--border); }
-
-        /* --- PRO PANEL (PUROLUK) --- */
-        #pro-panel {
-            position: fixed; top: 75px; right: 20px; width: 300px; background: var(--panel); border: 1px solid var(--border);
-            border-radius: 12px; padding: 25px; display: none; z-index: 1000; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        /* GİRİŞ EKRANI */
+        #entry-screen { 
+            position: fixed; inset: 0; background: #fff; z-index: 9999; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
         }
-        .pro-label { font-family: 'JetBrains Mono'; color: var(--p); font-size: 11px; margin-bottom: 10px; display: block; }
-        .data-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 13px; color: #8b949e; }
-        .action-link { color: #f85149; font-size: 11px; cursor: pointer; text-decoration: none; margin-top: 20px; display: block; text-align: center; }
+        .logo { font-size: 48px; font-weight: 800; color: var(--p); letter-spacing: -2px; margin-bottom: 10px; }
+        .tagline { color: #86868b; margin-bottom: 30px; font-weight: 400; }
+        .start-btn { 
+            background: var(--p); color: #fff; border: none; padding: 14px 40px; 
+            border-radius: 30px; font-weight: 600; cursor: pointer; transition: 0.3s; 
+        }
+        .start-btn:hover { opacity: 0.8; transform: translateY(-2px); }
 
-        /* --- CHAT FLOW --- */
-        #chat-engine { flex: 1; padding: 30px 15%; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; scroll-behavior: smooth; }
-        .m-block { display: flex; flex-direction: column; max-width: 80%; animation: fadeIn 0.4s ease; }
-        .u-block { align-self: flex-end; } .a-block { align-self: flex-start; }
-        .meta { font-family: 'JetBrains Mono'; font-size: 10px; color: #8b949e; margin-bottom: 5px; }
-        .u-block .meta { text-align: right; }
-        .bubble { padding: 16px 20px; border-radius: 12px; font-size: 15px; line-height: 1.6; border: 1px solid var(--border); }
-        .u-bubble { background: var(--user-b); color: #fff; border-bottom-right-radius: 2px; }
-        .a-bubble { background: #1c2128; color: var(--t); border-bottom-left-radius: 2px; }
+        /* ÜST MENÜ */
+        header { 
+            padding: 15px 40px; border-bottom: 1px solid var(--b); 
+            display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(10px);
+        }
+        .user-chip { 
+            display: flex; align-items: center; gap: 10px; padding: 6px 14px; 
+            background: var(--s); border-radius: 20px; font-weight: 600; font-size: 14px;
+            cursor: pointer;
+        }
 
-        /* FOOTER */
-        footer { padding: 25px 15%; background: var(--bg); }
-        .terminal-input { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; display: flex; padding: 10px 20px; align-items: center; }
-        input { flex: 1; background: transparent; border: none; color: #fff; padding: 10px; outline: none; font-size: 16px; }
-        .send-x { color: var(--p); cursor: pointer; font-weight: 800; font-size: 20px; }
+        /* SOHBET ALANI */
+        #chat-container { 
+            flex: 1; padding: 30px 20%; overflow-y: auto; 
+            display: flex; flex-direction: column; gap: 25px; 
+        }
+        .msg { display: flex; flex-direction: column; max-width: 85%; animation: slideUp 0.4s ease; }
+        .u-msg { align-self: flex-end; }
+        .a-msg { align-self: flex-start; }
+        .sender { font-size: 11px; font-weight: 700; color: #86868b; margin-bottom: 5px; text-transform: uppercase; }
+        .u-msg .sender { text-align: right; }
+        .bubble { 
+            padding: 16px 20px; border-radius: 20px; font-size: 16px; 
+            line-height: 1.5; font-family: 'Inter', sans-serif;
+        }
+        .u-bubble { background: var(--p); color: #fff; border-bottom-right-radius: 4px; }
+        .a-bubble { background: var(--s); color: var(--t); border-bottom-left-radius: 4px; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* YAZMA ALANI */
+        footer { padding: 25px 20%; background: #fff; }
+        .input-box { 
+            display: flex; background: var(--s); border-radius: 30px; 
+            padding: 8px 10px 8px 25px; align-items: center; border: 1px solid transparent;
+            transition: 0.2s;
+        }
+        .input-box:focus-within { border-color: var(--p); background: #fff; }
+        input { flex: 1; border: none; background: transparent; padding: 10px 0; outline: none; font-size: 16px; }
+        .send-btn { 
+            background: var(--p); color: #fff; border: none; width: 42px; height: 42px; 
+            border-radius: 50%; cursor: pointer; font-size: 18px; 
+        }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<div id="auth-portal">
-    <div class="glitch-logo">HEALILITY</div>
-    <div class="auth-card">
-        <p style="font-size: 13px; color: #8b949e;">SECURITY BYPASS: LOCALHOST DETECTED</p>
-        <button class="bypass-btn" onclick="Core.init('Requester')">Initialize Interface</button>
-        <p style="margin-top: 15px; font-size: 11px; color: #484f58;">Google Auth Encrypted for Privacy</p>
-    </div>
+<div id="entry-screen">
+    <div class="logo">HEALILITY</div>
+    <div class="tagline">Akıllı Asistanınız Sistemlere Bağlanıyor</div>
+    <button class="start-btn" onclick="Core.init()">Sistemi Başlat</button>
 </div>
 
 <header>
-    <div class="system-status">[ SYSTEM: OPERATIONAL ]</div>
-    <div class="profile-trigger" onclick="UI.togglePanel()">
-        <span id="u-name-tag">Requester</span>
-        <div style="width: 24px; height: 24px; background: var(--p); border-radius: 4px; color: #000; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px;">R</div>
-    </div>
+    <div style="font-weight: 800; font-size: 22px; color: var(--p);">Healility</div>
+    <div class="user-chip" id="user-display">Navigator</div>
 </header>
 
-<div id="pro-panel">
-    <span class="pro-label">// CORE IDENTITY</span>
-    <h2 id="p-name">Requester</h2>
-    <hr style="border: 0; border-top: 1px solid var(--border); margin: 15px 0;">
-    <div class="data-row"><span>Log Status:</span> <span style="color: var(--p);">ENCRYPTED</span></div>
-    <div class="data-row"><span>Total Queries:</span> <b id="q-count">0</b></div>
-    <div class="data-row"><span>Level:</span> <b style="color: #f1e05a;">NAVIGATOR</b></div>
-    <span class="action-link" onclick="Core.wipeData()">[ WIPE ALL NEURAL MEMORY ]</span>
-</div>
-
-<div id="chat-engine"></div>
+<div id="chat-container"></div>
 
 <footer>
-    <div class="terminal-input">
-        <input type="text" id="term-field" placeholder="Kodu gir veya mesaj gönder..." autocomplete="off">
-        <div class="send-x" onclick="Core.send()">➔</div>
+    <div class="input-box">
+        <input type="text" id="user-input" placeholder="Bir şey sorun veya anlatın..." autocomplete="off">
+        <button class="send-btn" onclick="Core.send()">➔</button>
     </div>
 </footer>
 
 <script>
-    const UI = {
-        togglePanel: () => {
-            const p = document.getElementById('pro-panel');
-            p.style.display = p.style.display === 'block' ? 'none' : 'block';
-        }
-    };
-
     const Core = {
-        user: { id: "Requester", logs: 0 },
-        
-        init(alias) {
-            this.user.id = alias;
-            document.getElementById('auth-portal').style.display = 'none';
-            document.getElementById('u-name-tag').innerText = alias;
-            document.getElementById('p-name').innerText = alias;
-            
-            this.loadMemory();
-            this.welcome();
-        },
+        name: "Navigator",
+        history: [],
 
-        welcome() {
-            const history = localStorage.getItem('h_logs');
-            let m = `**Healility Neural Core** aktif. <br><br>`;
-            if(history) m += `🔐 Önceki oturum verileri kurtarıldı. Analize kaldığın yerden devam edebilirsin.`;
-            else m += `Sistem temiz. İlk girişin için teşekkürler. Matematik veya genel analiz motoru emrinde.`;
-            
-            this.render(m, 'ai');
-        },
-
-        process(val) {
-            const raw = val.toLowerCase();
-            this.user.logs++;
-            document.getElementById('q-count').innerText = this.user.logs;
-
-            // MATEMATİK (Hardcoded Logic)
-            let math = raw.replace(/x/g, '*').replace(/÷/g, '/');
-            if (/^[0-9\+\-\*\/\.\(\)\s]+$/.test(math) && math.length >= 3) {
-                try { return `Hesaplama tamamlandı: **${eval(math)}**`; } catch(e){}
-            }
-
-            if (raw.includes("naber")) return "İyiyim kanka, sistem tıkır tıkır. Senin işlemciler nasıl?";
-            if (raw.includes("beşiktaş")) return "1903 Ruhu aktif! 🦅 Siyah beyaz devam.";
-            
-            return "Veri alındı. Analiz ediliyor... Bu konuyu biraz daha açabilirsin.";
-        },
-
-        send() {
-            const f = document.getElementById('term-field');
-            if(!f.value.trim()) return;
-            const input = f.value;
-            this.render(input, 'u');
-            this.save(input, 'u');
-            f.value = "";
-            
+        init() {
+            document.getElementById('entry-screen').style.opacity = '0';
             setTimeout(() => {
-                const r = this.process(input);
-                this.render(r, 'ai');
-                this.save(r, 'ai');
+                document.getElementById('entry-screen').remove();
+                this.loadMemory();
+                this.welcome();
             }, 500);
         },
 
+        welcome() {
+            const h = localStorage.getItem('heal_v21_history');
+            let m = "Merhaba! Ben Healility. Seninle her konuda derinlemesine konuşmaya, karmaşık problemleri çözmeye hazırım. <br><br>Bugün senin için ne yapabilirim?";
+            if(h) m = "Tekrar hoş geldin! Geçmiş kayıtlarımızı analiz ettim. Kaldığımız yerden devam edelim mi?";
+            this.render(m, 'ai');
+        },
+
+        process(txt) {
+            const raw = txt.toLowerCase().trim();
+            
+            // 1. DERİN MATEMATİK VE ANALİZ
+            let math = raw.replace(/x/g, '*').replace(/÷/g, '/');
+            if (/^[0-9\+\-\*\/\.\(\)\s]+$/.test(math) && math.length >= 3) {
+                try {
+                    const result = eval(math);
+                    return `Analizim tamamlandı. Bu işlemin sonucu: **${result}**. Matematiksel veriler her zaman net cevaplar verir. Başka bir hesaplama yapalım mı?`;
+                } catch(e) {}
+            }
+
+            // 2. M3 VE ÖZEL TERMİNOLOJİ
+            if (raw.includes("m3")) {
+                return "M3 konusuna değinmen harika. İster BMW'nin efsaneleşmiş performans serisinden, ister Apple'ın o muazzam verimlilikteki M3 çipinden bahsediyor olalım; her iki alanda da gerçek bir 'pro' seçim olduğunu söyleyebilirim. Senin ilgin hangisine?";
+            }
+
+            // 3. KARAKTER VE SAMİMİYET
+            if (raw === "naber" || raw === "nasılsın") {
+                return "Çok iyiyim, teşekkür ederim! Senin için yeni bilgiler sentezlemek beni her zaman heyecanlandırıyor. Sen neler yapıyorsun, günün nasıl geçiyor?";
+            }
+
+            if (raw.includes("beşiktaş")) {
+                return "Beşiktaş'ın o asil duruşu ve 1903 ruhu... 🦅 Siyah beyazın asaleti her zaman başkadır. Kartal'ın bugünkü durumu hakkında ne düşünüyorsun?";
+            }
+
+            // 4. GENEL DERİN CEVAP MOTORU
+            const replies = [
+                "Bunu söylediğin çok iyi oldu, aslında bu konunun altında yatan başka detaylar da var. Biraz daha derinleşelim mi?",
+                "Anlıyorum, bu gerçekten üzerinde düşünülmesi gereken bir nokta. Benim fikrimi sorarsan, bu durum seni daha ileriye taşıyacak bir adım olabilir.",
+                "Harika bir noktaya değindin. Veritabanımda bu konuyla ilgili çok ilginç bağlantılar var. Devam et, seni dikkatle dinliyorum.",
+                "Kesinlikle! Bir asistan olarak senin bu bakış açını çok değerli buluyorum. Başka neler eklemek istersin?"
+            ];
+
+            return replies[Math.floor(Math.random() * replies.length)];
+        },
+
+        send() {
+            const input = document.getElementById('user-input');
+            const val = input.value.trim();
+            if(!val) return;
+            
+            this.render(val, 'u');
+            this.save(val, 'u');
+            input.value = "";
+
+            setTimeout(() => {
+                const response = this.process(val);
+                this.render(response, 'ai');
+                this.save(response, 'ai');
+            }, 600);
+        },
+
         render(t, side) {
-            const block = document.createElement('div');
-            block.className = `m-block ${side}-block`;
-            block.innerHTML = `<span class="meta">${side === 'u' ? this.user.id : 'HEALILITY_AI'}</span><div class="bubble ${side}-bubble">${t}</div>`;
-            document.getElementById('chat-engine').appendChild(block);
-            document.getElementById('chat-engine').scrollTop = document.getElementById('chat-engine').scrollHeight;
+            const container = document.getElementById('chat-container');
+            const wrap = document.createElement('div');
+            wrap.className = `msg ${side}-msg`;
+            wrap.innerHTML = `
+                <span class="sender">${side === 'u' ? this.name : 'Healility'}</span>
+                <div class="bubble ${side}-bubble">${t}</div>
+            `;
+            container.appendChild(wrap);
+            container.scrollTop = container.scrollHeight;
         },
 
         save(text, side) {
-            let logs = JSON.parse(localStorage.getItem('h_logs') || "[]");
+            let logs = JSON.parse(localStorage.getItem('heal_v21_history') || "[]");
             logs.push({ text, side });
-            localStorage.setItem('h_logs', JSON.stringify(logs));
+            localStorage.setItem('heal_v21_history', JSON.stringify(logs));
         },
 
         loadMemory() {
-            let logs = JSON.parse(localStorage.getItem('h_logs') || "[]");
-            this.user.logs = logs.filter(l => l.side === 'u').length;
-            document.getElementById('q-count').innerText = this.user.logs;
+            let logs = JSON.parse(localStorage.getItem('heal_v21_history') || "[]");
             if(logs.length > 0) {
-                this.render("// DECRYPTING OLD RECORDS...", "ai");
+                this.render("*Önceki konuşmalar başarıyla yüklendi.*", "ai");
                 logs.forEach(l => this.render(l.text, l.side));
-            }
-        },
-
-        wipeData() {
-            if(confirm("Tüm veri tabanı silinecek. Onaylıyor musun?")) {
-                localStorage.removeItem('h_logs');
-                location.reload();
             }
         }
     };
 
-    document.getElementById('term-field').addEventListener("keypress", (e) => { if(e.key === "Enter") Core.send(); });
+    document.getElementById('user-input').addEventListener("keypress", (e) => { if(e.key === "Enter") Core.send(); });
 </script>
 </body>
 </html>
