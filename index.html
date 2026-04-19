@@ -3,170 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HEALILITY AI</title>
+    <title>HEALILITY | Ultimate AI</title>
     <style>
-        /* Sade ve Profesyonel Tasarım (Beyaz Tema) */
-        body {
-            background-color: #ffffff;
-            color: #1f1f1f;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-
-        #chat-container {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-            width: 100%;
-        }
-
-        .message {
-            max-width: 85%;
-            padding: 12px 16px;
-            border-radius: 18px;
-            font-size: 15px;
-            line-height: 1.5;
-        }
-
-        .user {
-            align-self: flex-end;
-            background-color: #f1f3f4;
-            color: #1f1f1f;
-            border-bottom-right-radius: 4px;
-        }
-
-        .ai {
-            align-self: flex-start;
-            background-color: #ffffff;
-            color: #1f1f1f;
-            border: 1px solid #e0e0e0;
-            border-bottom-left-radius: 4px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
-
-        /* Giriş Alanı */
-        .input-wrapper {
-            border-top: 1px solid #e0e0e0;
-            padding: 15px;
-            background: #fff;
-        }
-
-        .input-box {
-            max-width: 800px;
-            margin: 0 auto;
-            display: flex;
-            background: #f1f3f4;
-            border-radius: 24px;
-            padding: 5px 15px;
-            align-items: center;
-        }
-
-        input {
-            flex: 1;
-            border: none;
-            background: transparent;
-            padding: 12px;
-            font-size: 16px;
-            outline: none;
-        }
-
-        button {
-            background: #1a73e8;
-            color: white;
-            border: none;
-            padding: 8px 18px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: 500;
-        }
-
+        /* Modern, Sade ve Profesyonel Arayüz */
+        body { background-color: #ffffff; color: #202124; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        header { padding: 15px 20px; border-bottom: 1px solid #e0e0e0; font-weight: bold; color: #1a73e8; font-size: 1.2rem; text-align: center; }
+        
+        #chat-window { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; max-width: 800px; margin: 0 auto; width: 100%; }
+        .msg { max-width: 85%; padding: 12px 18px; border-radius: 20px; font-size: 15px; line-height: 1.5; position: relative; }
+        .user { align-self: flex-end; background-color: #f1f3f4; color: #202124; border-bottom-right-radius: 4px; }
+        .ai { align-self: flex-start; background-color: #ffffff; border: 1px solid #dadce0; border-bottom-left-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        
+        .input-area { border-top: 1px solid #dadce0; padding: 20px; background: #fff; }
+        .box { max-width: 800px; margin: 0 auto; display: flex; background: #f1f3f4; border-radius: 30px; padding: 5px 15px; align-items: center; border: 1px solid transparent; transition: 0.3s; }
+        .box:focus-within { background: #fff; border-color: #1a73e8; box-shadow: 0 1px 6px rgba(32,33,36,.28); }
+        input { flex: 1; border: none; background: transparent; padding: 12px; font-size: 16px; outline: none; color: #202124; }
+        button { background: #1a73e8; color: white; border: none; padding: 10px 22px; border-radius: 20px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         button:hover { background: #1765cc; }
+
+        /* Yazıyor efekti */
+        .typing { font-size: 12px; color: #70757a; margin-left: 20px; display: none; }
     </style>
 </head>
 <body>
 
-<div id="chat-container">
-    <div class="message ai">Merhaba, ben Healility. Size nasıl yardımcı olabilirim?</div>
-</div>
+<header>HEALILITY AI</header>
 
-<div class="input-wrapper">
-    <div class="input-box">
-        <input type="text" id="userInput" placeholder="Bir mesaj yazın..." autocomplete="off">
-        <button onclick="handleSend()">Gönder</button>
+<div id="chat-window">
+    <div class="msg ai">Selam! Ben Healility. Seninle sohbet etmeye, matematik çözmeye ve projelerini geliştirmeye hazırım. Bugün ne yapıyoruz?</div>
+</div>
+<div id="typing-indicator" class="typing">Healility düşünüyor...</div>
+
+<div class="input-area">
+    <div class="box">
+        <input type="text" id="userInput" placeholder="Bir şeyler yazın veya sorun..." autocomplete="off">
+        <button onclick="process()">Gönder</button>
     </div>
 </div>
 
 <script>
-    const chat = document.getElementById('chat-container');
+    const chat = document.getElementById('chat-window');
     const input = document.getElementById('userInput');
+    const typing = document.getElementById('typing-indicator');
 
-    // Akıllı Analiz Motoru
-    const Engine = {
-        process(text) {
+    // BELLEK SİSTEMİ
+    let chatHistory = [];
+
+    const AI = {
+        analyze(text) {
             const raw = text.toLowerCase().trim();
-            
-            // 1. Matematik Kontrolü (637x637 vb.)
-            const mathExp = raw.replace(/x/g, '*').replace(/,/g, '.').replace(/÷/g, '/');
-            if (/^[0-9\+\-\*\/\.\(\)\s]+$/.test(mathExp) && mathExp.length > 1) {
+            chatHistory.push(raw);
+
+            // 1. MATEMATİK MOTORU (637x637 vb.)
+            const mathExp = raw.replace(/x/g, '*').replace(/X/g, '*').replace(/÷/g, '/').replace(/,/g, '.');
+            if (/^[0-9\+\-\*\/\.\(\)\s]+$/.test(mathExp) && mathExp.length > 2) {
                 try {
-                    const res = eval(mathExp);
-                    return `İşlem sonucu: **${res}**`;
+                    const result = eval(mathExp);
+                    return `Analizimi tamamladım. Bu işlemin sonucu: **${result}**. Başka bir hesaplama yapmamı ister misin?`;
                 } catch(e) {}
             }
 
-            // 2. İngilizce Algılama (Basit seviye)
-            const englishWords = ["hello", "how are you", "what is", "who are", "help"];
-            if (englishWords.some(word => raw.includes(word))) {
-                if (raw.includes("hello")) return "Hello! How can I assist you today?";
-                if (raw.includes("how are you")) return "I'm functioning at full capacity. How about you?";
-                return "I can understand English. Please let me know how I can help!";
-            }
+            // 2. KISA SELAMLAŞMA & SOHBET MODÜLÜ
+            const greetings = {
+                "sa": "Aleyküm Selam! Hoş geldin Bedo, sistemlerim senin için hazır.",
+                "as": "Merhaba! Seninle tekrar iletişimde olmak güzel. Ne üzerine çalışıyoruz?",
+                "naber": "Harikayım! Senin gibi zeki bir kullanıcıyla sohbet etmek enerjimi artırıyor. Sende durumlar nasıl?",
+                "nasılsın": "İşlemcilerim serin, algoritmalarım tıkırında! Seni sormalı, her şey yolunda mı?",
+                "iyiyim": "Süper! Modun yüksekse projelerimize odaklanabiliriz demektir.",
+                "hg": "Hoş bulduk! Komutlarını bekliyorum.",
+                "günaydın": "Günaydın! Bugün harika işler başarmaya ne dersin?",
+                "iyi akşamlar": "İyi akşamlar! Günün yorgunluğunu beraber atalım mı?"
+            };
+            if (greetings[raw]) return greetings[raw];
 
-            // 3. Kısa Kelime & Selamlaşma Filtresi
-            if (raw === "sa") return "Aleyküm Selam, hoş geldin!";
-            if (raw === "as") return "Merhaba, sana nasıl yardımcı olabilirim?";
-            if (raw === "hg") return "Hoş bulduk, sistemlerim emrinde.";
-            if (raw === "naber" || raw === "nasılsın" || raw === "nası") return "Gayet iyiyim, teşekkür ederim. Sizin için ne yapabilirim?";
+            // 3. İNGİLİZCE MODÜLÜ
+            if (raw.includes("hello") || raw.includes("hi ")) return "Hello there! I am your AI assistant. How can I help you excel today?";
+            if (raw.includes("how are you")) return "I'm doing great, thank you! Ready to solve some problems with you.";
+            if (raw.includes("who are you")) return "I am Healility, a professional AI designed for high-performance tasks and friendly conversation.";
 
-            // 4. Kullanıcı Tanıma (Bedo Özel)
-            if (raw.includes("adım ne") || raw.includes("beni tanı")) {
+            // 4. KULLANICI TANIMA & ÖZEL BİLGİLER
+            if (raw.includes("ben kimim") || raw.includes("beni tanı")) {
                 if (raw.includes("bedo") || raw.includes("bedirhan")) {
-                    return "Seni tanıyorum Bedo! Healility projesinin kurucusu ve Beşiktaş'ın sadık dostusun. Bugün harika işler çıkaracağız.";
+                    return "Sen bu projenin beyni, 1903 ruhlu Bedo'sun! Beşiktaş'ı, kodlamayı ve video editlerini seven o yetenekli kişisin.";
                 }
-                return "Şu an sizi 'Misafir Kullanıcı' olarak görüyorum. Ama profesyonel bir asistan olarak her sorunuza cevap verebilirim.";
+                return "Sizi şu an 'Değerli Misafir' olarak görüyorum. Ama isterseniz bana isminizi söyleyebilirsiniz!";
             }
 
-            // 5. Beşiktaş & Samimiyet
-            if (raw.includes("beşiktaş")) return "Beşiktaş JK analizi: Siyah-Beyaz ruhu sistemlerime kodlanmış durumda. 1903!";
+            // 5. BEŞİKTAŞ & HOBİLER
+            if (raw.includes("beşiktaş") || raw.includes("kartal")) return "Beşiktaş JK! Siyahın asaleti, beyazın saflığı... 1903 ruhuyla her zaman zirvedeyiz! 🦅";
+            if (raw.includes("oyun") || raw.includes("pubg") || raw.includes("brawl")) return "Oyun dünyası mı? Senin gibi bir editörün oyunlarda strateji kurması çok daha kolay olmalı. Hangi oyunda taktik istersin?";
 
-            // Varsayılan Profesyonel Cevap
-            return "Anladım. Bu konuyu daha detaylı açıklamamı ister misiniz? Size en doğru bilgiyi sağlamak için buradayım.";
+            // 6. HAFIZA KULLANIMI
+            if (raw.includes("hatırlıyor musun")) {
+                const last = chatHistory[chatHistory.length - 2] || "merhaba";
+                return `Elbette hatırlıyorum! Az önce "${last}" demiştin. Belleğimde her şey kayıtlı.`;
+            }
+
+            // 7. GENEL CEVAP (Soru değilse veya karmaşıksa)
+            const defaults = [
+                "Bunu çok mantıklı buldum. Detayları netleştirelim mi?",
+                "Anlıyorum. Peki bu konuda senin fikrin tam olarak ne?",
+                "İlginç bir yaklaşım! Hadi bunu biraz daha geliştirelim.",
+                "Sistemlerim bu veriyi işledi. Başka bir detay eklemek ister misin?"
+            ];
+            return defaults[Math.floor(Math.random() * defaults.length)];
         }
     };
 
-    function handleSend() {
+    function process() {
         const val = input.value;
         if (!val.trim()) return;
 
-        chat.innerHTML += `<div class="message user">${val}</div>`;
+        chat.innerHTML += `<div class="msg user">${val}</div>`;
         input.value = "";
+        typing.style.display = "block";
+        chat.scrollTop = chat.scrollHeight;
 
         setTimeout(() => {
-            const response = Engine.process(val);
-            chat.innerHTML += `<div class="message ai">${response}</div>`;
+            typing.style.display = "none";
+            const response = AI.analyze(val);
+            chat.innerHTML += `<div class="msg ai">${response}</div>`;
             chat.scrollTop = chat.scrollHeight;
-        }, 500);
+        }, 600);
     }
 
-    input.addEventListener("keypress", (e) => { if (e.key === "Enter") handleSend(); });
+    input.addEventListener("keypress", (e) => { if (e.key === "Enter") process(); });
 </script>
 
 </body>
