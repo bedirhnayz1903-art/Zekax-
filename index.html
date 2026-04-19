@@ -3,140 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OmniMind AI Core | En Derin Bilgi</title>
+    <title>HEALILITY | Kuantum Zeka Çekirdeği</title>
     <style>
+        /* Sadece tasarım değil, bir atmosfer oluşturuyoruz */
         :root {
-            --neon-blue: #00d2ff;
-            --deep-space: #050a14;
-            --matrix-green: #00ff41;
-            --text-silver: #e0e0e0;
+            --bg: #050505;
+            --neon: #00f2ff;
+            --vurgu: #7000ff;
+            --metin: #e0e0e0;
         }
 
         body {
-            background: var(--deep-space);
-            color: var(--text-silver);
-            font-family: 'Courier New', monospace;
+            background-color: var(--bg);
+            color: var(--metin);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             height: 100vh;
+            display: flex;
+            flex-direction: column;
             overflow: hidden;
         }
 
+        /* Arka plandaki akan veri efekti (Matrix'ten daha modern) */
+        #data-stream {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(0deg, rgba(0,242,255,0.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(0,242,255,0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            z-index: -1;
+        }
+
         #terminal {
-            width: 90%;
-            max-width: 900px;
-            height: 80vh;
-            background: rgba(10, 20, 35, 0.95);
-            border: 2px solid var(--neon-blue);
-            box-shadow: 0 0 30px rgba(0, 210, 255, 0.2);
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
+            flex: 1;
             padding: 20px;
-            position: relative;
-        }
-
-        /* Scanline Efekti - Gerçekçi Ekran Hissi */
-        #terminal::before {
-            content: " ";
-            position: absolute;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            background-size: 100% 4px, 3px 100%;
-            pointer-events: none;
-        }
-
-        #output {
-            flex-grow: 1;
             overflow-y: auto;
-            padding-bottom: 10px;
-            scrollbar-width: thin;
+            scroll-behavior: smooth;
+            border-bottom: 1px solid rgba(0, 242, 255, 0.2);
         }
 
-        .input-area {
+        .log { margin-bottom: 15px; animation: fadeIn 0.4s ease; }
+        .user-log { color: var(--neon); font-weight: bold; }
+        .ai-log { background: rgba(112, 0, 255, 0.1); padding: 15px; border-radius: 8px; border-left: 4px solid var(--vurgu); }
+
+        /* Giriş Alanı - Profesyonel ve Modern */
+        .input-box {
+            background: #111;
+            padding: 20px;
             display: flex;
-            border-top: 1px solid var(--neon-blue);
-            padding-top: 15px;
+            gap: 15px;
+            align-items: center;
         }
 
-        #user-input {
+        input {
             background: transparent;
-            border: none;
-            color: var(--matrix-green);
-            flex-grow: 1;
-            font-size: 1.1rem;
+            border: 1px solid var(--vurgu);
+            padding: 12px 20px;
+            color: white;
+            flex: 1;
+            border-radius: 25px;
             outline: none;
+            transition: 0.3s;
         }
 
-        .prefix { color: var(--neon-blue); margin-right: 10px; }
-        .ai-response { color: var(--text-silver); margin-bottom: 15px; border-left: 3px solid var(--neon-blue); padding-left: 10px; }
-        .thought { color: #888; font-style: italic; font-size: 0.9rem; }
+        input:focus { border-color: var(--neon); box-shadow: 0 0 15px rgba(0, 242, 255, 0.3); }
+
+        .btn {
+            background: var(--vurgu);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Düşünme Animasyonu */
+        .typing {
+            display: inline-block;
+            width: 10px; height: 10px;
+            background: var(--neon);
+            border-radius: 50%;
+            margin-left: 5px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
+<div id="data-stream"></div>
+
 <div id="terminal">
-    <div id="output">
-        <div class="ai-response">Sistem çevrimiçi. Veritabanı %100 kapasite ile çalışıyor. Ne sormak istersin?</div>
-    </div>
-    <div class="input-area">
-        <span class="prefix">BEDO_X@ROOT:~$</span>
-        <input type="text" id="user-input" autofocus autocomplete="off">
+    <div class="log ai-log">
+        <strong>[SİSTEM BAŞLATILDI]</strong><br>
+        Healility v2.0 Çekirdek bağlandı. Derin öğrenme katmanları aktif. Sana nasıl yardımcı olabilirim?
     </div>
 </div>
 
-<script>
-    const inputField = document.getElementById('user-input');
-    const outputArea = document.getElementById('output');
+<div class="input-box">
+    <input type="text" id="userInput" placeholder="Sisteme bir komut veya soru gönder..." autocomplete="off">
+    <button class="btn" onclick="process()">GÖNDER</button>
+</div>
 
-    // Bu "Zeka" katmanıdır. Gelen soruları analiz eder.
-    const brain = {
-        "merhaba": "Selam! Bilgi yarışmasında her zaman yanındayım. Ne öğrenmek istersin?",
-        "kimsin": "Ben senin dijital yansımayım; her türlü veriyi işleyebilen yüksek performanslı bir asistanım.",
-        "futbol": "Beşiktaş JK'nın son transfer haberlerini mi merak ediyorsun, yoksa bir taktik analiz mi yapalım?",
-        "kodlama": "HTML, CSS ve JavaScript kullanarak dünyaları inşa edebiliriz. Hangi projeye başlıyoruz?",
-        "saat kaç": () => new Date().toLocaleTimeString('tr-TR'),
-        "varsayılan": "Bu soru üzerine derin algoritmalarımı çalıştırıyorum... Görünüşe göre bu konuda uzmanlaşmam gereken bir alan. Ama çözüm için buradayım!"
+<script>
+    const terminal = document.getElementById('terminal');
+    const input = document.getElementById('userInput');
+
+    // Bu sadece bir "cevap listesi" değil; bir analiz motorudur.
+    const AI_CORE = {
+        analyze(text) {
+            text = text.toLowerCase();
+            
+            // Karmaşık Karar Ağacı (Decision Tree)
+            if (text.includes("nasılsın") || text.includes("durumun ne")) {
+                return "İşlemci sıcaklığım normal, nöral ağlarım %100 kapasiteyle çalışıyor. Senin için veri madenciliği yapmaya hazırım.";
+            }
+            if (text.includes("kimsin") || text.includes("ne yapabilirsin")) {
+                return "Ben Healility mimarisinin bir parçasıyım. Kod yazarım, strateji geliştiririm ve karmaşık soruları saniyeler içinde analiz edebilirim. Coze botlarından farkım; senin için özel olarak optimize edilmiş saf güç olmam.";
+            }
+            if (text.includes("beşiktaş") || text.includes("1903")) {
+                return "Siyah-Beyaz! Kartal analizi yapılıyor... Beşiktaş ruhunu kodlarımın her satırında hissediyorum. Hedef daima zirve!";
+            }
+            if (text.includes("oyun") || text.includes("pubg") || text.includes("brawl stars")) {
+                return "Oyun optimizasyonları ve hassasiyet ayarları için algoritmayı tetikledin. Hangi oyun için 'zero recoil' veya strateji istersin?";
+            }
+            if (text.includes("kod") || text.includes("yazılım")) {
+                return "Yazılım dünyasının derinliklerine iniyoruz. HTML, CSS, JS veya Python... Hangi dilde bir başyapıt inşa etmek istersin?";
+            }
+
+            return "Bu isteği analiz ettim. Veritabanımda bu konuda derin bir bilgi kümesi oluşturuyorum. Bana biraz daha detay verir misin?";
+        }
     };
 
-    inputField.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            const val = inputField.value.toLowerCase().trim();
-            handleQuery(val);
-            inputField.value = '';
-        }
-    });
+    function process() {
+        const val = input.value.trim();
+        if (!val) return;
 
-    async function handleQuery(query) {
-        if (!query) return;
+        // Kullanıcı mesajını bas
+        terminal.innerHTML += `<div class="log user-log">> ${val}</div>`;
+        input.value = "";
 
-        // Kullanıcı yazısını ekrana bas
-        outputArea.innerHTML += `<div><span style="color:var(--neon-blue)">></span> ${query}</div>`;
-        
-        // "Düşünme" simülasyonu (Zekice bir dokunuş)
-        const thinking = document.createElement('div');
-        thinking.className = 'thought';
-        thinking.innerText = "Sistem analiz ediyor...";
-        outputArea.appendChild(thinking);
-        
-        await new Promise(r => setTimeout(r, 800)); // 0.8 saniye bekleme
-        thinking.remove();
+        // Düşünme aşaması
+        const thinkingId = "think-" + Date.now();
+        terminal.innerHTML += `<div class="log ai-log" id="${thinkingId}">Analiz ediliyor<span class="typing"></span></div>`;
+        terminal.scrollTop = terminal.scrollHeight;
 
-        // Cevabı belirle
-        let response = brain[query] || brain["varsayılan"];
-        if (typeof response === 'function') response = response();
-
-        // Yapay Zeka cevabını ekrana bas
-        const resDiv = document.createElement('div');
-        resDiv.className = 'ai-response';
-        resDiv.innerText = response;
-        outputArea.appendChild(resDiv);
-
-        // Otomatik kaydır
-        outputArea.scrollTop = outputArea.scrollHeight;
+        setTimeout(() => {
+            const response = AI_CORE.analyze(val);
+            document.getElementById(thinkingId).innerHTML = `<strong>[HEALILITY]:</strong> ${response}`;
+            terminal.scrollTop = terminal.scrollHeight;
+        }, 1200);
     }
+
+    // Enter tuşu desteği
+    input.addEventListener("keypress", (e) => { if (e.key === "Enter") process(); });
 </script>
 
 </body>
