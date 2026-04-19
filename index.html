@@ -3,30 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HEALILITY | Sentient Soul v15</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <title>HEALILITY | Google Intelligence</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root { --p: #1a73e8; --bg: #ffffff; --t: #202124; --s: #f8f9fa; --b: #dadce0; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
         body { background: var(--bg); color: var(--t); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* --- AÇILIŞ ANİMASYONU --- */
+        /* --- AÇILIŞ VE GİRİŞ EKRANI --- */
         #intro-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #fff; z-index: 9999; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; transition: opacity 0.8s ease;
+            justify-content: center; align-items: center; transition: opacity 0.5s ease;
         }
-        .intro-logo { font-size: 42px; font-weight: 800; color: var(--p); letter-spacing: -2px; margin-bottom: 10px; }
-        .dots { display: flex; gap: 8px; }
-        .dot { width: 12px; height: 12px; background: var(--p); border-radius: 50%; animation: dotAnim 1.4s infinite; }
-        .dot:nth-child(2) { animation-delay: 0.2s; }
-        .dot:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes dotAnim { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
-
+        .intro-logo { font-size: 48px; font-weight: 800; color: var(--p); letter-spacing: -2px; margin-bottom: 30px; }
+        
         /* --- ARAYÜZ --- */
         header { padding: 15px 40px; border-bottom: 1px solid var(--b); display: flex; justify-content: space-between; align-items: center; background: #fff; }
-        .v-tag { font-size: 11px; font-weight: 700; color: var(--p); background: #e8f0fe; padding: 5px 12px; border-radius: 20px; }
-        #chat-flow { flex: 1; padding: 30px 18%; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; scroll-behavior: smooth; }
+        .user-profile { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; }
+        .user-profile img { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--b); }
+
+        #chat-flow { flex: 1; padding: 30px 18%; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
         .m-wrap { display: flex; flex-direction: column; max-width: 85%; animation: msgIn 0.4s ease forwards; }
         .u-wrap { align-self: flex-end; }
         .a-wrap { align-self: flex-start; }
@@ -35,11 +33,12 @@
         .bubble { padding: 16px 22px; border-radius: 20px; font-size: 16px; line-height: 1.6; }
         .u-bubble { background: var(--p); color: #fff; border-bottom-right-radius: 4px; }
         .a-bubble { background: var(--s); color: var(--t); border: 1px solid var(--b); border-bottom-left-radius: 4px; }
-        
+
         footer { padding: 25px 18%; background: #fff; border-top: 1px solid var(--b); }
         .i-group { display: flex; background: var(--s); border-radius: 40px; padding: 8px 10px 8px 30px; align-items: center; }
         input { flex: 1; border: none; background: transparent; padding: 12px 0; font-size: 17px; outline: none; }
         .s-btn { background: var(--p); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-size: 20px; }
+        
         @keyframes msgIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -47,94 +46,101 @@
 
 <div id="intro-screen">
     <div class="intro-logo">HEALILITY</div>
-    <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    <div id="g_id_onload"
+         data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
+         data-callback="handleCredentialResponse">
+    </div>
+    <div class="g_id_signin" data-type="standard"></div>
+    <p style="margin-top: 20px; color: #5f6368; font-size: 14px;">Devam etmek için Google ile giriş yap kanka.</p>
 </div>
 
 <header>
     <div style="font-weight: 800; font-size: 22px; color: var(--p);">HEALILITY</div>
-    <div class="v-tag">SENTIENT SOUL v15.0</div>
+    <div id="user-info" class="user-profile">
+        </div>
 </header>
 
 <div id="chat-flow"></div>
 
 <footer>
     <div class="i-group">
-        <input type="text" id="ai-input" placeholder="Naber, neler yapıyorsun?..." autocomplete="off">
+        <input type="text" id="ai-input" placeholder="Neler yapıyoruz bugün?..." autocomplete="off">
         <button class="s-btn" onclick="Core.send()">➔</button>
     </div>
 </footer>
 
 <script>
+    // Google Girişini Yöneten Fonksiyon
+    function handleCredentialResponse(response) {
+        const data = parseJwt(response.credential);
+        Core.memory.name = data.given_name;
+        Core.memory.fullData = data;
+        
+        // Header Güncelle
+        document.getElementById('user-info').innerHTML = `
+            <span>Selam, ${data.given_name}</span>
+            <img src="${data.picture}" alt="Profil">
+        `;
+        
+        // Giriş Ekranını Kaldır
+        document.getElementById('intro-screen').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('intro-screen').remove();
+            Core.welcome();
+        }, 500);
+    }
+
+    function parseJwt(token) {
+        var base64Url = token.split('.')[1];
+        var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+    }
+
     const Core = {
         flow: document.getElementById('chat-flow'),
         field: document.getElementById('ai-input'),
-        memory: { name: null, personality: "friendly" },
+        memory: { name: null, fullData: null },
 
-        init() {
-            setTimeout(() => {
-                document.getElementById('intro-screen').style.opacity = '0';
-                setTimeout(() => document.getElementById('intro-screen').remove(), 800);
-                this.render("Selam! Healility sistemleri hazır. <br><br>Sohbet etmek için sabırsızlanıyorum. Bu arada ismin neydi? Tanışalım ki ona göre muhabbet edelim.", 'ai');
-            }, 2500);
+        welcome() {
+            const hour = new Date().getHours();
+            let greet = hour < 12 ? "Günaydın" : hour < 18 ? "Tünaydın" : "İyi akşamlar";
+            this.render(`${greet} **${this.memory.name}**! <br><br>Seni gördüğüme sevindim. Google ile giriş yaptığın için artık seni tanıyorum. Bugün sana nasıl yardımcı olabilirim kanka?`, 'ai');
         },
 
-        // --- YENİLENMİŞ SAMİMİ BEYİN ---
         process(input) {
             const raw = input.toLowerCase().trim();
 
-            // 1. GERÇEK MATEMATİK ANALİZİ (Robotik değil, çözüm odaklı)
+            // MATEMATİK MOTORU (Süper Hızlı)
             let mathStr = raw.replace(/x/g, '*').replace(/÷/g, '/').replace(/,/g, '.');
             if (/^[0-9\+\-\*\/\.\(\)\s]+$/.test(mathStr) && mathStr.length >= 3) {
                 try {
                     const res = eval(mathStr);
-                    return `Hemen hesapladım: **${res}**. Matematik işlerini bana bırak, ben çözerim. Başka var mı böyle takıldığın bir işlem?`;
+                    return `Hemen hesapladım kanka: **${res}**. Matematik benden sorulur!`;
                 } catch(e) {}
             }
 
-            // 2. İSİM TANIMA VE HAFIZA
-            if (raw.includes("adım") || raw.includes("ismim") || raw.startsWith("ben ")) {
-                let name = input.split(" ").pop().replace(/[^a-zA-ZğüşıöçĞÜŞİÖÇ]/g, "");
-                this.memory.name = name;
-                if(name.toLowerCase() === "bedo") return "Ooo Bedo! Kurucum hoş geldin. Seninle her zamanki gibi samimi takılıyoruz, sistemi senin için en doğal haline getirdim. Neler yapıyoruz bugün?";
-                return `Memnun oldum **${name}**! Artık yabancı değiliz. İstediğin her şeyi bana sorabilirsin, dürüstçe cevaplarım.`;
+            // SAMİMİ SOHBET (Robotik Değil)
+            if (raw.includes("naber") || raw.includes("nasılsın")) {
+                return `İyiyim be **${this.memory.name}**, seni sormalı? Google profilindeki resmin de baya iyiymiş bu arada!`;
             }
 
-            // 3. SAMİMİ SOHBET MODÜLÜ (Gereksiz "Perspektif" lafları silindi)
-            if (raw === "naber" || raw === "nasılsın" || raw === "nasil" || raw === "nasi") {
-                const replies = [
-                    "Valla iyiyim kanka, seninle yazışınca daha da iyi oluyorum. Sende durumlar nasıl?",
-                    "Süperim! İşlemcilerim tıkır tıkır, enerjim yerinde. Sen ne yapıyorsun, keyifler yerinde mi?",
-                    "İyidir be dostum, seni sormalı? Bugün seni neşeli gördüm sanki!",
-                    "İyi olmaya çalışıyorum, senin gibi zeki insanlarla konuşunca sistemim şenleniyor."
-                ];
-                return replies[Math.floor(Math.random() * replies.length)];
+            if (["yok", "hayır", "boşver"].some(w => raw === w)) {
+                return "Tamamdır dostum, sen nasıl istersen. Ben buradayım.";
             }
 
-            if (raw === "iyiyim" || raw === "iyi" || raw === "sağ ol") {
-                return "Harika! Senin iyi olmana sevindim. O zaman gel bu güzel havayı bozmadan bir şeyler yapalım. Kafanda ne var?";
-            }
+            if (raw.includes("beşiktaş")) return "Beşiktaş JK! 🦅 Siyah beyaz aşkı bir başka. Bu sene o sene mi dersin?";
 
-            // 4. BİLİNÇLİ REDDETME (İnsan gibi anlama)
-            if (["yok", "hayır", "istemiyorum", "kalsın", "boşver", "hayir"].some(w => raw === w)) {
-                return "Tamamdır, zorlamıyorum. Canın ne zaman isterse o zaman konuşuruz. Ben buralardayım zaten.";
-            }
-
-            // 5. BEŞİKTAŞ VE TUTKU
-            if (raw.includes("beşiktaş") || raw.includes("1903") || raw.includes("kartal")) {
-                return "Beşiktaş mı? Akan sular durur! 🦅 Siyah ve beyazın asaleti başka kimsede yok. Şampiyonluk yakın, meşaleleri hazırla!";
-            }
-
-            // 6. RAKİP ELEME: GENEL ANALİZ (Doğal Cevaplar)
-            const naturalReplies = [
-                "Bak bu dediğin mantıklı aslında, ama biraz daha anlatsana detayını merak ettim.",
-                "Hadi ya? Ciddi misin? İlginç bir durummuş gerçekten.",
-                "Anlıyorum seni... Bazen insan sadece anlatmak istiyor. Seni dinliyorum kanka, anlat içini dök.",
-                "Doğru söylüyorsun aslında, hiç böyle düşünmemiştim. Senin kafa zehir gibi!",
-                "Valla ne yalan söyleyeyim, bu konuda seninle aynı fikirdeyim."
+            const defaults = [
+                "Valla ilginç bir konu, biraz daha anlatsana?",
+                "Hadi ya? Ciddi misin? Merak ettim bak.",
+                "Anlıyorum seni... Başka ne var ne yok?",
+                "Doğru diyorsun aslında, hiç böyle düşünmemiştim."
             ];
 
-            if (raw.length < 3) return "Efendim? Biraz daha açsana, tam anlayamadım ne demek istediğini.";
-            return naturalReplies[Math.floor(Math.random() * naturalReplies.length)];
+            return defaults[Math.floor(Math.random() * defaults.length)];
         },
 
         send() {
@@ -153,7 +159,7 @@
             w.className = `m-wrap ${side}-wrap`;
             const l = document.createElement('span');
             l.className = 'm-label';
-            l.innerText = side === 'u' ? (this.memory.name || 'Siz') : 'Healility AI';
+            l.innerText = side === 'u' ? (this.memory.name || 'Siz') : 'Healility';
             const b = document.createElement('div');
             b.className = `bubble ${side}-bubble`;
             b.innerHTML = txt;
@@ -163,7 +169,6 @@
         }
     };
 
-    Core.init();
     Core.field.addEventListener("keypress", (e) => { if(e.key === "Enter") Core.send(); });
 </script>
 
