@@ -3,169 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HEALILITY | Dost Yazılım</title>
+    <title>HEALILITY | Ultra Zeka</title>
     <style>
-        :root {
-            --bg: #0a0a0b;
-            --neon-blue: #00d2ff;
-            --neon-purple: #9d50bb;
-            --glass: rgba(255, 255, 255, 0.05);
-        }
+        :root { --bg: #0d0d0f; --neon: #00f2ff; --purple: #8e2de2; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        
+        #chat-window { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .msg { max-width: 80%; padding: 12px 18px; border-radius: 15px; animation: bounce 0.3s ease; }
+        .user { align-self: flex-end; background: var(--purple); border-bottom-right-radius: 2px; }
+        .ai { align-self: flex-start; background: rgba(255,255,255,0.05); border: 1px solid var(--neon); border-bottom-left-radius: 2px; }
+        
+        .input-area { padding: 20px; background: #1a1a1e; display: flex; gap: 10px; }
+        input { flex: 1; background: #2a2a2e; border: none; padding: 15px; border-radius: 10px; color: white; outline: none; border: 1px solid transparent; }
+        input:focus { border-color: var(--neon); }
+        button { background: var(--neon); border: none; padding: 0 25px; border-radius: 10px; cursor: pointer; font-weight: bold; }
 
-        body {
-            background: var(--bg);
-            color: #fff;
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-
-        /* Arka Plan Hareketli Işıklar */
-        .gradient-bg {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #0a0a0b 100%);
-            z-index: -1;
-        }
-
-        #chat-container {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .bubble {
-            max-width: 85%;
-            padding: 12px 18px;
-            border-radius: 20px;
-            line-height: 1.5;
-            font-size: 0.95rem;
-            animation: slideIn 0.3s ease;
-        }
-
-        .user {
-            align-self: flex-end;
-            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
-            color: #000;
-            font-weight: 600;
-            border-bottom-right-radius: 2px;
-        }
-
-        .ai {
-            align-self: flex-start;
-            background: var(--glass);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-bottom-left-radius: 2px;
-            position: relative;
-        }
-
-        /* Giriş Çubuğu */
-        .input-area {
-            background: rgba(20, 20, 25, 0.9);
-            padding: 20px;
-            display: flex;
-            gap: 10px;
-            backdrop-filter: blur(10px);
-        }
-
-        input {
-            flex: 1;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--neon-blue);
-            padding: 12px 20px;
-            border-radius: 30px;
-            color: #fff;
-            outline: none;
-        }
-
-        button {
-            background: var(--neon-blue);
-            border: none;
-            width: 45px; height: 45px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.3s;
-        }
-
-        button:hover { transform: scale(1.1); box-shadow: 0 0 15px var(--neon-blue); }
-
-        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes bounce { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
 
-<div class="gradient-bg"></div>
-
-<div id="chat-container">
-    <div class="bubble ai">Selam Bedo! Ben senin kişisel asistanın Healility. Bugün her şeyi konuşmaya varım, sınırlama yok. Ne yapıyoruz? 🚀</div>
+<div id="chat-window">
+    <div class="msg ai">Selam Bedo! Bellek üniteleri ve matematik motoru aktif. Bana her şeyi sorabilirsin, zorlu işlemler dahil! 🚀</div>
 </div>
 
 <div class="input-area">
-    <input type="text" id="userInput" placeholder="Bana her şeyi sorabilirsin..." autocomplete="off">
-    <button onclick="talk()">Go</button>
+    <input type="text" id="userInput" placeholder="Matematik sor veya sohbet et..." autocomplete="off">
+    <button onclick="send()">GİT</button>
 </div>
 
 <script>
-    const chat = document.getElementById('chat-container');
+    const chat = document.getElementById('chat-window');
     const input = document.getElementById('userInput');
+    
+    // BELLEK (Memory): Konuşmaları burada tutar
+    let memory = [];
 
-    // Bu beyin her soruya samimiyetle akar
-    const Brain = {
-        respond(msg) {
-            msg = msg.toLowerCase();
-
-            // Samimiyet Filtresi ve Akıllı Tahminler
-            if (msg.includes("naber") || msg.includes("nasılsın")) {
-                return "Süperim! Seninle bu projeyi büyütmek bana enerji veriyor. Sende durumlar nasıl, her şey yolunda mı?";
+    function solveMath(text) {
+        // Metin içindeki sayısal işlemleri (x yerine *, ÷ yerine / gibi) düzeltir
+        let process = text.replace(/x/g, '*').replace(/X/g, '*').replace(/,/g, '.').replace(/÷/g, '/');
+        // Sadece matematiksel karakterleri filtreler
+        let mathPattern = /([0-9\+\-\*\/\.\(\)\s]+)/;
+        let match = process.match(mathPattern);
+        
+        if (match && match[0].trim().length > 1) {
+            try {
+                return eval(match[0]);
+            } catch (e) {
+                return null;
             }
-            if (msg.includes("beşiktaş")) {
-                return "Kartal uçuşta! 🦅 1903 ruhuyla her zaman en iyisi biziz. Maçlar, transferler... Konu Beşiktaş'sa saatlerce konuşabilirim!";
-            }
-            if (msg.includes("kimsin") || msg.includes("nesin")) {
-                return "Ben senin vizyonunla şekillenen, diğer sıkıcı botlara bin basacak olan Healility'im. Senin dostunum diyebiliriz.";
-            }
-            if (msg.includes("oyun") || msg.includes("pubg") || msg.includes("brawl")) {
-                return "Ooo oyun mu? Taktiği veriyorum: Odaklan, sakin kal ve hızı konuştur. Senin gibi bir editör zaten oyunun içinden geçer!";
-            }
-            if (msg.includes("seviyor") || msg.includes("aşk") || msg.includes("sevgi")) {
-                return "Duygusal frekanslar tespit edildi... Kalbinin sesini dinle ama aklını da yanına almayı unutma derim. 😉";
-            }
-            if (msg.includes("yarışma") || msg.includes("hedef")) {
-                return "Hedef belli: Zirve! O Coze botu falan senin bu emeğinin yanında sönük kalır. Sen koduna güven!";
-            }
-
-            // Genel Cevap (Asla "Bilmiyorum" demez)
-            const genericResponses = [
-                "Valla bu çok derin bir konu ama bence sen ne düşünüyorsan doğrusu o. Biraz daha detay ver de beraber çözelim!",
-                "Harika bir noktaya değindin! Tam olarak şunu mu demek istedin yoksa başka bir planın mı var?",
-                "Bak bu soruyu sevdim! Senin gibi yaratıcı birinden de bu beklenirdi zaten. Devam et, dinliyorum.",
-                "Şu an işlemcilerim bu bilgiyi işliyor... Ama bence biz her halükarda bu işin içinden çıkarız!"
-            ];
-            return genericResponses[Math.floor(Math.random() * genericResponses.length)];
         }
-    };
+        return null;
+    }
 
-    function talk() {
-        const text = input.value.trim();
-        if(!text) return;
+    function generateResponse(userText) {
+        // Belleğe ekle
+        memory.push(userText);
+        
+        // 1. Matematik Kontrolü
+        let mathResult = solveMath(userText);
+        if (mathResult !== null && !isNaN(mathResult)) {
+            return `Hesaplamalarımı yaptım: **${userText} = ${mathResult}**. Başka bir işlem var mı?`;
+        }
 
-        chat.innerHTML += `<div class="bubble user">${text}</div>`;
+        // 2. Samimi Sohbet ve Bellek Kullanımı
+        let lowText = userText.toLowerCase();
+        
+        if (lowText.includes("kimsin")) return "Ben Healility! Belleğimde seninle yaptığım tüm konuşmalar duruyor. Sen ne istersen o olurum.";
+        if (lowText.includes("beşiktaş")) return "Kartal için her zaman bir yerimiz var! 🦅 1903!";
+        if (lowText.includes("hatırlıyor musun")) return `Elbette! Az önce bana "${memory[memory.length - 2] || "merhaba"}" demiştin. Belleğim saat gibi çalışıyor.`;
+
+        // 3. Genel Cevap
+        const answers = [
+            "Bu çok mantıklı! Biraz daha açar mısın?",
+            "Valla harikasın Bedo, bunu düşünmemiştim.",
+            "Sistemlerim bu fikri sevdi. Devam edelim!",
+            "İlginç bir nokta... Seninle çalışmak gerçekten zevkli."
+        ];
+        return answers[Math.floor(Math.random() * answers.length)];
+    }
+
+    function send() {
+        let val = input.value.trim();
+        if(!val) return;
+
+        chat.innerHTML += `<div class="msg user">${val}</div>`;
         input.value = "";
 
         setTimeout(() => {
-            const reply = Brain.respond(text);
-            chat.innerHTML += `<div class="bubble ai">${reply}</div>`;
+            let reply = generateResponse(val);
+            chat.innerHTML += `<div class="msg ai">${reply}</div>`;
             chat.scrollTop = chat.scrollHeight;
-        }, 800);
+        }, 600);
     }
 
-    input.addEventListener("keypress", (e) => { if(e.key === "Enter") talk(); });
+    input.addEventListener("keypress", (e) => { if(e.key === "Enter") send(); });
 </script>
 
 </body>
