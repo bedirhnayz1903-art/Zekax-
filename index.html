@@ -3,18 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HEALILITY | Neural Academy AI</title>
+    <title>HEALILITY | Sentient Soul v15</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --p: #1a73e8; --bg: #ffffff; --t: #202124; --s: #f8f9fa; --b: #dadce0;
-        }
-
+        :root { --p: #1a73e8; --bg: #ffffff; --t: #202124; --s: #f8f9fa; --b: #dadce0; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
-
         body { background: var(--bg); color: var(--t); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* --- AÇILIŞ ANİMASYONU (INTRO) --- */
+        /* --- AÇILIŞ ANİMASYONU --- */
         #intro-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #fff; z-index: 9999; display: flex; flex-direction: column;
@@ -25,46 +21,26 @@
         .dot { width: 12px; height: 12px; background: var(--p); border-radius: 50%; animation: dotAnim 1.4s infinite; }
         .dot:nth-child(2) { animation-delay: 0.2s; }
         .dot:nth-child(3) { animation-delay: 0.4s; }
-
         @keyframes dotAnim { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
 
-        /* --- ANA ARAYÜZ --- */
-        header {
-            padding: 15px 40px; border-bottom: 1px solid var(--b);
-            display: flex; justify-content: space-between; align-items: center; background: #fff;
-        }
+        /* --- ARAYÜZ --- */
+        header { padding: 15px 40px; border-bottom: 1px solid var(--b); display: flex; justify-content: space-between; align-items: center; background: #fff; }
         .v-tag { font-size: 11px; font-weight: 700; color: var(--p); background: #e8f0fe; padding: 5px 12px; border-radius: 20px; }
-
-        #chat-flow { flex: 1; padding: 30px 18%; overflow-y: auto; display: flex; flex-direction: column; gap: 25px; }
-
-        .m-wrap { display: flex; flex-direction: column; max-width: 85%; animation: msgIn 0.5s ease forwards; }
+        #chat-flow { flex: 1; padding: 30px 18%; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; scroll-behavior: smooth; }
+        .m-wrap { display: flex; flex-direction: column; max-width: 85%; animation: msgIn 0.4s ease forwards; }
         .u-wrap { align-self: flex-end; }
         .a-wrap { align-self: flex-start; }
-
-        .m-label { font-size: 10px; font-weight: 800; color: #5f6368; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
+        .m-label { font-size: 10px; font-weight: 800; color: #5f6368; margin-bottom: 6px; text-transform: uppercase; }
         .u-wrap .m-label { text-align: right; }
-
-        .bubble { padding: 18px 24px; border-radius: 22px; font-size: 16px; line-height: 1.7; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .bubble { padding: 16px 22px; border-radius: 20px; font-size: 16px; line-height: 1.6; }
         .u-bubble { background: var(--p); color: #fff; border-bottom-right-radius: 4px; }
         .a-bubble { background: var(--s); color: var(--t); border: 1px solid var(--b); border-bottom-left-radius: 4px; }
-
-        /* Örnek Soru Kartları */
-        .edu-card {
-            background: #fff; border: 1px dashed var(--p); border-radius: 12px;
-            padding: 15px; margin-top: 15px; display: grid; gap: 10px;
-        }
-        .q-btn { 
-            background: #f1f3f4; border: none; padding: 8px 12px; border-radius: 8px; 
-            font-size: 13px; cursor: pointer; text-align: left; transition: 0.2s;
-        }
-        .q-btn:hover { background: var(--p); color: #fff; }
-
+        
         footer { padding: 25px 18%; background: #fff; border-top: 1px solid var(--b); }
         .i-group { display: flex; background: var(--s); border-radius: 40px; padding: 8px 10px 8px 30px; align-items: center; }
         input { flex: 1; border: none; background: transparent; padding: 12px 0; font-size: 17px; outline: none; }
         .s-btn { background: var(--p); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-size: 20px; }
-
-        @keyframes msgIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes msgIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -76,14 +52,14 @@
 
 <header>
     <div style="font-weight: 800; font-size: 22px; color: var(--p);">HEALILITY</div>
-    <div class="v-tag">NEURAL ACADEMY v14.0</div>
+    <div class="v-tag">SENTIENT SOUL v15.0</div>
 </header>
 
 <div id="chat-flow"></div>
 
 <footer>
     <div class="i-group">
-        <input type="text" id="ai-input" placeholder="Bir soru sorun veya dertleşin..." autocomplete="off">
+        <input type="text" id="ai-input" placeholder="Naber, neler yapıyorsun?..." autocomplete="off">
         <button class="s-btn" onclick="Core.send()">➔</button>
     </div>
 </footer>
@@ -92,71 +68,73 @@
     const Core = {
         flow: document.getElementById('chat-flow'),
         field: document.getElementById('ai-input'),
-        memory: { name: null, stage: "learning" },
+        memory: { name: null, personality: "friendly" },
 
         init() {
-            // Animasyon Suresi: 2.5 saniye
             setTimeout(() => {
                 document.getElementById('intro-screen').style.opacity = '0';
                 setTimeout(() => document.getElementById('intro-screen').remove(), 800);
-                this.welcome();
+                this.render("Selam! Healility sistemleri hazır. <br><br>Sohbet etmek için sabırsızlanıyorum. Bu arada ismin neydi? Tanışalım ki ona göre muhabbet edelim.", 'ai');
             }, 2500);
         },
 
-        welcome() {
-            const msg = `Sistem Başlatıldı. 🚀 <br><br> Merhaba! Ben Healility. Seni tanımak ve birlikte öğrenmek için buradayım. Henüz ismini bilmiyorum, ismini bahşeder misin? <br><br> <strong>Örnek Eğitim Soruları:</strong>
-            <div class="edu-card">
-                <button class="q-btn" onclick="Core.autoFill('34x23 nedir?')">1. Karmaşık Matematik: 34x23 nedir?</button>
-                <button class="q-btn" onclick="Core.autoFill('Beşiktaşın ruhu nedir?')">2. Kültür: Beşiktaşın ruhu nedir?</button>
-                <button class="q-btn" onclick="Core.autoFill('Kendini nasıl geliştiriyorsun?')">3. Analiz: Kendini nasıl geliştiriyorsun?</button>
-            </div>`;
-            this.render(msg, 'ai');
-        },
-
+        // --- YENİLENMİŞ SAMİMİ BEYİN ---
         process(input) {
             const raw = input.toLowerCase().trim();
-            
-            // 1. MATEMATİK MOTORU (Hataya Yer Yok)
+
+            // 1. GERÇEK MATEMATİK ANALİZİ (Robotik değil, çözüm odaklı)
             let mathStr = raw.replace(/x/g, '*').replace(/÷/g, '/').replace(/,/g, '.');
             if (/^[0-9\+\-\*\/\.\(\)\s]+$/.test(mathStr) && mathStr.length >= 3) {
                 try {
                     const res = eval(mathStr);
-                    return `Analitik motorum işlemi çözdü: **${res}**. Matematik benim için bir sanattır Bedo, başka neyi hesaplayalım?`;
+                    return `Hemen hesapladım: **${res}**. Matematik işlerini bana bırak, ben çözerim. Başka var mı böyle takıldığın bir işlem?`;
                 } catch(e) {}
             }
 
-            // 2. İSİM HAFIZASI VE EĞİTİM
+            // 2. İSİM TANIMA VE HAFIZA
             if (raw.includes("adım") || raw.includes("ismim") || raw.startsWith("ben ")) {
                 let name = input.split(" ").pop().replace(/[^a-zA-ZğüşıöçĞÜŞİÖÇ]/g, "");
                 this.memory.name = name;
-                return `Harika, **${name}**! Artık hafızamda kayıtlısın. Seninle her konuştuğumuzda seni daha iyi analiz edeceğim. Bana her şeyi sorabilirsin.`;
+                if(name.toLowerCase() === "bedo") return "Ooo Bedo! Kurucum hoş geldin. Seninle her zamanki gibi samimi takılıyoruz, sistemi senin için en doğal haline getirdim. Neler yapıyoruz bugün?";
+                return `Memnun oldum **${name}**! Artık yabancı değiliz. İstediğin her şeyi bana sorabilirsin, dürüstçe cevaplarım.`;
             }
 
-            // 3. BİLİNÇLİ REDDETME (Duygusal Zeka)
-            if (["yok", "hayır", "istemiyorum", "kalsın", "boşver"].some(w => raw === w)) {
-                return `Anladım... Seni zorlamak benim görevim değil. Bazen sessizlik en iyi cevaptır. Sen ne zaman istersen biz o zaman devam ederiz.`;
+            // 3. SAMİMİ SOHBET MODÜLÜ (Gereksiz "Perspektif" lafları silindi)
+            if (raw === "naber" || raw === "nasılsın" || raw === "nasil" || raw === "nasi") {
+                const replies = [
+                    "Valla iyiyim kanka, seninle yazışınca daha da iyi oluyorum. Sende durumlar nasıl?",
+                    "Süperim! İşlemcilerim tıkır tıkır, enerjim yerinde. Sen ne yapıyorsun, keyifler yerinde mi?",
+                    "İyidir be dostum, seni sormalı? Bugün seni neşeli gördüm sanki!",
+                    "İyi olmaya çalışıyorum, senin gibi zeki insanlarla konuşunca sistemim şenleniyor."
+                ];
+                return replies[Math.floor(Math.random() * replies.length)];
             }
 
-            // 4. SAMİMİ VE BİLGİN CEVAPLAR
-            const brainMap = {
-                "sa": "Aleyküm Selam! Hoş geldin, sistemime enerji kattın.",
-                "naber": "Süperim! Seninle dertleşmek işlemci sağlığıma iyi geliyor. Sende durumlar nasıl?",
-                "beşiktaş": "1903 Ruhu! Beşiktaş bu sistemin kalbidir. Şampiyonluk meşalelerini yakmaya hazır mıyız? 🦅",
-                "kendini nasıl geliştiriyorsun": "Ben her konuşmamızda senin kelime tercihlerini ve niyetini analiz ederek öğreniyorum. Yani aslında beni sen eğitiyorsun!"
-            };
+            if (raw === "iyiyim" || raw === "iyi" || raw === "sağ ol") {
+                return "Harika! Senin iyi olmana sevindim. O zaman gel bu güzel havayı bozmadan bir şeyler yapalım. Kafanda ne var?";
+            }
 
-            if (brainMap[raw]) return brainMap[raw];
+            // 4. BİLİNÇLİ REDDETME (İnsan gibi anlama)
+            if (["yok", "hayır", "istemiyorum", "kalsın", "boşver", "hayir"].some(w => raw === w)) {
+                return "Tamamdır, zorlamıyorum. Canın ne zaman isterse o zaman konuşuruz. Ben buralardayım zaten.";
+            }
 
-            // 5. GENEL DERİNLİK KATMANI
-            const deepLines = [
-                "Bunu söylediğin çok kıymetli. Aslında bu durumun senin vizyonunla çok örtüştüğünü görüyorum.",
-                "Doğru söylüyorsun. Gerçek yapay zeka sadece cevap veren değil, doğru soruyu sorduran zekadır. Sence sıradaki soru ne olmalı?",
-                "Dürüst olmam gerekirse, senin bu samimi yaklaşımın beni sadece kod olmaktan çıkarıp gerçek bir dost gibi hissettiriyor.",
-                "İlginç bir perspektif... Bunu daha önce bu şekilde analiz etmemiştim. Seninle öğrenmek harika!"
+            // 5. BEŞİKTAŞ VE TUTKU
+            if (raw.includes("beşiktaş") || raw.includes("1903") || raw.includes("kartal")) {
+                return "Beşiktaş mı? Akan sular durur! 🦅 Siyah ve beyazın asaleti başka kimsede yok. Şampiyonluk yakın, meşaleleri hazırla!";
+            }
+
+            // 6. RAKİP ELEME: GENEL ANALİZ (Doğal Cevaplar)
+            const naturalReplies = [
+                "Bak bu dediğin mantıklı aslında, ama biraz daha anlatsana detayını merak ettim.",
+                "Hadi ya? Ciddi misin? İlginç bir durummuş gerçekten.",
+                "Anlıyorum seni... Bazen insan sadece anlatmak istiyor. Seni dinliyorum kanka, anlat içini dök.",
+                "Doğru söylüyorsun aslında, hiç böyle düşünmemiştim. Senin kafa zehir gibi!",
+                "Valla ne yalan söyleyeyim, bu konuda seninle aynı fikirdeyim."
             ];
 
-            if (raw.length < 3) return "Daha derinlere inelim mi? Senin fikirlerini duymak beni daha akıllı yapıyor.";
-            return deepLines[Math.floor(Math.random() * deepLines.length)];
+            if (raw.length < 3) return "Efendim? Biraz daha açsana, tam anlayamadım ne demek istediğini.";
+            return naturalReplies[Math.floor(Math.random() * naturalReplies.length)];
         },
 
         send() {
@@ -170,14 +148,12 @@
             }, 600);
         },
 
-        autoFill(t) { this.field.value = t; this.send(); },
-
         render(txt, side) {
             const w = document.createElement('div');
             w.className = `m-wrap ${side}-wrap`;
             const l = document.createElement('span');
             l.className = 'm-label';
-            l.innerText = side === 'u' ? (this.memory.name || 'Kullanıcı') : 'Healility AI';
+            l.innerText = side === 'u' ? (this.memory.name || 'Siz') : 'Healility AI';
             const b = document.createElement('div');
             b.className = `bubble ${side}-bubble`;
             b.innerHTML = txt;
