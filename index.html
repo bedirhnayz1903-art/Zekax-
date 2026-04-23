@@ -1,33 +1,81 @@
 <!DOCTYPE html>
 <html>
-<body style="margin:0; background:#111; overflow:hidden">
+<body style="margin:0; background:#111; overflow:hidden; font-family:sans-serif">
+    <div id="score" style="position:fixed; top:20px; left:20px; color:white; font-size:24px">Skor: 0</div>
     <canvas id="g"></canvas>
     <script>
         const c = document.getElementById('g'), x = c.getContext('2d');
-        let p = {x:200, y:200}, ms = [];
+        const scoreEl = document.getElementById('score');
+        let p = {x:window.innerWidth/2, y:window.innerHeight/2, r:15}, ms = [], ds = [], score = 0, over = false;
         c.width = window.innerWidth; c.height = window.innerHeight;
 
-        // Tıklayınca Ateş Et
-        window.onmousedown = e => {
-            let ang = Math.atan2(e.clientY - p.y, e.clientX - p.x);
-            ms.push({x:p.x, y:p.y, vx:Math.cos(ang)*8, vy:Math.sin(ang)*8});
+        // Ateş Etme (Tıklama veya Dokunma)
+        const fire = e => {
+            if(over) return location.reload();
+            let tx = e.clientX || e.touches[0].clientX;
+            let ty = e.clientY || e.touches[0].clientY;
+            let ang = Math.atan2(ty - p.y, tx - p.x);
+            ms.push({x:p.x, y:p.y, vx:Math.cos(ang)*10, vy:Math.sin(ang)*10});
         };
+        window.onmousedown = fire;
+        window.ontouchstart = fire;
 
-        // Hareket (Mouse takibi)
-        window.onmousemove = e => { p.x = e.clientX; p.y = e.clientY; };
+        // Karakter Hareketi (Mouse veya Dokunma Takibi)
+        const move = e => {
+            p.x = e.clientX || e.touches[0].clientX;
+            p.y = e.clientY || e.touches[0].clientY;
+        };
+        window.onmousemove = move;
+        window.ontouchmove = move;
 
-        function draw() {
-            x.fillStyle = 'rgba(0,0,0,0.2)'; x.fillRect(0,0,c.width,c.height);
-            x.fillStyle = 'lime'; x.beginPath(); x.arc(p.x, p.y, 15, 0, 7); x.fill(); // Oyuncu
+        // Düşman Oluşturma
+        setInterval(() => {
+            if(over) return;
+            let r = 15 + Math.random() * 10;
+            let dx, dy;
+            if(Math.random() < 0.5) {
+                dx = Math.random() < 0.5 ? 0 : c.width;
+                dy = Math.random() * c.height;
+            } else {
+                dx = Math.random() * c.width;
+                dy = Math.random() < 0.5 ? 0 : c.height;
+            }
+            let ang = Math.atan2(p.y - dy, p.x - dx);
+            ds.push({x:dx, y:dy, r, vx:Math.cos(ang)*2, vy:Math.sin(ang)*2});
+        }, 1000);
+
+        function update() {
+            if(over) return;
+            x.fillStyle = 'rgba(0,0,0,0.3)'; x.fillRect(0,0,c.width,c.height);
             
-            ms.forEach((m, i) => {
+            // Oyuncu
+            x.fillStyle = '#00ffcc'; x.beginPath(); x.arc(p.x, p.y, p.r, 0, 7); x.fill();
+
+            // Mermiler ve Çarpışma
+            ms.forEach((m, mi) => {
                 m.x += m.vx; m.y += m.vy;
-                x.fillStyle = 'red'; x.fillRect(m.x, m.y, 5, 5); // Mermi
-                if(m.x<0 || m.x>c.width || m.y<0 || m.y>c.height) ms.splice(i,1);
+                x.fillStyle = '#ff0'; x.fillRect(m.x, m.y, 4, 4);
+                ds.forEach((d, di) => {
+                    if(Math.hypot(m.x-d.x, m.y-d.y) < d.r) {
+                        ds.splice(di,1); ms.splice(mi,1);
+                        score += 10; scoreEl.innerText = "Skor: " + score;
+                    }
+                });
             });
-            requestAnimationFrame(draw);
+
+            // Düşmanlar ve Oyun Sonu
+            ds.forEach((d, i) => {
+                d.x += d.vx; d.y += d.vy;
+                x.fillStyle = '#ff4444'; x.beginPath(); x.arc(d.x, d.y, d.r, 0, 7); x.fill();
+                if(Math.hypot(p.x-d.x, p.y-d.y) < p.r + d.r) {
+                    over = true;
+                    alert("OYUN BİTTİ! Skorun: " + score);
+                    location.reload();
+                }
+            });
+            requestAnimationFrame(update);
         }
-        draw();
+        update();
     </script>
 </body>
 </html>
