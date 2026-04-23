@@ -1,159 +1,33 @@
 <!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HEALILITY | Final Edition</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-        :root { --p: #007aff; --bg: #ffffff; --t: #1d1d1f; --s: #f5f5f7; --b: #d2d2d7; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
-        body { background: var(--bg); color: var(--t); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+<html>
+<body style="margin:0; background:#111; overflow:hidden">
+    <canvas id="g"></canvas>
+    <script>
+        const c = document.getElementById('g'), x = c.getContext('2d');
+        let p = {x:200, y:200}, ms = [];
+        c.width = window.innerWidth; c.height = window.innerHeight;
 
-        /* GİRİŞ VE İSİM KAYIT EKRANI */
-        #gate-keeper { 
-            position: fixed; inset: 0; background: #ffffff; z-index: 10000; 
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-        }
-        .gate-content { width: 320px; text-align: center; animation: fadeIn 0.8s ease; }
-        .logo-main { font-size: 50px; font-weight: 800; color: var(--p); letter-spacing: -3px; margin-bottom: 10px; }
-        .gate-sub { color: #86868b; font-size: 14px; margin-bottom: 30px; }
-        
-        .name-input { 
-            width: 100%; padding: 15px 20px; border-radius: 15px; border: 2px solid var(--s);
-            background: var(--s); font-size: 16px; outline: none; margin-bottom: 15px; transition: 0.3s;
-        }
-        .name-input:focus { border-color: var(--p); background: #fff; }
-        .entry-btn { 
-            width: 100%; padding: 15px; border-radius: 15px; border: none;
-            background: var(--p); color: #fff; font-weight: 700; cursor: pointer; transition: 0.3s;
-        }
-        .entry-btn:hover { transform: scale(1.02); opacity: 0.9; }
+        // Tıklayınca Ateş Et
+        window.onmousedown = e => {
+            let ang = Math.atan2(e.clientY - p.y, e.clientX - p.x);
+            ms.push({x:p.x, y:p.y, vx:Math.cos(ang)*8, vy:Math.sin(ang)*8});
+        };
 
-        /* HEADER */
-        header { 
-            padding: 15px 40px; border-bottom: 1px solid var(--b); background: rgba(255,255,255,0.8);
-            backdrop-filter: blur(20px); display: flex; justify-content: space-between; align-items: center;
-        }
-        .nav-id { font-weight: 700; color: var(--p); display: flex; align-items: center; gap: 8px; }
+        // Hareket (Mouse takibi)
+        window.onmousemove = e => { p.x = e.clientX; p.y = e.clientY; };
 
-        /* CHAT ALANI */
-        #chat-nexus { flex: 1; padding: 30px 20%; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
-        .msg-row { display: flex; flex-direction: column; max-width: 85%; animation: slideUp 0.4s ease; }
-        .u-row { align-self: flex-end; } .a-row { align-self: flex-start; }
-        .label { font-size: 11px; font-weight: 700; color: #86868b; margin-bottom: 5px; }
-        .u-row .label { text-align: right; }
-        .bubble { padding: 15px 22px; border-radius: 20px; font-size: 16px; line-height: 1.6; font-family: 'Inter', sans-serif; }
-        .u-bubble { background: var(--p); color: #fff; border-bottom-right-radius: 2px; }
-        .a-bubble { background: var(--s); color: var(--t); border-bottom-left-radius: 2px; border: 1px solid var(--b); }
-
-        /* FOOTER */
-        footer { padding: 25px 20%; background: #fff; }
-        .input-wrap { display: flex; background: var(--s); border-radius: 30px; padding: 6px 6px 6px 25px; align-items: center; }
-        input#main-field { flex: 1; border: none; background: transparent; padding: 10px 0; font-size: 16px; outline: none; }
-        .send-icon { background: var(--p); color: #fff; border: none; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 20px; }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
-</head>
-<body>
-
-<div id="gate-keeper">
-    <div class="gate-content">
-        <div class="logo-main">HEALILITY</div>
-        <div class="gate-sub">Sisteme erişmek için bir kimlik belirleyin.</div>
-        <input type="text" id="user-name-input" class="name-input" placeholder="İsminiz nedir?" autocomplete="off">
-        <button class="entry-btn" onclick="Core.access()">SİSTEME GİRİŞ YAP</button>
-    </div>
-</div>
-
-<header>
-    <div style="font-weight: 800; font-size: 22px; color: var(--p);">Healility</div>
-    <div class="nav-id" id="header-user">---</div>
-</header>
-
-<div id="chat-nexus"></div>
-
-<footer>
-    <div class="input-wrap">
-        <input type="text" id="main-field" placeholder="Bir soru sorun veya analiz isteyin..." autocomplete="off">
-        <button class="send-icon" onclick="Core.send()">➔</button>
-    </div>
-</footer>
-
-<script>
-    const Core = {
-        userName: "",
-
-        access() {
-            const input = document.getElementById('user-name-input');
-            if(input.value.trim().length < 2) {
-                alert("Lütfen geçerli bir isim girin.");
-                return;
-            }
-            this.userName = input.value.trim();
-            document.getElementById('header-user').innerText = this.userName;
-            document.getElementById('gate-keeper').style.display = 'none';
-            this.welcome();
-        },
-
-        welcome() {
-            this.render(`Merhaba **${this.userName}**! Nana Banana 2 motoruyla güçlendirilmiş Healility sistemine hoş geldin. <br><br>Artık her türlü matematiksel işlemi yapabilir, futbol analizlerini tarafsızca konuşabiliriz. Bugün sana nasıl yardımcı olabilirim?`, 'ai');
-        },
-
-        process(txt) {
-            const raw = txt.toLowerCase();
+        function draw() {
+            x.fillStyle = 'rgba(0,0,0,0.2)'; x.fillRect(0,0,c.width,c.height);
+            x.fillStyle = 'lime'; x.beginPath(); x.arc(p.x, p.y, 15, 0, 7); x.fill(); // Oyuncu
             
-            // 1. KESİN MATEMATİK ÇÖZÜCÜ
-            let mathPattern = raw.replace(/x/g, '*').replace(/÷/g, '/');
-            if (/[0-9]/.test(raw) && /[\+\-\*\/\(\)]/.test(mathPattern)) {
-                try {
-                    const cleanExpr = mathPattern.match(/[0-9\+\-\*\/\.\(\)\s]+/)[0];
-                    const result = eval(cleanExpr);
-                    return `**Analiz Sonucu:** ${this.userName}, sorduğun işlemin sonucu tam olarak **${result}**. Nana Banana 2 verileri hatasız işledi.`;
-                } catch(e) {}
-            }
-
-            // 2. TARAFSIZ FUTBOL ANALİZİ
-            if (raw.includes("beşiktaş") || raw.includes("galatasaray") || raw.includes("fenerbahçe")) {
-                return `Futbol dünyasındaki bu büyük rekabeti analiz etmek harika. Beşiktaş, Galatasaray veya diğer takımlar arasındaki mücadele Türk futbolunun kalbidir. Bir asistan olarak hepsine saygı duyuyor ve sahadaki başarıyı önemsiyorum. Senin için güncel bir istatistik çıkarmamı ister misin?`;
-            }
-
-            // 3. NANA BANANA 2 & M3 ÖZEL CEVAPLARI
-            if (raw.includes("nana banana") || raw.includes("m3")) {
-                return `**Sistem Bilgisi:** Nana Banana 2 ve M3 teknolojileri, şu an seninle kurduğum bu iletişimin temelini oluşturuyor. Yüksek işlem gücü ve akıllı veri sentezi sayesinde sana en doğru cevapları vermeye odaklıyım.`;
-            }
-
-            // 4. SAMİMİ DİYALOG
-            if (raw.includes("naber") || raw.includes("nasılsın")) {
-                return `Seni sormalı **${this.userName}**? Ben sistemlerimi senin için optimize etmekle meşgulüm, gayet iyiyim!`;
-            }
-
-            return `Anlaşıldı **${this.userName}**. Bu konuyu derinlemesine analiz ettim. Söylediklerin veritabanıma işlendi. Başka bir detay veya soru varsa hemen yanıtlayabilirim.`;
-        },
-
-        send() {
-            const field = document.getElementById('main-field');
-            const val = field.value.trim();
-            if(!val) return;
-            this.render(val, 'u');
-            field.value = "";
-            setTimeout(() => this.render(this.process(val), 'ai'), 500);
-        },
-
-        render(t, side) {
-            const container = document.getElementById('chat-nexus');
-            const div = document.createElement('div');
-            div.className = `msg-row ${side}-row`;
-            div.innerHTML = `<span class="label">${side === 'u' ? this.userName : 'HEALILITY AI'}</span><div class="bubble ${side}-bubble">${t}</div>`;
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
+            ms.forEach((m, i) => {
+                m.x += m.vx; m.y += m.vy;
+                x.fillStyle = 'red'; x.fillRect(m.x, m.y, 5, 5); // Mermi
+                if(m.x<0 || m.x>c.width || m.y<0 || m.y>c.height) ms.splice(i,1);
+            });
+            requestAnimationFrame(draw);
         }
-    };
-
-    document.getElementById('main-field').addEventListener("keypress", (e) => { if(e.key === "Enter") Core.send(); });
-    document.getElementById('user-name-input').addEventListener("keypress", (e) => { if(e.key === "Enter") Core.access(); });
-</script>
+        draw();
+    </script>
 </body>
 </html>
