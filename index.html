@@ -1,81 +1,130 @@
 <!DOCTYPE html>
 <html>
-<body style="margin:0; background:#111; overflow:hidden; font-family:sans-serif">
-    <div id="score" style="position:fixed; top:20px; left:20px; color:white; font-size:24px">Skor: 0</div>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        body { margin: 0; background: #1a1a1a; overflow: hidden; font-family: 'Courier New', Courier, monospace; user-select: none; }
+        canvas { display: block; }
+        .ui { position: fixed; color: white; pointer-events: none; }
+        #score { top: 20px; left: 20px; font-size: 24px; text-shadow: 2px 2px black; }
+        
+        /* Mobil Butonlar */
+        .controls { position: fixed; bottom: 20px; width: 100%; display: flex; justify-content: space-between; padding: 0 30px; box-sizing: border-box; pointer-events: none; }
+        .dpad, .action { pointer-events: auto; display: grid; gap: 5px; }
+        .dpad { grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(2, 60px); }
+        .btn { width: 60px; height: 60px; background: rgba(255,255,255,0.2); border: 2px solid white; border-radius: 10px; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; active { background: rgba(255,255,255,0.5); } }
+        #fireBtn { width: 100px; height: 100px; border-radius: 50%; background: rgba(255, 0, 0, 0.4); border: 3px solid #ff4444; }
+    </style>
+</head>
+<body>
+    <div id="score" class="ui">SKOR: 0</div>
+    <div class="controls">
+        <div class="dpad">
+            <div style="grid-column: 2" class="btn" id="up">▲</div>
+            <div style="grid-column: 1" class="btn" id="left">◀</div>
+            <div style="grid-column: 2" class="btn" id="down">▼</div>
+            <div style="grid-column: 3" class="btn" id="right">▶</div>
+        </div>
+        <div class="action">
+            <div class="btn" id="fireBtn">ATEŞ</div>
+        </div>
+    </div>
     <canvas id="g"></canvas>
-    <script>
-        const c = document.getElementById('g'), x = c.getContext('2d');
-        const scoreEl = document.getElementById('score');
-        let p = {x:window.innerWidth/2, y:window.innerHeight/2, r:15}, ms = [], ds = [], score = 0, over = false;
-        c.width = window.innerWidth; c.height = window.innerHeight;
 
-        // Ateş Etme (Tıklama veya Dokunma)
-        const fire = e => {
-            if(over) return location.reload();
-            let tx = e.clientX || e.touches[0].clientX;
-            let ty = e.clientY || e.touches[0].clientY;
-            let ang = Math.atan2(ty - p.y, tx - p.x);
-            ms.push({x:p.x, y:p.y, vx:Math.cos(ang)*10, vy:Math.sin(ang)*10});
-        };
-        window.onmousedown = fire;
-        window.ontouchstart = fire;
+<script>
+    const c = document.getElementById('g'), x = c.getContext('2d');
+    c.width = window.innerWidth; c.height = window.innerHeight;
 
-        // Karakter Hareketi (Mouse veya Dokunma Takibi)
-        const move = e => {
-            p.x = e.clientX || e.touches[0].clientX;
-            p.y = e.clientY || e.touches[0].clientY;
-        };
-        window.onmousemove = move;
-        window.ontouchmove = move;
+    let p = { x: c.width/2, y: c.height/2, r: 20, speed: 4, angle: 0 };
+    let ms = [], ds = [], score = 0, keys = {};
 
-        // Düşman Oluşturma
-        setInterval(() => {
-            if(over) return;
-            let r = 15 + Math.random() * 10;
-            let dx, dy;
-            if(Math.random() < 0.5) {
-                dx = Math.random() < 0.5 ? 0 : c.width;
-                dy = Math.random() * c.height;
-            } else {
-                dx = Math.random() * c.width;
-                dy = Math.random() < 0.5 ? 0 : c.height;
-            }
-            let ang = Math.atan2(p.y - dy, p.x - dx);
-            ds.push({x:dx, y:dy, r, vx:Math.cos(ang)*2, vy:Math.sin(ang)*2});
-        }, 1000);
+    // Kontrolleri Dinle
+    const setupBtn = (id) => {
+        const btn = document.getElementById(id);
+        btn.ontouchstart = () => keys[id] = true;
+        btn.ontouchend = () => keys[id] = false;
+        btn.onmousedown = () => keys[id] = true;
+        btn.onmouseup = () => keys[id] = false;
+    };
+    ['up', 'down', 'left', 'right', 'fireBtn'].forEach(setupBtn);
 
-        function update() {
-            if(over) return;
-            x.fillStyle = 'rgba(0,0,0,0.3)'; x.fillRect(0,0,c.width,c.height);
+    function drawPlayer() {
+        x.save();
+        x.translate(p.x, p.y);
+        x.rotate(p.angle);
+        
+        // Gövde Silüeti
+        x.fillStyle = '#333';
+        x.fillRect(-15, -15, 30, 30); 
+        // Kafa
+        x.fillStyle = '#000';
+        x.beginPath(); x.arc(0, 0, 10, 0, 7); x.fill();
+        // Silah
+        x.fillStyle = '#555';
+        x.fillRect(10, 5, 20, 8); 
+        
+        x.restore();
+    }
+
+    function spawnEnemy() {
+        let r = 15 + Math.random() * 10;
+        let ex = Math.random() < 0.5 ? -r : c.width + r;
+        let ey = Math.random() * c.height;
+        ds.push({x:ex, y:ey, r, s: 1.5});
+    }
+    setInterval(spawnEnemy, 1500);
+
+    function update() {
+        x.fillStyle = '#2c3e50'; x.fillRect(0,0,c.width,c.height);
+
+        // Hareket Mantığı
+        if(keys.up) p.y -= p.speed;
+        if(keys.down) p.y += p.speed;
+        if(keys.left) { p.x -= p.speed; p.angle = Math.PI; }
+        if(keys.right) { p.x += p.speed; p.angle = 0; }
+        if(keys.up && keys.right) p.angle = -Math.PI/4;
+        if(keys.up && keys.left) p.angle = -3*Math.PI/4;
+
+        // Ateş Etme
+        if(keys.fireBtn && Date.now() % 10 === 0) { // Seri ateş kontrolü
+            ms.push({x:p.x, y:p.y, vx:Math.cos(p.angle)*10, vy:Math.sin(p.angle)*10});
+        }
+
+        drawPlayer();
+
+        // Mermiler
+        ms.forEach((m, mi) => {
+            m.x += m.vx; m.y += m.vy;
+            x.fillStyle = '#f1c40f'; x.beginPath(); x.arc(m.x, m.y, 4, 0, 7); x.fill();
+            if(m.x<0 || m.x>c.width || m.y<0 || m.y>c.height) ms.splice(mi, 1);
+        });
+
+        // Düşmanlar
+        ds.forEach((d, di) => {
+            let ang = Math.atan2(p.y - d.y, p.x - d.x);
+            d.x += Math.cos(ang) * d.s;
+            d.y += Math.sin(ang) * d.s;
             
-            // Oyuncu
-            x.fillStyle = '#00ffcc'; x.beginPath(); x.arc(p.x, p.y, p.r, 0, 7); x.fill();
+            x.fillStyle = '#e74c3c'; x.beginPath(); x.arc(d.x, d.y, d.r, 0, 7); x.fill();
 
-            // Mermiler ve Çarpışma
+            // Vurulma kontrolü
             ms.forEach((m, mi) => {
-                m.x += m.vx; m.y += m.vy;
-                x.fillStyle = '#ff0'; x.fillRect(m.x, m.y, 4, 4);
-                ds.forEach((d, di) => {
-                    if(Math.hypot(m.x-d.x, m.y-d.y) < d.r) {
-                        ds.splice(di,1); ms.splice(mi,1);
-                        score += 10; scoreEl.innerText = "Skor: " + score;
-                    }
-                });
-            });
-
-            // Düşmanlar ve Oyun Sonu
-            ds.forEach((d, i) => {
-                d.x += d.vx; d.y += d.vy;
-                x.fillStyle = '#ff4444'; x.beginPath(); x.arc(d.x, d.y, d.r, 0, 7); x.fill();
-                if(Math.hypot(p.x-d.x, p.y-d.y) < p.r + d.r) {
-                    over = true;
-                    alert("OYUN BİTTİ! Skorun: " + score);
-                    location.reload();
+                if(Math.hypot(m.x-d.x, m.y-d.y) < d.r) {
+                    ds.splice(di, 1); ms.splice(mi, 1);
+                    score += 10; document.getElementById('score').innerText = "SKOR: " + score;
                 }
             });
-            requestAnimationFrame(update);
-        }
-        update();
-    </script>
+
+            // Ölme kontrolü
+            if(Math.hypot(p.x-d.x, p.y-d.y) < p.r + d.r) {
+                alert("YAKALANDIN! Skorun: " + score);
+                location.reload();
+            }
+        });
+
+        requestAnimationFrame(update);
+    }
+    update();
+</script>
 </body>
 </html>
