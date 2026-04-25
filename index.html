@@ -2,13 +2,14 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Parkur Macera</title>
+<title>Lost World - Story Game</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
 body {
     margin: 0;
     overflow: hidden;
-    background: linear-gradient(#87CEEB, #1e1e1e);
+    background: #0b1020;
     font-family: Arial;
 }
 
@@ -16,42 +17,62 @@ canvas {
     display: block;
 }
 
+/* UI */
 #ui {
     position: fixed;
     top: 10px;
     left: 10px;
     color: white;
     z-index: 10;
-    font-size: 18px;
     text-shadow: 0 0 5px black;
 }
 
-button {
+#story {
     position: fixed;
-    bottom: 20px;
-    padding: 18px;
-    font-size: 18px;
-    border: none;
-    border-radius: 10px;
-    background: rgba(255,255,255,0.3);
+    bottom: 120px;
+    left: 50%;
+    transform: translateX(-50%);
     color: white;
+    background: rgba(0,0,0,0.5);
+    padding: 10px 20px;
+    border-radius: 10px;
+    max-width: 80%;
+    text-align: center;
 }
 
-#left { left: 20px; }
-#right { left: 110px; }
-#jump { right: 20px; }
+/* JOYSTICK */
+#joystickBase {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    width: 100px;
+    height: 100px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+}
+
+#joystick {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: white;
+    border-radius: 50%;
+    left: 30px;
+    top: 30px;
+}
 </style>
 </head>
 
 <body>
 
-<div id="ui">🏃 Mesafe: <span id="score">0</span></div>
+<div id="ui">❤️ Can: <span id="hp">100</span></div>
+<div id="story">Bir gün kaybolmuş bir dünyada uyandın...</div>
 
 <canvas id="game"></canvas>
 
-<button id="left">⬅️</button>
-<button id="right">➡️</button>
-<button id="jump">⬆️</button>
+<div id="joystickBase">
+    <div id="joystick"></div>
+</div>
 
 <script>
 const canvas = document.getElementById("game");
@@ -60,137 +81,152 @@ const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// OYUNCU
+// PLAYER
 let player = {
-    x: 80,
+    x: 100,
     y: 0,
     w: 40,
     h: 40,
-    dy: 0,
-    gravity: 0.8,
-    jumpPower: -14,
-    grounded: false
+    vx: 0,
+    vy: 0,
+    speed: 3,
+    jumpPower: -12,
+    grounded: false,
+    hp: 100
 };
 
-// ZEMİN
-let ground = canvas.height - 80;
-
-// ENGELLER
-let obstacles = [];
+// WORLD
+let ground = canvas.height - 100;
 let cameraX = 0;
-let score = 0;
 
-// ENGEL ÜRET
-function spawnObstacle(){
-    obstacles.push({
-        x: cameraX + canvas.width + Math.random()*300,
-        y: ground - 40,
-        w: 40,
-        h: 40
-    });
-}
+// PLATFORMS
+let platforms = [
+    {x:0, y:ground, w:2000, h:100},
+    {x:300, y:ground-120, w:120, h:20},
+    {x:600, y:ground-200, w:120, h:20},
+    {x:950, y:ground-150, w:120, h:20},
+];
 
-setInterval(spawnObstacle, 1500);
+// STORY TRIGGERS
+let storyStep = 0;
+let stories = [
+    "Bir gün kaybolmuş bir dünyada uyandın...",
+    "Buradan çıkmanın tek yolu ilerlemek...",
+    "Ama bu dünya seni test ediyor...",
+    "Gerçek çıkış en sonda..."
+];
 
-// GRAVITY
-function updatePlayer(){
-    player.dy += player.gravity;
-    player.y += player.dy;
-
-    if(player.y + player.h >= ground){
-        player.y = ground - player.h;
-        player.dy = 0;
-        player.grounded = true;
-    } else {
-        player.grounded = false;
-    }
-}
-
-// ÇİZİM PLAYER
+// DRAW PLAYER
 function drawPlayer(){
-    ctx.fillStyle = "#00ff99";
-    ctx.fillRect(player.x, player.y, player.w, player.h);
-
-    // basit yüz efekti
-    ctx.fillStyle = "black";
-    ctx.fillRect(player.x+10, player.y+10, 5, 5);
-    ctx.fillRect(player.x+25, player.y+10, 5, 5);
+    ctx.fillStyle = "#00ffcc";
+    ctx.fillRect(player.x - cameraX, player.y, player.w, player.h);
 }
 
-// ENGELLER
-function drawObstacles(){
-    ctx.fillStyle = "#ff4444";
+// DRAW WORLD
+function drawPlatforms(){
+    ctx.fillStyle = "#444";
 
-    obstacles.forEach((o,i)=>{
-        o.x -= 5;
-
-        ctx.fillRect(o.x - cameraX, o.y, o.w, o.h);
-
-        // çarpışma
-        if(player.x < o.x - cameraX + o.w &&
-           player.x + player.w > o.x - cameraX &&
-           player.y < o.y + o.h &&
-           player.y + player.h > o.y){
-            alert("OYUN BİTTİ 💥");
-            location.reload();
-        }
-
-        if(o.x < cameraX - 200){
-            obstacles.splice(i,1);
-        }
+    platforms.forEach(p=>{
+        ctx.fillRect(p.x - cameraX, p.y, p.w, p.h);
     });
 }
 
-// ZEMİN
-function drawGround(){
-    ctx.fillStyle = "#333";
-    ctx.fillRect(0, ground, canvas.width, 100);
+// PHYSICS
+function update(){
+    player.vy += 0.6;
+    player.y += player.vy;
+    player.x += player.vx;
+
+    player.grounded = false;
+
+    platforms.forEach(p=>{
+        if(player.x < p.x + p.w &&
+           player.x + player.w > p.x &&
+           player.y + player.h < p.y + 10 &&
+           player.y + player.h + player.vy >= p.y){
+
+            player.y = p.y - player.h;
+            player.vy = 0;
+            player.grounded = true;
+        }
+    });
+
+    cameraX = player.x - 100;
 }
 
-// SKOR
-function updateScore(){
-    score += 1;
-    document.getElementById("score").innerText = score;
+// STORY UPDATE
+function updateStory(){
+    if(player.x > 250 && storyStep === 0){
+        storyStep = 1;
+        document.getElementById("story").innerText = stories[1];
+    }
+    if(player.x > 600 && storyStep === 1){
+        storyStep = 2;
+        document.getElementById("story").innerText = stories[2];
+    }
+    if(player.x > 950 && storyStep === 2){
+        storyStep = 3;
+        document.getElementById("story").innerText = stories[3];
+    }
 }
 
 // LOOP
-function gameLoop(){
+function loop(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    cameraX += 4;
+    update();
+    updateStory();
 
-    updatePlayer();
-
-    drawGround();
+    drawPlatforms();
     drawPlayer();
-    drawObstacles();
 
-    updateScore();
+    if(player.hp <= 0){
+        alert("OYUN BİTTİ");
+        location.reload();
+    }
 
-    requestAnimationFrame(gameLoop);
+    requestAnimationFrame(loop);
 }
 
-gameLoop();
+loop();
 
-// CONTROLS
-document.getElementById("jump").ontouchstart = ()=>{
-    if(player.grounded){
-        player.dy = player.jumpPower;
-    }
-};
+// JOYSTICK
+let joystick = document.getElementById("joystick");
+let base = document.getElementById("joystickBase");
 
-document.getElementById("left").ontouchstart = ()=>{
-    player.x -= 10;
-};
+let dragging = false;
+let center = {x:50, y:50};
 
-document.getElementById("right").ontouchstart = ()=>{
-    player.x += 10;
-};
+base.addEventListener("touchstart", e=>{
+    dragging = true;
+});
 
-// PC
-document.addEventListener("keydown",(e)=>{
-    if(e.key===" " && player.grounded){
-        player.dy = player.jumpPower;
+base.addEventListener("touchend", e=>{
+    dragging = false;
+    joystick.style.left = "30px";
+    joystick.style.top = "30px";
+    player.vx = 0;
+});
+
+base.addEventListener("touchmove", e=>{
+    if(!dragging) return;
+
+    let touch = e.touches[0];
+    let rect = base.getBoundingClientRect();
+
+    let dx = touch.clientX - rect.left - 50;
+    let dy = touch.clientY - rect.top - 50;
+
+    joystick.style.left = (30 + dx*0.2) + "px";
+    joystick.style.top = (30 + dy*0.2) + "px";
+
+    player.vx = dx * 0.05;
+});
+
+// JUMP
+document.addEventListener("keydown", e=>{
+    if(e.key === " " && player.grounded){
+        player.vy = player.jumpPower;
     }
 });
 </script>
