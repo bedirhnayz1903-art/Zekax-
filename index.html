@@ -2,232 +2,296 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Lost World - Story Game</title>
+<title>Lost World - PRO</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body {
-    margin: 0;
-    overflow: hidden;
-    background: #0b1020;
-    font-family: Arial;
+body{
+  margin:0;
+  overflow:hidden;
+  background: linear-gradient(#1b2a49, #0b1020);
+  font-family: Arial;
 }
 
-canvas {
-    display: block;
+canvas{
+  display:block;
 }
 
 /* UI */
-#ui {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    color: white;
-    z-index: 10;
-    text-shadow: 0 0 5px black;
+#ui{
+  position:fixed;
+  top:10px;
+  left:10px;
+  color:white;
+  z-index:10;
+  font-size:16px;
+  text-shadow:0 0 5px black;
 }
 
-#story {
-    position: fixed;
-    bottom: 120px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: white;
-    background: rgba(0,0,0,0.5);
-    padding: 10px 20px;
-    border-radius: 10px;
-    max-width: 80%;
-    text-align: center;
+#story{
+  position:fixed;
+  bottom:140px;
+  left:50%;
+  transform:translateX(-50%);
+  color:white;
+  background:rgba(0,0,0,0.5);
+  padding:10px 20px;
+  border-radius:10px;
+  text-align:center;
 }
 
-/* JOYSTICK */
-#joystickBase {
-    position: fixed;
-    bottom: 30px;
-    left: 30px;
-    width: 100px;
-    height: 100px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 50%;
+/* joystick */
+#base{
+  position:fixed;
+  bottom:30px;
+  left:30px;
+  width:110px;
+  height:110px;
+  background:rgba(255,255,255,0.1);
+  border-radius:50%;
 }
 
-#joystick {
-    position: absolute;
-    width: 40px;
-    height: 40px;
-    background: white;
-    border-radius: 50%;
-    left: 30px;
-    top: 30px;
+#stick{
+  position:absolute;
+  width:45px;
+  height:45px;
+  background:white;
+  border-radius:50%;
+  left:32px;
+  top:32px;
+}
+
+/* jump */
+#jump{
+  position:fixed;
+  bottom:40px;
+  right:30px;
+  padding:18px;
+  border:none;
+  border-radius:10px;
+  font-size:18px;
+  background:rgba(255,255,255,0.2);
+  color:white;
 }
 </style>
 </head>
 
 <body>
 
-<div id="ui">❤️ Can: <span id="hp">100</span></div>
-<div id="story">Bir gün kaybolmuş bir dünyada uyandın...</div>
-
-<canvas id="game"></canvas>
-
-<div id="joystickBase">
-    <div id="joystick"></div>
+<div id="ui">
+❤️ Can: <span id="hp">100</span> |
+🪙 Coin: <span id="coin">0</span>
 </div>
 
-<script>
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+<div id="story">Uyanıyorsun... Bu dünya seni test ediyor.</div>
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+<canvas id="c"></canvas>
+
+<div id="base"><div id="stick"></div></div>
+<button id="jump">⬆️ Zıpla</button>
+
+<script>
+const c = document.getElementById("c");
+const ctx = c.getContext("2d");
+
+c.width = innerWidth;
+c.height = innerHeight;
 
 // PLAYER
-let player = {
-    x: 100,
-    y: 0,
-    w: 40,
-    h: 40,
-    vx: 0,
-    vy: 0,
-    speed: 3,
-    jumpPower: -12,
-    grounded: false,
-    hp: 100
+let p = {
+  x:100,
+  y:0,
+  w:40,
+  h:40,
+  vx:0,
+  vy:0,
+  speed:4,
+  jump:-12,
+  grounded:false,
+  canDouble:true,
+  hp:100
 };
 
 // WORLD
-let ground = canvas.height - 100;
-let cameraX = 0;
+let ground = c.height - 100;
+let camera = 0;
 
-// PLATFORMS
-let platforms = [
-    {x:0, y:ground, w:2000, h:100},
-    {x:300, y:ground-120, w:120, h:20},
-    {x:600, y:ground-200, w:120, h:20},
-    {x:950, y:ground-150, w:120, h:20},
+// COINS
+let coins = [
+  {x:300,y:ground-60},
+  {x:600,y:ground-120},
+  {x:900,y:ground-60},
+  {x:1200,y:ground-120}
 ];
 
-// STORY TRIGGERS
+let coinCount = 0;
+
+// CHECKPOINT
+let checkpoint = {x:0,y:ground-40};
+
+// PLATFORMS
+let plat = [
+  {x:0,y:ground,w:3000,h:100},
+  {x:300,y:ground-100,w:120,h:20},
+  {x:600,y:ground-180,w:120,h:20},
+  {x:900,y:ground-120,w:120,h:20},
+  {x:1200,y:ground-180,w:120,h:20},
+  {x:1500,y:ground-100,w:120,h:20}
+];
+
+// STORY
 let storyStep = 0;
 let stories = [
-    "Bir gün kaybolmuş bir dünyada uyandın...",
-    "Buradan çıkmanın tek yolu ilerlemek...",
-    "Ama bu dünya seni test ediyor...",
-    "Gerçek çıkış en sonda..."
+  "Uyanıyorsun... Bu dünya seni test ediyor.",
+  "Coinleri topla ve ilerle...",
+  "Checkpoint'e ulaştın...",
+  "Gerçek yol artık açıldı..."
 ];
 
 // DRAW PLAYER
 function drawPlayer(){
-    ctx.fillStyle = "#00ffcc";
-    ctx.fillRect(player.x - cameraX, player.y, player.w, player.h);
+  ctx.fillStyle="#00ffcc";
+  ctx.fillRect(p.x-camera,p.y,p.w,p.h);
 }
 
 // DRAW WORLD
-function drawPlatforms(){
-    ctx.fillStyle = "#444";
+function drawWorld(){
+  ctx.fillStyle="#333";
+  plat.forEach(pl=>{
+    ctx.fillRect(pl.x-camera,pl.y,pl.w,pl.h);
+  });
+}
 
-    platforms.forEach(p=>{
-        ctx.fillRect(p.x - cameraX, p.y, p.w, p.h);
-    });
+// COINS
+function drawCoins(){
+  ctx.fillStyle="gold";
+  coins.forEach((co,i)=>{
+    ctx.beginPath();
+    ctx.arc(co.x-camera,co.y,10,0,Math.PI*2);
+    ctx.fill();
+
+    if(Math.abs(p.x-co.x)<30 && Math.abs(p.y-co.y)<30){
+      coins.splice(i,1);
+      coinCount++;
+      document.getElementById("coin").innerText=coinCount;
+    }
+  });
 }
 
 // PHYSICS
 function update(){
-    player.vy += 0.6;
-    player.y += player.vy;
-    player.x += player.vx;
+  p.vy += 0.6;
+  p.y += p.vy;
+  p.x += p.vx;
 
-    player.grounded = false;
+  p.grounded=false;
 
-    platforms.forEach(p=>{
-        if(player.x < p.x + p.w &&
-           player.x + player.w > p.x &&
-           player.y + player.h < p.y + 10 &&
-           player.y + player.h + player.vy >= p.y){
+  plat.forEach(pl=>{
+    if(p.x < pl.x+pl.w &&
+       p.x+p.w > pl.x &&
+       p.y+p.h < pl.y+10 &&
+       p.y+p.h+p.vy >= pl.y){
 
-            player.y = p.y - player.h;
-            player.vy = 0;
-            player.grounded = true;
-        }
-    });
+      p.y = pl.y - p.h;
+      p.vy = 0;
+      p.grounded = true;
+      p.canDouble = true;
+    }
+  });
 
-    cameraX = player.x - 100;
+  // death
+  if(p.y > c.height){
+    respawn();
+  }
+
+  camera = p.x - 150;
 }
 
-// STORY UPDATE
+// CHECKPOINT
+function checkCheckpoint(){
+  if(p.x > 800){
+    checkpoint = {x:p.x,y:p.y};
+    document.getElementById("story").innerText = stories[2];
+  }
+}
+
+// RESPAWN
+function respawn(){
+  p.x = checkpoint.x;
+  p.y = checkpoint.y;
+  p.hp -= 20;
+  document.getElementById("hp").innerText=p.hp;
+}
+
+// STORY
 function updateStory(){
-    if(player.x > 250 && storyStep === 0){
-        storyStep = 1;
-        document.getElementById("story").innerText = stories[1];
-    }
-    if(player.x > 600 && storyStep === 1){
-        storyStep = 2;
-        document.getElementById("story").innerText = stories[2];
-    }
-    if(player.x > 950 && storyStep === 2){
-        storyStep = 3;
-        document.getElementById("story").innerText = stories[3];
-    }
+  if(p.x>200 && storyStep===0){
+    storyStep=1;
+    document.getElementById("story").innerText=stories[1];
+  }
+  if(p.x>800 && storyStep===1){
+    storyStep=2;
+  }
 }
 
 // LOOP
 function loop(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.clearRect(0,0,c.width,c.height);
 
-    update();
-    updateStory();
+  update();
+  checkCheckpoint();
+  updateStory();
 
-    drawPlatforms();
-    drawPlayer();
+  drawWorld();
+  drawCoins();
+  drawPlayer();
 
-    if(player.hp <= 0){
-        alert("OYUN BİTTİ");
-        location.reload();
-    }
-
-    requestAnimationFrame(loop);
+  requestAnimationFrame(loop);
 }
 
 loop();
 
 // JOYSTICK
-let joystick = document.getElementById("joystick");
-let base = document.getElementById("joystickBase");
+let base=document.getElementById("base");
+let stick=document.getElementById("stick");
 
-let dragging = false;
-let center = {x:50, y:50};
+let dragging=false;
 
-base.addEventListener("touchstart", e=>{
-    dragging = true;
+base.addEventListener("touchstart",()=>dragging=true);
+base.addEventListener("touchend",()=>{
+  dragging=false;
+  stick.style.left="32px";
+  stick.style.top="32px";
+  p.vx=0;
 });
 
-base.addEventListener("touchend", e=>{
-    dragging = false;
-    joystick.style.left = "30px";
-    joystick.style.top = "30px";
-    player.vx = 0;
-});
+base.addEventListener("touchmove",(e)=>{
+  if(!dragging)return;
 
-base.addEventListener("touchmove", e=>{
-    if(!dragging) return;
+  let t=e.touches[0];
+  let r=base.getBoundingClientRect();
 
-    let touch = e.touches[0];
-    let rect = base.getBoundingClientRect();
+  let dx=t.clientX - r.left - 55;
 
-    let dx = touch.clientX - rect.left - 50;
-    let dy = touch.clientY - rect.top - 50;
+  stick.style.left=(32+dx*0.2)+"px";
 
-    joystick.style.left = (30 + dx*0.2) + "px";
-    joystick.style.top = (30 + dy*0.2) + "px";
-
-    player.vx = dx * 0.05;
+  p.vx = dx*0.05;
 });
 
 // JUMP
-document.addEventListener("keydown", e=>{
-    if(e.key === " " && player.grounded){
-        player.vy = player.jumpPower;
-    }
+document.getElementById("jump").ontouchstart=()=>{
+  if(p.grounded){
+    p.vy=p.jump;
+  }else if(p.canDouble){
+    p.vy=p.jump;
+    p.canDouble=false;
+  }
+};
+
+document.addEventListener("keydown",(e)=>{
+  if(e.key===" " && p.grounded){
+    p.vy=p.jump;
+  }
 });
 </script>
 
