@@ -3,39 +3,58 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mobil 2D Oyun</title>
+<title>Pro Mobil Oyun</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-<style>
+<div id="hud">
+    ❤️ HP: <span id="hp">100</span> | 💰 Coin: <span id="coin">0</span>
+</div>
+
+<canvas id="game"></canvas>
+
+<!-- Mobil Kontroller -->
+<div class="controls">
+    <button id="left">◀</button>
+    <button id="right">▶</button>
+    <button id="jump">⤒</button>
+    <button id="shoot">🔥</button>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>
+
+
+
 body {
     margin: 0;
     overflow: hidden;
-    background: #222;
+    background: #111;
+    font-family: Arial;
 }
 
 canvas {
     display: block;
-    margin: auto;
-    background: #eee;
+    background: #eaeaea;
 }
 
-/* Butonlar */
+#hud {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    color: white;
+    font-size: 16px;
+    z-index: 10;
+}
+
 .controls {
     position: fixed;
-    bottom: 20px;
+    bottom: 15px;
     width: 100%;
     display: flex;
-    justify-content: space-between;
-    padding: 0 20px;
-}
-
-.left-controls {
-    display: flex;
-    gap: 10px;
-}
-
-.right-controls {
-    display: flex;
-    gap: 10px;
+    justify-content: space-around;
 }
 
 button {
@@ -43,153 +62,166 @@ button {
     height: 70px;
     border-radius: 50%;
     border: none;
-    font-size: 20px;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.6);
     color: white;
+    font-size: 18px;
 }
-</style>
-</head>
 
-<body>
-
-<canvas id="game"></canvas>
-
-<div class="controls">
-    <div class="left-controls">
-        <button id="left">◀</button>
-        <button id="right">▶</button>
-    </div>
-    <div class="right-controls">
-        <button id="jump">⤒</button>
-        <button id="shoot">🔥</button>
-    </div>
-</div>
-
-<script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
 canvas.width = window.innerWidth;
-canvas.height = window.innerHeight * 0.8;
+canvas.height = window.innerHeight * 0.75;
 
-// Oyuncu
+// PLAYER
 let player = {
     x: 100,
-    y: canvas.height - 100,
+    y: 300,
     w: 40,
     h: 50,
     velY: 0,
     speed: 5,
-    jumping: false
+    jumping: false,
+    hp: 100
 };
 
-// Düşman
-let enemy = {
-    x: canvas.width - 100,
-    y: canvas.height - 100,
-    w: 40,
-    h: 50
-};
+// ENEMY AI
+let enemies = [
+    {x: 500, y: 300, w: 40, h: 50, dir: 1, hp: 30}
+];
 
+// BULLETS
 let bullets = [];
-const gravity = 0.5;
 
-// Dokunma durumları
-let moveLeft = false;
-let moveRight = false;
+// COINS
+let coins = [];
 
-// Butonlar
-const leftBtn = document.getElementById("left");
-const rightBtn = document.getElementById("right");
-const jumpBtn = document.getElementById("jump");
-const shootBtn = document.getElementById("shoot");
+const gravity = 0.6;
 
-// Hareket
-leftBtn.ontouchstart = () => moveLeft = true;
-leftBtn.ontouchend = () => moveLeft = false;
+let keys = {
+    left:false,
+    right:false
+};
 
-rightBtn.ontouchstart = () => moveRight = true;
-rightBtn.ontouchend = () => moveRight = false;
+// CONTROLS
+document.getElementById("left").onmousedown = () => keys.left = true;
+document.getElementById("left").onmouseup = () => keys.left = false;
 
-// Zıplama
-jumpBtn.ontouchstart = () => {
-    if (!player.jumping) {
+document.getElementById("right").onmousedown = () => keys.right = true;
+document.getElementById("right").onmouseup = () => keys.right = false;
+
+document.getElementById("jump").onclick = () => {
+    if(!player.jumping){
         player.velY = -12;
         player.jumping = true;
     }
 };
 
-// Ateş
-shootBtn.ontouchstart = () => {
+document.getElementById("shoot").onclick = () => {
     bullets.push({
-        x: player.x + player.w,
+        x: player.x + 40,
         y: player.y + 20,
         w: 10,
         h: 5,
-        speed: 10
+        speed: 8
     });
 };
 
-// Çarpışma
-function collide(a, b) {
+// COLLISION
+function hit(a,b){
     return a.x < b.x + b.w &&
            a.x + a.w > b.x &&
            a.y < b.y + b.h &&
            a.y + a.h > b.y;
 }
 
-function update() {
-    if (moveLeft) player.x -= player.speed;
-    if (moveRight) player.x += player.speed;
+function update(){
+    // MOVE
+    if(keys.left) player.x -= player.speed;
+    if(keys.right) player.x += player.speed;
 
+    // GRAVITY
     player.velY += gravity;
     player.y += player.velY;
 
-    if (player.y >= canvas.height - 100) {
-        player.y = canvas.height - 100;
+    if(player.y > 300){
+        player.y = 300;
         player.jumping = false;
     }
 
-    bullets.forEach((b, i) => {
+    // ENEMY AI
+    enemies.forEach(e=>{
+        e.x += e.dir * 2;
+        if(e.x < 300 || e.x > 700) e.dir *= -1;
+    });
+
+    // BULLETS
+    bullets.forEach((b,i)=>{
         b.x += b.speed;
 
-        if (collide(b, enemy)) {
-            console.log("Düşman vuruldu!");
-            bullets.splice(i, 1);
-        }
+        enemies.forEach(e=>{
+            if(hit(b,e)){
+                e.hp -= 10;
+                bullets.splice(i,1);
 
-        if (b.x > canvas.width) {
-            bullets.splice(i, 1);
+                coins.push({x:e.x,y:e.y,w:15,h:15});
+            }
+        });
+    });
+
+    // COINS
+    coins.forEach((c,i)=>{
+        if(hit(player,c)){
+            document.getElementById("coin").innerText++;
+            coins.splice(i,1);
         }
+    });
+
+    // DAMAGE
+    enemies.forEach(e=>{
+        if(hit(player,e)){
+            player.hp -= 1;
+        }
+    });
+
+    document.getElementById("hp").innerText = Math.floor(player.hp);
+
+    if(player.hp <= 0){
+        alert("OYUN BİTTİ");
+        location.reload();
+    }
+}
+
+function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    // PLAYER
+    ctx.fillStyle="blue";
+    ctx.fillRect(player.x,player.y,player.w,player.h);
+
+    // ENEMY
+    ctx.fillStyle="red";
+    enemies.forEach(e=>{
+        ctx.fillRect(e.x,e.y,e.w,e.h);
+    });
+
+    // BULLETS
+    ctx.fillStyle="black";
+    bullets.forEach(b=>{
+        ctx.fillRect(b.x,b.y,b.w,b.h);
+    });
+
+    // COINS
+    ctx.fillStyle="gold";
+    coins.forEach(c=>{
+        ctx.fillRect(c.x,c.y,c.w,c.h);
     });
 }
 
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Oyuncu
-    ctx.fillStyle = "blue";
-    ctx.fillRect(player.x, player.y, player.w, player.h);
-
-    // Düşman
-    ctx.fillStyle = "red";
-    ctx.fillRect(enemy.x, enemy.y, enemy.w, enemy.h);
-
-    // Mermiler
-    ctx.fillStyle = "black";
-    bullets.forEach(b => {
-        ctx.fillRect(b.x, b.y, b.w, b.h);
-    });
-}
-
-function loop() {
+function loop(){
     update();
     draw();
     requestAnimationFrame(loop);
 }
 
 loop();
-</script>
-
-</body>
-</html>
